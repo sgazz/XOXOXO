@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct GameView: View {
     @StateObject private var gameLogic = GameLogic()
     @State private var isAIEnabled = true
     
@@ -37,19 +37,53 @@ struct ContentView: View {
         GeometryReader { geometry in
             ScrollView(.vertical, showsIndicators: true) {
                 VStack(spacing: 20) {
-                    // Header section with controls
-                    Group {
-                        if isIPad {
-                            HStack {
-                                headerContent
-                            }
-                            .padding(.horizontal)
-                        } else {
-                            VStack {
-                                headerContent
-                            }
-                            .padding(.horizontal)
+                    // Header section
+                    VStack(spacing: 10) {
+                        // Score display
+                        HStack(spacing: 15) {
+                            Text("\(gameLogic.totalScore.x)")
+                                .foregroundColor(.blue)
+                                .font(isIPad ? .system(size: 48, weight: .bold) : .system(size: 36, weight: .bold))
+                            
+                            Text(":")
+                                .font(isIPad ? .system(size: 48, weight: .bold) : .system(size: 36, weight: .bold))
+                                .foregroundColor(.gray)
+                            
+                            Text("\(gameLogic.totalScore.o)")
+                                .foregroundColor(.red)
+                                .font(isIPad ? .system(size: 48, weight: .bold) : .system(size: 36, weight: .bold))
                         }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color(.systemBackground))
+                                .shadow(color: .gray.opacity(0.2), radius: 5, x: 0, y: 2)
+                        )
+                        
+                        // AI Button
+                        Button(action: {
+                            if !gameLogic.boards.flatMap({ $0 }).contains(where: { $0 != "" }) {
+                                isAIEnabled.toggle()
+                            }
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: isAIEnabled ? "cpu.fill" : "cpu")
+                                Text(isAIEnabled ? "AI: ON" : "AI: OFF")
+                            }
+                            .font(isIPad ? .title3 : .headline)
+                            .foregroundColor(isAIEnabled ? .white : .blue)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(isAIEnabled ? Color.blue : Color.clear)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.blue, lineWidth: isAIEnabled ? 0 : 2)
+                                    )
+                            )
+                        }
+                        .opacity(gameLogic.boards.flatMap({ $0 }).contains(where: { $0 != "" }) ? 0.5 : 1.0)
                     }
                     .padding(.top, isIPad ? 20 : 10)
                     
@@ -84,7 +118,7 @@ struct ContentView: View {
                     .padding(.bottom, geometry.safeAreaInsets.bottom + 20)
                     
                     if gameLogic.gameOver {
-                        Text(gameLogic.winner != nil ? "Winner: \(gameLogic.winner!)" : "Draw!")
+                        Text(gameLogic.winner != nil ? "Tournament Winner: \(gameLogic.winner!)" : "Tournament Draw!")
                             .font(isIPad ? .title : .title2)
                             .padding()
                     }
@@ -95,28 +129,11 @@ struct ContentView: View {
             .background(Color(.systemBackground))
         }
     }
-    
-    private var headerContent: some View {
-        Group {
-            Text("XO Tournament")
-                .font(isIPad ? .largeTitle : .title)
-                .padding(.bottom, 5)
-            
-            HStack {
-                Button("Reset All") {
-                    gameLogic.resetGame()
-                }
-                .font(isIPad ? .title2 : .headline)
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                
-                Toggle("AI", isOn: $isAIEnabled)
-                    .padding()
-                    .disabled(gameLogic.boards.flatMap { $0 }.contains { $0 != "" })
-            }
-        }
+}
+
+struct ContentView: View {
+    var body: some View {
+        SplashView()
     }
 }
 
