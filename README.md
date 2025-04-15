@@ -2,38 +2,40 @@
 
 Необична верзија игре Икс-Окс (Tic-Tac-Toe) написана у SwiftUI.
 
-## Функционалности
+An unusual version of Tic-Tac-Toe written in SwiftUI.
 
-- 6 табли за игру (3x2 распоред)
-- Игра против АИ противника
-- Визуелна индикација активне табле
-- Аутоматско пребацивање на следећу таблу након потеза
-- Провера победника за сваку таблу
+## Функционалности / Features
 
-## Структура пројекта
+- 6 табли за игру (3x2 распоред) / 6 game boards (3x2 layout)
+- Игра против АИ противника / Play against AI opponent
+- Визуелна индикација активне табле / Visual indication of active board
+- Аутоматско пребацивање на следећу таблу / Automatic switching to next board
+- Провера победника за сваку таблу / Winner check for each board
 
-- `Game/` - Логика игре
-  - `GameLogic.swift` - Главна логика игре
-  - `TicTacToeAI.swift` - АИ противник
-- `Views/` - UI компоненте
-  - `BoardView.swift` - Компоненте за приказ табле
+## Структура пројекта / Project Structure
 
-## Захтеви
+- `Game/` - Game Logic
+  - `GameLogic.swift` - Main game logic
+  - `TicTacToeAI.swift` - AI opponent implementation
+- `Views/` - UI Components
+  - `BoardView.swift` - Board display components
+
+## Захтеви / Requirements
 
 - iOS 15.0+
 - Xcode 13.0+
 - Swift 5.5+
 
-## Инсталација
+## Инсталација / Installation
 
-1. Клонирајте репозиторијум
+1. Клонирајте репозиторијум / Clone the repository
 ```bash
 git clone https://github.com/sgazz/XOXOXO.git
 ```
 
-2. Отворите `XOXOXO.xcodeproj` у Xcode
-3. Покрените пројекат (⌘R)
+2. Отворите `XOXOXO.xcodeproj` у Xcode / Open `XOXOXO.xcodeproj` in Xcode
+3. Покрените пројекат (⌘R) / Run the project (⌘R)
 
-## Лиценца
+## Лиценца / License
 
 MIT License 

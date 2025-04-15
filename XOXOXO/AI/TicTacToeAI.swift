@@ -6,26 +6,26 @@ class TicTacToeAI {
     private init() {}
     
     func makeMove(in board: [String]) -> Int? {
-        // Прво проверавамо да ли АИ може да победи у следећем потезу
+        // First, check if AI can win in the next move
         if let winningMove = findWinningMove(for: "O", in: board) {
             return winningMove
         }
         
-        // Затим проверавамо да ли треба да блокирамо победу играча
+        // Then check if we need to block player's winning move
         if let blockingMove = findWinningMove(for: "X", in: board) {
             return blockingMove
         }
         
-        // Ако нема победничког потеза, бирамо случајно празно поље
+        // If no winning moves, choose a random empty spot
         let emptySpots = board.enumerated().filter { $0.element.isEmpty }.map { $0.offset }
         return emptySpots.randomElement()
     }
     
     private func findWinningMove(for player: String, in board: [String]) -> Int? {
         let winningCombinations = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // хоризонтално
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // вертикално
-            [0, 4, 8], [2, 4, 6]             // дијагонално
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // horizontal
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // vertical
+            [0, 4, 8], [2, 4, 6]             // diagonal
         ]
         
         for combination in winningCombinations {
