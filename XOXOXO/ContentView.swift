@@ -68,7 +68,8 @@ struct ContentView: View {
                                 onTap: { position in
                                     if gameLogic.boards[index][position].isEmpty && 
                                        !gameLogic.isThinking && 
-                                       gameLogic.currentPlayer == "X" {
+                                       gameLogic.currentPlayer == "X" &&
+                                       gameLogic.currentBoard == index {
                                         gameLogic.makeMove(at: position, in: index)
                                         if isAIEnabled && !gameLogic.gameOver {
                                             gameLogic.makeAIMove(in: index) {}

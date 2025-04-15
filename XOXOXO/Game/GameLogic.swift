@@ -30,6 +30,9 @@ class GameLogic: ObservableObject {
         checkWinner(in: boardIndex)
         if !gameOver {
             currentPlayer = currentPlayer == "X" ? "O" : "X"
+            if currentPlayer == "X" {  // Only update board after AI's move
+                currentBoard = (boardIndex + 1) % Self.BOARD_COUNT
+            }
         }
     }
     
@@ -40,7 +43,6 @@ class GameLogic: ObservableObject {
                 self.makeMove(at: aiMove, in: boardIndex)
             }
             self.isThinking = false
-            self.currentBoard = (boardIndex + 1) % Self.BOARD_COUNT
             completion()
         }
     }
