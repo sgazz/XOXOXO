@@ -1,0 +1,72 @@
+import Foundation
+
+class GameLogic: ObservableObject {
+    @Published var boards: [[String]]
+    @Published var currentBoard: Int
+    @Published var currentPlayer: String
+    @Published var gameOver: Bool
+    @Published var winner: String?
+    @Published var isThinking: Bool
+    
+    static let winningCombinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // хоризонтално
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // вертикално
+        [0, 4, 8], [2, 4, 6]             // дијагонално
+    ]
+    
+    init() {
+        self.boards = Array(repeating: Array(repeating: "", count: 9), count: 6)
+        self.currentBoard = 0
+        self.currentPlayer = "X"
+        self.gameOver = false
+        self.winner = nil
+        self.isThinking = false
+    }
+    
+    func makeMove(at position: Int, in boardIndex: Int) {
+        boards[boardIndex][position] = currentPlayer
+        checkWinner(in: boardIndex)
+        if !gameOver {
+            currentPlayer = currentPlayer == "X" ? "O" : "X"
+        }
+    }
+    
+    func makeAIMove(in boardIndex: Int, completion: @escaping () -> Void) {
+        isThinking = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if let aiMove = TicTacToeAI.shared.makeMove(in: self.boards[boardIndex]) {
+                self.makeMove(at: aiMove, in: boardIndex)
+            }
+            self.isThinking = false
+            self.currentBoard = (boardIndex + 1) % 6
+            completion()
+        }
+    }
+    
+    private func checkWinner(in boardIndex: Int) {
+        for combination in Self.winningCombinations {
+            if boards[boardIndex][combination[0]] != "" &&
+               boards[boardIndex][combination[0]] == boards[boardIndex][combination[1]] &&
+               boards[boardIndex][combination[1]] == boards[boardIndex][combination[2]] {
+                gameOver = true
+                winner = boards[boardIndex][combination[0]]
+                return
+            }
+        }
+        
+        if !boards[boardIndex].contains("") {
+            if !boards.contains(where: { $0.contains("") }) {
+                gameOver = true
+            }
+        }
+    }
+    
+    func resetGame() {
+        boards = Array(repeating: Array(repeating: "", count: 9), count: 6)
+        currentBoard = 0
+        currentPlayer = "X"
+        gameOver = false
+        winner = nil
+        isThinking = false
+    }
+} 
