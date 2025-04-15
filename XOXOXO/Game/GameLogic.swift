@@ -1,6 +1,8 @@
 import Foundation
 
 class GameLogic: ObservableObject {
+    static let BOARD_COUNT = 8 // Increased from 6 to 8 boards
+    
     @Published var boards: [[String]]
     @Published var currentBoard: Int
     @Published var currentPlayer: String
@@ -15,7 +17,7 @@ class GameLogic: ObservableObject {
     ]
     
     init() {
-        self.boards = Array(repeating: Array(repeating: "", count: 9), count: 6)
+        self.boards = Array(repeating: Array(repeating: "", count: 9), count: Self.BOARD_COUNT)
         self.currentBoard = 0
         self.currentPlayer = "X"
         self.gameOver = false
@@ -38,7 +40,7 @@ class GameLogic: ObservableObject {
                 self.makeMove(at: aiMove, in: boardIndex)
             }
             self.isThinking = false
-            self.currentBoard = (boardIndex + 1) % 6
+            self.currentBoard = (boardIndex + 1) % Self.BOARD_COUNT
             completion()
         }
     }
@@ -62,7 +64,7 @@ class GameLogic: ObservableObject {
     }
     
     func resetGame() {
-        boards = Array(repeating: Array(repeating: "", count: 9), count: 6)
+        boards = Array(repeating: Array(repeating: "", count: 9), count: Self.BOARD_COUNT)
         currentBoard = 0
         currentPlayer = "X"
         gameOver = false

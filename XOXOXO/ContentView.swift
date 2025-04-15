@@ -11,38 +11,54 @@ struct ContentView: View {
     @StateObject private var gameLogic = GameLogic()
     @State private var isAIEnabled = true
     
+    // Dynamic layout properties
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    
+    private var isIPad: Bool {
+        horizontalSizeClass == .regular && verticalSizeClass == .regular
+    }
+    
+    private var isLandscape: Bool {
+        verticalSizeClass == .compact
+    }
+    
+    private var gridLayout: [GridItem] {
+        if isLandscape {
+            // In landscape, show 8 boards in 2 rows of 4
+            Array(repeating: GridItem(.flexible(), spacing: 20), count: 4)
+        } else {
+            // In portrait, show 8 boards in 4 rows of 2
+            Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+        }
+    }
+    
     var body: some View {
-        VStack(spacing: 10) {
-            HStack {
-                Button("Reset All") {
-                    gameLogic.resetGame()
-                }
-                .font(.headline)
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                
-                Toggle("AI", isOn: $isAIEnabled)
-                    .padding()
-                    .disabled(gameLogic.boards.flatMap { $0 }.contains { $0 != "" })
-            }
-            
-            Text("XOXOXO")
-                .font(.title)
-                .padding(.bottom, 5)
-            
-            if gameLogic.isThinking {
-                Text("AI is thinking...")
-                    .foregroundColor(.blue)
-                    .font(.caption)
-            }
-            
-            VStack(spacing: 15) {
-                ForEach(0..<3) { row in
-                    HStack(spacing: 15) {
-                        ForEach(0..<2) { col in
-                            let index = row * 2 + col
+        GeometryReader { geometry in
+            ScrollView(.vertical, showsIndicators: true) {
+                VStack(spacing: 20) {
+                    // Header section with controls
+                    Group {
+                        if isIPad {
+                            HStack {
+                                headerContent
+                            }
+                            .padding(.horizontal)
+                        } else {
+                            VStack {
+                                headerContent
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                    .padding(.top, isIPad ? 20 : 10)
+                    
+                    // Game boards grid
+                    LazyVGrid(
+                        columns: gridLayout,
+                        spacing: isIPad ? 30 : 20
+                    ) {
+                        ForEach(0..<8) { index in
                             BoardView(
                                 board: .init(
                                     get: { gameLogic.boards[index] },
@@ -60,19 +76,45 @@ struct ContentView: View {
                                     }
                                 }
                             )
+                            .frame(maxWidth: isIPad ? 180 : 120)
                         }
                     }
+                    .padding(.horizontal)
+                    .padding(.bottom, geometry.safeAreaInsets.bottom + 20)
+                    
+                    if gameLogic.gameOver {
+                        Text(gameLogic.winner != nil ? "Winner: \(gameLogic.winner!)" : "Draw!")
+                            .font(isIPad ? .title : .title2)
+                            .padding()
+                    }
+                    
+                    Spacer(minLength: 20)
                 }
             }
-            .padding()
+            .background(Color(.systemBackground))
+        }
+    }
+    
+    private var headerContent: some View {
+        Group {
+            Text("XO Tournament")
+                .font(isIPad ? .largeTitle : .title)
+                .padding(.bottom, 5)
             
-            if gameLogic.gameOver {
-                Text(gameLogic.winner != nil ? "Победник: \(gameLogic.winner!)" : "Нерешено!")
-                    .font(.title2)
+            HStack {
+                Button("Reset All") {
+                    gameLogic.resetGame()
+                }
+                .font(isIPad ? .title2 : .headline)
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                
+                Toggle("AI", isOn: $isAIEnabled)
                     .padding()
+                    .disabled(gameLogic.boards.flatMap { $0 }.contains { $0 != "" })
             }
-            
-            Spacer()
         }
     }
 }
