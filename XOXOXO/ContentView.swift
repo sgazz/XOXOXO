@@ -346,7 +346,7 @@ struct GameView: View {
             FloatingSymbol(symbol: "X", size: 100, startX: geometry.size.width * 0.15, startY: -geometry.size.height * 0.6, slowMotion: true)
             FloatingSymbol(symbol: "O", size: 130, startX: -geometry.size.width * 0.15, startY: geometry.size.height * 0.5, slowMotion: true)
         }
-        .opacity(0.2) // Мало транспарентније него на уводном екрану
+        .opacity(0.3) // Повећана непрозирност са 0.2 на 0.3
     }
     
     // Game over modal

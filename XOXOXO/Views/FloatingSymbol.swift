@@ -23,10 +23,10 @@ public struct FloatingSymbol: View {
     public var body: some View {
         Text(symbol)
             .font(.system(size: size, weight: .heavy, design: .rounded))
-            .foregroundColor(.white.opacity(0.3))
+            .foregroundColor(.white.opacity(0.5))
             .offset(offset)
             .rotationEffect(.degrees(rotation))
-            .blur(radius: 10)
+            .blur(radius: 5)
             .onAppear {
                 withAnimation(
                     .easeInOut(duration: animationDuration)

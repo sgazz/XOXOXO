@@ -56,7 +56,7 @@ struct SplashView: View {
                             FloatingSymbol(symbol: "X", size: 90, startX: geometry.size.width * 0.15, startY: -geometry.size.height * 0.1)
                             FloatingSymbol(symbol: "O", size: 130, startX: -geometry.size.width * 0.15, startY: geometry.size.height * 0.1)
                         }
-                        .opacity(backgroundOpacity)
+                        .opacity(backgroundOpacity * 1.5)
                         
                         VStack {
                             Spacer()
