@@ -131,6 +131,28 @@ class GameLogic: ObservableObject {
         self.gameMode = mode
         resetGame()
     }
+    
+    // Метод за промену мода игре
+    func changeGameMode(to newMode: GameMode) {
+        // Не мењај мод ако је исти као тренутни
+        guard gameMode != newMode else { return }
+        
+        // Ако је игра у току, питај да ли желиш да ресетујеш игру
+        let shouldReset = gameOver == false && (boards.flatMap { $0 }.contains { $0 != "" })
+        
+        gameMode = newMode
+        
+        if shouldReset {
+            // Ресетуј игру јер се мод променио
+            resetGame()
+        } else if !gameOver && currentPlayer == "O" && newMode == .aiOpponent {
+            // Ако је тренутни играч О, а пребацујемо на AI мод, одмах направи AI потез
+            makeAIMove(in: currentBoard) { }
+        }
+        
+        // Обавести UI да се мод променио
+        objectWillChange.send()
+    }
 
     // Helper method for better player naming depending on mode
     func getPlayerName(for player: String) -> String {

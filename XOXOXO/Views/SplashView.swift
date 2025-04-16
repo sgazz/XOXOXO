@@ -198,12 +198,14 @@ struct SplashView: View {
                         }
                     }
                     .sheet(isPresented: $showTutorial) {
-                        TutorialView(startGame: $isActive)
+                        TutorialView()
                     }
                 }
-                .transition(.opacity)
             }
         }
-        .animation(.easeInOut(duration: 0.5), value: startGameTransition)
     }
+}
+
+#Preview {
+    SplashView()
 } 

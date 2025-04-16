@@ -2,8 +2,7 @@ import SwiftUI
 struct GameView: View {
     @StateObject private var gameLogic: GameLogic
     @State private var winningPlayer: String? = nil
-    @State private var showPurchaseView = false
-    @State private var isPvPUnlocked: Bool = false
+    var isPvPUnlocked: Bool = false
 
     // Dynamic layout properties
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -61,69 +60,6 @@ struct GameView: View {
                                 .shadow(color: colorScheme == .dark ? .black.opacity(0.3) : .gray.opacity(0.3),
                                         radius: 8, x: 0, y: 3)
                         )
-                        
-                        // Game mode selector
-                        HStack(spacing: 15) {
-                            // AI mode button
-                            Button(action: {
-                                if gameLogic.gameMode != .aiOpponent {
-                                    SoundManager.shared.playSound(.tap)
-                                    SoundManager.shared.playHaptic()
-                                    gameLogic.changeGameMode(to: .aiOpponent)
-                                }
-                            }) {
-                                HStack {
-                                    Image(systemName: "cpu")
-                                        .font(.system(size: 16))
-                                    Text("AI")
-                                        .font(.system(size: 16, weight: .medium))
-                                }
-                                .foregroundColor(gameLogic.gameMode == .aiOpponent ? .white : .blue)
-                                .padding(.horizontal, 18)
-                                .padding(.vertical, 10)
-                                .background(
-                                    Capsule()
-                                        .fill(gameLogic.gameMode == .aiOpponent ? Color.blue : Color.blue.opacity(0.2))
-                                        .shadow(color: gameLogic.gameMode == .aiOpponent ? .blue.opacity(0.3) : .clear, radius: 5)
-                                )
-                            }
-                            
-                            // PvP mode button
-                            Button(action: {
-                                SoundManager.shared.playSound(.tap)
-                                SoundManager.shared.playHaptic()
-                                
-                                if isPvPUnlocked {
-                                    if gameLogic.gameMode != .playerVsPlayer {
-                                        gameLogic.changeGameMode(to: .playerVsPlayer)
-                                    }
-                                } else {
-                                    showPurchaseView = true
-                                }
-                            }) {
-                                HStack {
-                                    Image(systemName: "person.2")
-                                        .font(.system(size: 16))
-                                    Text("PvP")
-                                        .font(.system(size: 16, weight: .medium))
-                                    
-                                    if !isPvPUnlocked {
-                                        Image(systemName: "lock.fill")
-                                            .font(.system(size: 12))
-                                            .foregroundColor(.yellow)
-                                    }
-                                }
-                                .foregroundColor(gameLogic.gameMode == .playerVsPlayer ? .white : .purple)
-                                .padding(.horizontal, 18)
-                                .padding(.vertical, 10)
-                                .background(
-                                    Capsule()
-                                        .fill(gameLogic.gameMode == .playerVsPlayer ? Color.purple : Color.purple.opacity(0.2))
-                                        .shadow(color: gameLogic.gameMode == .playerVsPlayer ? .purple.opacity(0.3) : .clear, radius: 5)
-                                )
-                            }
-                        }
-                        .padding(.vertical, 6)
 
                         // Player indicator (for PvP mode)
                         if gameLogic.gameMode == .playerVsPlayer {
@@ -306,14 +242,6 @@ struct GameView: View {
                     endPoint: .bottomTrailing
                 )
             )
-            .sheet(isPresented: $showPurchaseView) {
-                PurchaseView() { success in
-                    if success {
-                        isPvPUnlocked = true
-                        gameLogic.changeGameMode(to: .playerVsPlayer)
-                    }
-                }
-            }
         }
 
         // Update sound effects based on winner and game mode
