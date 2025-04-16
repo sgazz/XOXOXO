@@ -47,6 +47,7 @@ struct SplashView: View {
     @State private var titleRotation: Double = -30
     @State private var backgroundOpacity = 0.0
     @State private var showTapPrompt = false
+    @State private var showTutorial = false
     
     var body: some View {
         if isActive {
@@ -84,13 +85,7 @@ struct SplashView: View {
                     .opacity(backgroundOpacity)
                     
                     VStack {
-                        if showTapPrompt {
-                            Text("Start")
-                                .font(.system(size: 24, weight: .medium, design: .rounded))
-                                .foregroundColor(.white.opacity(0.8))
-                                .padding(.bottom, 10)
-                                .transition(.opacity)
-                        }
+                        Spacer()
                         
                         // Title
                         Text("XO Tournament")
@@ -99,12 +94,68 @@ struct SplashView: View {
                             .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
                             .offset(titleOffset)
                             .rotationEffect(.degrees(titleRotation))
+                            .padding(.bottom, 50)
+                        
+                        if showTapPrompt {
+                            // Start Game button
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    self.isActive = true
+                                }
+                            }) {
+                                Text("Start Game")
+                                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .padding(.vertical, 16)
+                                    .padding(.horizontal, 50)
+                                    .background(
+                                        Capsule()
+                                            .fill(
+                                                LinearGradient(
+                                                    gradient: Gradient(colors: [
+                                                        Color(red: 0.3, green: 0.4, blue: 0.9),
+                                                        Color(red: 0.2, green: 0.3, blue: 0.7)
+                                                    ]),
+                                                    startPoint: .leading,
+                                                    endPoint: .trailing
+                                                )
+                                            )
+                                            .shadow(color: Color(red: 0.2, green: 0.3, blue: 0.7).opacity(0.5), radius: 10, x: 0, y: 5)
+                                    )
+                            }
+                            .scaleEffect(1.0)
+                            .transition(.scale)
+                        }
+                        
+                        Spacer()
+                        
+                        // "How to Play" button
+                        if showTapPrompt {
+                            Button(action: {
+                                self.showTutorial = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "questionmark.circle.fill")
+                                        .font(.system(size: 18))
+                                    Text("How to Play?")
+                                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 24)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.white.opacity(0.2))
+                                        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                                )
+                            }
+                            .padding(.bottom, 30)
+                            .transition(.opacity)
+                        }
                     }
                 }
                 .onTapGesture {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        self.isActive = true
-                    }
+                    // Remove the automatic tap gesture, now we use the buttons
                 }
                 .onAppear {
                     // Background animation
@@ -130,6 +181,9 @@ struct SplashView: View {
                             showTapPrompt = true
                         }
                     }
+                }
+                .sheet(isPresented: $showTutorial) {
+                    TutorialView(startGame: $isActive)
                 }
             }
         }
