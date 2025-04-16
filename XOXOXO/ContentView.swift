@@ -228,11 +228,8 @@ struct GameView: View {
 }
 
 struct ContentView: View {
-    @Environment(\.colorScheme) var colorScheme
-    
     var body: some View {
         SplashView()
-            .preferredColorScheme(.dark) // Преферирамо тамни режим
     }
 }
 
