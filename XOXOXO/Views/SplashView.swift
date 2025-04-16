@@ -198,7 +198,7 @@ struct SplashView: View {
                         }
                     }
                     .sheet(isPresented: $showTutorial) {
-                        TutorialView()
+                        TutorialView(startGame: $startGameTransition)
                     }
                 }
             }

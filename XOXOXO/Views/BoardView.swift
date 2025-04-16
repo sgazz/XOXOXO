@@ -80,8 +80,8 @@ struct BoardView: View {
         )
         .scaleEffect(isActive ? 1.05 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isActive)
-        .onChange(of: board) { newBoard in
-            checkWinningCombination(in: newBoard)
+        .onChange(of: board) { oldValue, newValue in
+            checkWinningCombination(in: newValue)
         }
     }
     
