@@ -62,51 +62,61 @@ struct GameView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            ScrollView(.vertical, showsIndicators: true) {
-                VStack(spacing: 20) {
-                    // Header section
-                    VStack(spacing: 10) {
-                        // Score display
-                        HStack(spacing: 15) {
-                            Text("\(gameLogic.totalScore.x)")
-                                .foregroundColor(.blue)
-                                .font(largeScoreFont)
+            ZStack {
+                // Background with floating symbols that extends to edges
+                backgroundGradient
+                    .ignoresSafeArea()
+                
+                // Floating symbols
+                floatingSymbols(in: geometry)
+                    .ignoresSafeArea()
+                
+                // Game content in scrollview
+                ScrollView(.vertical, showsIndicators: true) {
+                    VStack(spacing: 20) {
+                        // Header section
+                        VStack(spacing: 10) {
+                            // Score display
+                            HStack(spacing: 15) {
+                                Text("\(gameLogic.totalScore.x)")
+                                    .foregroundColor(.blue)
+                                    .font(largeScoreFont)
 
-                            Text(":")
-                                .font(largeScoreFont)
-                                .foregroundColor(.gray)
+                                Text(":")
+                                    .font(largeScoreFont)
+                                    .foregroundColor(.white)
 
-                            Text("\(gameLogic.totalScore.o)")
-                                .foregroundColor(.red)
-                                .font(largeScoreFont)
+                                Text("\(gameLogic.totalScore.o)")
+                                    .foregroundColor(.red)
+                                    .font(largeScoreFont)
+                            }
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .fill(Color.white.opacity(0.15))
+                                    .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 3)
+                            )
+                            
+                            // Game mode selector
+                            gameModeSelector
+                            
+                            // Player indicator (for PvP mode)
+                            if gameLogic.gameMode == .playerVsPlayer {
+                                playerIndicator
+                            }
                         }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(scoreBackgroundColor)
-                                .shadow(color: shadowColor, radius: 8, x: 0, y: 3)
-                        )
-                        
-                        // Game mode selector
-                        gameModeSelector
-                        
-                        // Player indicator (for PvP mode)
-                        if gameLogic.gameMode == .playerVsPlayer {
-                            playerIndicator
+                        .padding(.top, isIPad ? 20 : 10)
+
+                        // Game boards grid
+                        gameBoardsGrid(geometry: geometry)
+
+                        // Game over modal
+                        if gameLogic.gameOver {
+                            gameOverModal
                         }
-                    }
-                    .padding(.top, isIPad ? 20 : 10)
-
-                    // Game boards grid
-                    gameBoardsGrid(geometry: geometry)
-
-                    // Game over modal
-                    if gameLogic.gameOver {
-                        gameOverModal
                     }
                 }
             }
-            .background(backgroundGradient)
             .sheet(isPresented: $showPurchaseView) {
                 PurchaseView(isPvPUnlocked: $isPvPUnlocked)
             }
@@ -160,9 +170,9 @@ struct GameView: View {
     
     private var aiButtonContent: some View {
         let isSelected = gameLogic.gameMode == .aiOpponent
-        let foregroundColor = isSelected ? Color.white : Color.blue
-        let backgroundColor = isSelected ? Color.blue : Color.blue.opacity(0.2)
-        let shadowColor = isSelected ? Color.blue.opacity(0.3) : Color.clear
+        let foregroundColor = isSelected ? Color.white : Color.white.opacity(0.8)
+        let backgroundColor = isSelected ? Color.blue.opacity(0.7) : Color.white.opacity(0.15)
+        let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
         
         return HStack {
             Image(systemName: "cpu")
@@ -183,9 +193,9 @@ struct GameView: View {
     private var pvpButtonContent: some View {
         let isSelected = gameLogic.gameMode == .playerVsPlayer
         let isUnlocked = isPvPUnlocked
-        let foregroundColor = isSelected ? Color.white : Color.purple
-        let backgroundColor = isSelected ? Color.purple : Color.purple.opacity(0.2)
-        let shadowColor = isSelected ? Color.purple.opacity(0.3) : Color.clear
+        let foregroundColor = isSelected ? Color.white : Color.white.opacity(0.8)
+        let backgroundColor = isSelected ? Color.purple.opacity(0.7) : Color.white.opacity(0.15)
+        let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
         
         return HStack {
             Image(systemName: "person.2")
@@ -213,24 +223,34 @@ struct GameView: View {
         let currentPlayer = gameLogic.currentPlayer
         let isPlayerX = currentPlayer == "X"
         let playerColor = isPlayerX ? Color.blue : Color.red
+        let playerColorLight = isPlayerX ? Color.blue.opacity(0.2) : Color.red.opacity(0.2)
         
         return HStack {
             Text("Current Player:")
                 .font(.headline)
-                .foregroundColor(.secondary)
+                .foregroundColor(.white)
 
             Text(currentPlayer)
                 .font(.title3)
                 .fontWeight(.bold)
-                .foregroundColor(playerColor)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
+                .foregroundColor(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
                 .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(playerColor.opacity(0.1))
+                    Capsule()
+                        .fill(playerColorLight)
+                        .overlay(
+                            Capsule()
+                                .stroke(playerColor, lineWidth: 2)
+                        )
                 )
         }
-        .padding(.vertical, 5)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 15)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.1))
+        )
         .transition(.opacity)
     }
     
@@ -296,14 +316,80 @@ struct GameView: View {
     // Background gradient
     private var backgroundGradient: some View {
         let darkMode = colorScheme == .dark
-        let startColor = darkMode ? Color(red: 0.12, green: 0.14, blue: 0.22) : Color(red: 0.9, green: 0.95, blue: 1.0)
-        let endColor = darkMode ? Color(red: 0.18, green: 0.2, blue: 0.3) : Color(red: 0.8, green: 0.9, blue: 0.98)
+        
+        // Користимо исте боје као у SplashView
+        let colors: [Color] = [
+            Color(red: 0.1, green: 0.2, blue: 0.45), // Deep blue
+            Color(red: 0.2, green: 0.3, blue: 0.7),  // Medium blue
+            Color(red: 0.3, green: 0.4, blue: 0.9)   // Light blue
+        ]
         
         return LinearGradient(
-            gradient: Gradient(colors: [startColor, endColor]),
+            gradient: Gradient(colors: colors),
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+    }
+    
+    // Floating symbols for background
+    private func floatingSymbols(in geometry: GeometryProxy) -> some View {
+        Group {
+            // Left side symbols (larger and slower)
+            FloatingSymbolGame(symbol: "X", size: 150, startX: -geometry.size.width * 0.4, startY: -geometry.size.height * 0.3)
+            FloatingSymbolGame(symbol: "O", size: 160, startX: -geometry.size.width * 0.35, startY: geometry.size.height * 0.3)
+            
+            // Right side symbols
+            FloatingSymbolGame(symbol: "X", size: 120, startX: geometry.size.width * 0.4, startY: -geometry.size.height * 0.25)
+            FloatingSymbolGame(symbol: "O", size: 140, startX: geometry.size.width * 0.35, startY: geometry.size.height * 0.25)
+            
+            // Additional symbols scattered around
+            FloatingSymbolGame(symbol: "X", size: 100, startX: geometry.size.width * 0.15, startY: -geometry.size.height * 0.6)
+            FloatingSymbolGame(symbol: "O", size: 130, startX: -geometry.size.width * 0.15, startY: geometry.size.height * 0.5)
+        }
+        .opacity(0.2) // Мало транспарентније него на уводном екрану
+    }
+    
+    // Floating symbol reimplemented for game view with slower animations
+    private struct FloatingSymbolGame: View {
+        let symbol: String
+        let size: CGFloat
+        @State private var offset: CGSize
+        @State private var rotation: Double
+        let animationDuration: Double
+        
+        init(symbol: String, size: CGFloat, startX: CGFloat, startY: CGFloat) {
+            self.symbol = symbol
+            self.size = size
+            let randomOffset = CGSize(
+                width: startX + CGFloat.random(in: -30...30),
+                height: startY + CGFloat.random(in: -30...30)
+            )
+            _offset = State(initialValue: randomOffset)
+            _rotation = State(initialValue: Double.random(in: -15...15))
+            // Спорија анимација за GameView
+            self.animationDuration = Double.random(in: 20...35)
+        }
+        
+        var body: some View {
+            Text(symbol)
+                .font(.system(size: size, weight: .heavy, design: .rounded))
+                .foregroundColor(.white.opacity(0.3))
+                .offset(offset)
+                .rotationEffect(.degrees(rotation))
+                .blur(radius: 15)
+                .onAppear {
+                    withAnimation(
+                        .easeInOut(duration: animationDuration)
+                        .repeatForever(autoreverses: true)
+                    ) {
+                        offset = CGSize(
+                            width: -offset.width * 0.4,
+                            height: -offset.height * 0.4
+                        )
+                        rotation = -rotation * 0.3
+                    }
+                }
+        }
     }
     
     // Game over modal

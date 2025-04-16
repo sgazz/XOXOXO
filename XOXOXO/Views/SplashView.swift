@@ -1,45 +1,6 @@
 import SwiftUI
 
-struct FloatingSymbol: View {
-    let symbol: String
-    let size: CGFloat
-    @State private var offset: CGSize
-    @State private var rotation: Double
-    let animationDuration: Double
-    
-    init(symbol: String, size: CGFloat, startX: CGFloat, startY: CGFloat) {
-        self.symbol = symbol
-        self.size = size
-        let randomOffset = CGSize(
-            width: startX + CGFloat.random(in: -30...30),
-            height: startY + CGFloat.random(in: -30...30)
-        )
-        _offset = State(initialValue: randomOffset)
-        _rotation = State(initialValue: Double.random(in: -15...15))
-        self.animationDuration = Double.random(in: 8...12)
-    }
-    
-    var body: some View {
-        Text(symbol)
-            .font(.system(size: size, weight: .heavy, design: .rounded))
-            .foregroundColor(.white.opacity(0.3))
-            .offset(offset)
-            .rotationEffect(.degrees(rotation))
-            .blur(radius: 10)
-            .onAppear {
-                withAnimation(
-                    .easeInOut(duration: animationDuration)
-                    .repeatForever(autoreverses: true)
-                ) {
-                    offset = CGSize(
-                        width: -offset.width * 0.5,
-                        height: -offset.height * 0.5
-                    )
-                    rotation = -rotation * 0.5
-                }
-            }
-    }
-}
+// Уклоњена дупла дефиниција FloatingSymbol структуре која је сада у засебном фајлу
 
 struct SplashView: View {
     @State private var isActive = false
@@ -52,10 +13,15 @@ struct SplashView: View {
     // Анимација прелаза
     @State private var startGameTransition = false
     
+    // Режим игре и статус откључавања
+    @State private var selectedGameMode: GameMode = .aiOpponent
+    @State private var isPvPUnlocked: Bool = false
+    @State private var showPurchaseView = false
+    
     var body: some View {
         ZStack {
             if startGameTransition {
-                GameView()
+                GameView(gameMode: selectedGameMode, isPvPUnlocked: isPvPUnlocked)
                     .transition(.asymmetric(
                         insertion: .opacity.combined(with: .scale),
                         removal: .opacity
@@ -105,6 +71,11 @@ struct SplashView: View {
                                 .padding(.bottom, 50)
                             
                             if showTapPrompt {
+                                // Режими игре
+                                gameModeSelector
+                                    .padding(.bottom, 30)
+                                    .transition(.opacity)
+                                
                                 // Start Game button
                                 Button(action: {
                                     SoundManager.shared.playSound(.tap)
@@ -173,6 +144,9 @@ struct SplashView: View {
                         }
                     }
                     .onAppear {
+                        // Провера да ли је PvP мод откључан
+                        self.isPvPUnlocked = UserDefaults.standard.bool(forKey: "isPvPUnlocked")
+                        
                         // Background animation
                         withAnimation(.easeOut(duration: 0.8)) {
                             backgroundOpacity = 1.0
@@ -200,9 +174,96 @@ struct SplashView: View {
                     .sheet(isPresented: $showTutorial) {
                         TutorialView(startGame: $startGameTransition)
                     }
+                    .sheet(isPresented: $showPurchaseView) {
+                        PurchaseView(isPvPUnlocked: $isPvPUnlocked)
+                    }
                 }
             }
         }
+    }
+    
+    // Селектор режима игре
+    private var gameModeSelector: some View {
+        HStack(spacing: 15) {
+            // AI mode button
+            Button(action: {
+                if selectedGameMode != .aiOpponent {
+                    SoundManager.shared.playSound(.tap)
+                    SoundManager.shared.playHaptic()
+                    selectedGameMode = .aiOpponent
+                }
+            }) {
+                aiButtonContent
+            }
+            
+            // PvP mode button
+            Button(action: {
+                SoundManager.shared.playSound(.tap)
+                SoundManager.shared.playHaptic()
+                
+                if isPvPUnlocked {
+                    if selectedGameMode != .playerVsPlayer {
+                        selectedGameMode = .playerVsPlayer
+                    }
+                } else {
+                    showPurchaseView = true
+                }
+            }) {
+                pvpButtonContent
+            }
+        }
+        .padding(.vertical, 6)
+    }
+    
+    private var aiButtonContent: some View {
+        let isSelected = selectedGameMode == .aiOpponent
+        let foregroundColor = isSelected ? Color.white : Color.white.opacity(0.8)
+        let backgroundColor = isSelected ? Color.blue.opacity(0.7) : Color.white.opacity(0.15)
+        let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
+        
+        return HStack {
+            Image(systemName: "cpu")
+                .font(.system(size: 16))
+            Text("AI")
+                .font(.system(size: 16, weight: .medium))
+        }
+        .foregroundColor(foregroundColor)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 10)
+        .background(
+            Capsule()
+                .fill(backgroundColor)
+                .shadow(color: shadowColor, radius: 5)
+        )
+    }
+    
+    private var pvpButtonContent: some View {
+        let isSelected = selectedGameMode == .playerVsPlayer
+        let isUnlocked = isPvPUnlocked
+        let foregroundColor = isSelected ? Color.white : Color.white.opacity(0.8)
+        let backgroundColor = isSelected ? Color.purple.opacity(0.7) : Color.white.opacity(0.15)
+        let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
+        
+        return HStack {
+            Image(systemName: "person.2")
+                .font(.system(size: 16))
+            Text("PvP")
+                .font(.system(size: 16, weight: .medium))
+            
+            if !isUnlocked {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 12))
+                    .foregroundColor(.yellow)
+            }
+        }
+        .foregroundColor(foregroundColor)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 10)
+        .background(
+            Capsule()
+                .fill(backgroundColor)
+                .shadow(color: shadowColor, radius: 5)
+        )
     }
 }
 

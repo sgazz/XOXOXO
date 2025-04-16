@@ -63,10 +63,10 @@ struct BoardView: View {
             RoundedRectangle(cornerRadius: 10)
                 .fill(colorScheme == .dark ? 
                       Color(.systemBackground) : 
-                      Color(.systemGray6))
+                      Color.white.opacity(0.8))
                 .shadow(
-                    color: isActive ? Color.blue.opacity(0.4) : Color.gray.opacity(0.3),
-                    radius: isActive ? 10 : 5,
+                    color: isActive ? Color.blue.opacity(0.6) : Color.black.opacity(0.2),
+                    radius: isActive ? 15 : 5,
                     x: 0,
                     y: isActive ? 5 : 2
                 )
@@ -74,8 +74,8 @@ struct BoardView: View {
         .overlay(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
-                    isActive ? Color.blue.opacity(0.7) : Color.gray.opacity(0.6), 
-                    lineWidth: isActive ? 3 : 2
+                    isActive ? Color.blue.opacity(0.8) : Color.gray.opacity(0.4), 
+                    lineWidth: isActive ? 3 : 1
                 )
         )
         .scaleEffect(isActive ? 1.05 : 1.0)
