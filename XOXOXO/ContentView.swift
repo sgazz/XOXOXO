@@ -335,61 +335,18 @@ struct GameView: View {
     private func floatingSymbols(in geometry: GeometryProxy) -> some View {
         Group {
             // Left side symbols (larger and slower)
-            FloatingSymbolGame(symbol: "X", size: 150, startX: -geometry.size.width * 0.4, startY: -geometry.size.height * 0.3)
-            FloatingSymbolGame(symbol: "O", size: 160, startX: -geometry.size.width * 0.35, startY: geometry.size.height * 0.3)
+            FloatingSymbol(symbol: "X", size: 150, startX: -geometry.size.width * 0.4, startY: -geometry.size.height * 0.3, slowMotion: true)
+            FloatingSymbol(symbol: "O", size: 160, startX: -geometry.size.width * 0.35, startY: geometry.size.height * 0.3, slowMotion: true)
             
             // Right side symbols
-            FloatingSymbolGame(symbol: "X", size: 120, startX: geometry.size.width * 0.4, startY: -geometry.size.height * 0.25)
-            FloatingSymbolGame(symbol: "O", size: 140, startX: geometry.size.width * 0.35, startY: geometry.size.height * 0.25)
+            FloatingSymbol(symbol: "X", size: 120, startX: geometry.size.width * 0.4, startY: -geometry.size.height * 0.25, slowMotion: true)
+            FloatingSymbol(symbol: "O", size: 140, startX: geometry.size.width * 0.35, startY: geometry.size.height * 0.25, slowMotion: true)
             
             // Additional symbols scattered around
-            FloatingSymbolGame(symbol: "X", size: 100, startX: geometry.size.width * 0.15, startY: -geometry.size.height * 0.6)
-            FloatingSymbolGame(symbol: "O", size: 130, startX: -geometry.size.width * 0.15, startY: geometry.size.height * 0.5)
+            FloatingSymbol(symbol: "X", size: 100, startX: geometry.size.width * 0.15, startY: -geometry.size.height * 0.6, slowMotion: true)
+            FloatingSymbol(symbol: "O", size: 130, startX: -geometry.size.width * 0.15, startY: geometry.size.height * 0.5, slowMotion: true)
         }
         .opacity(0.2) // Мало транспарентније него на уводном екрану
-    }
-    
-    // Floating symbol reimplemented for game view with slower animations
-    private struct FloatingSymbolGame: View {
-        let symbol: String
-        let size: CGFloat
-        @State private var offset: CGSize
-        @State private var rotation: Double
-        let animationDuration: Double
-        
-        init(symbol: String, size: CGFloat, startX: CGFloat, startY: CGFloat) {
-            self.symbol = symbol
-            self.size = size
-            let randomOffset = CGSize(
-                width: startX + CGFloat.random(in: -30...30),
-                height: startY + CGFloat.random(in: -30...30)
-            )
-            _offset = State(initialValue: randomOffset)
-            _rotation = State(initialValue: Double.random(in: -15...15))
-            // Спорија анимација за GameView
-            self.animationDuration = Double.random(in: 20...35)
-        }
-        
-        var body: some View {
-            Text(symbol)
-                .font(.system(size: size, weight: .heavy, design: .rounded))
-                .foregroundColor(.white.opacity(0.3))
-                .offset(offset)
-                .rotationEffect(.degrees(rotation))
-                .blur(radius: 15)
-                .onAppear {
-                    withAnimation(
-                        .easeInOut(duration: animationDuration)
-                        .repeatForever(autoreverses: true)
-                    ) {
-                        offset = CGSize(
-                            width: -offset.width * 0.4,
-                            height: -offset.height * 0.4
-                        )
-                        rotation = -rotation * 0.3
-                    }
-                }
-        }
     }
     
     // Game over modal
