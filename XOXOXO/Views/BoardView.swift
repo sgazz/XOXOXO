@@ -9,6 +9,8 @@ struct BoardView: View {
     @State private var isWinning = false
     @State private var winningCombination: [Int] = []
     
+    @Environment(\.colorScheme) private var colorScheme
+    
     private let symbols = ["", "X", "O"]
     private let gridSize: CGFloat = 3
     private let spacing: CGFloat = 2
@@ -59,9 +61,11 @@ struct BoardView: View {
         .padding(4)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color(.systemBackground))
+                .fill(colorScheme == .dark ? 
+                      Color(.systemBackground) : 
+                      Color(.systemGray6))
                 .shadow(
-                    color: isActive ? Color.blue.opacity(0.4) : Color.gray.opacity(0.2),
+                    color: isActive ? Color.blue.opacity(0.4) : Color.gray.opacity(0.3),
                     radius: isActive ? 10 : 5,
                     x: 0,
                     y: isActive ? 5 : 2
@@ -69,7 +73,10 @@ struct BoardView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(isActive ? Color.blue.opacity(0.7) : Color.clear, lineWidth: 2)
+                .stroke(
+                    isActive ? Color.blue.opacity(0.7) : Color.gray.opacity(0.6), 
+                    lineWidth: isActive ? 3 : 2
+                )
         )
         .scaleEffect(isActive ? 1.05 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isActive)
@@ -107,25 +114,50 @@ struct CellView: View {
     let isAnimating: Bool
     let isWinningCell: Bool
     
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var cellBackground: Color {
+        if isWinningCell {
+            return Color.green.opacity(0.2)
+        } else if isActive {
+            return Color.blue.opacity(0.1)
+        } else {
+            return colorScheme == .dark ? 
+                   Color(.systemBackground) : 
+                   Color(.systemGray5).opacity(0.7)
+        }
+    }
+    
+    private var cellBorder: Color {
+        if isWinningCell {
+            return Color.green.opacity(0.7)
+        } else if isActive {
+            return Color.blue.opacity(0.5)
+        } else {
+            return Color.gray.opacity(0.5)
+        }
+    }
+    
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(
-                    isWinningCell 
-                        ? Color.green.opacity(0.2) 
-                        : (isActive ? Color.blue.opacity(0.05) : Color(.systemBackground))
-                )
+                .fill(cellBackground)
                 .cornerRadius(4)
+                .overlay(
+                    Rectangle()
+                        .stroke(cellBorder, lineWidth: 1.5)
+                        .cornerRadius(4)
+                )
             
             if symbol == "X" {
                 XView()
-                    .stroke(isWinningCell ? Color.green : Color.blue, lineWidth: 2.5)
+                    .stroke(isWinningCell ? Color.green : Color.blue, lineWidth: 3)
                     .frame(width: min(30, UIScreen.main.bounds.width / 16), height: min(30, UIScreen.main.bounds.width / 16))
                     .shadow(color: (isWinningCell ? Color.green : Color.blue).opacity(0.5), radius: isWinningCell ? 6 : 3)
                     .scaleEffect(isAnimating ? 1.2 : 1.0)
             } else if symbol == "O" {
                 OView()
-                    .stroke(isWinningCell ? Color.green : Color.red, lineWidth: 2.5)
+                    .stroke(isWinningCell ? Color.green : Color.red, lineWidth: 3)
                     .frame(width: min(30, UIScreen.main.bounds.width / 16), height: min(30, UIScreen.main.bounds.width / 16))
                     .shadow(color: (isWinningCell ? Color.green : Color.red).opacity(0.5), radius: isWinningCell ? 6 : 3)
                     .scaleEffect(isAnimating ? 1.2 : 1.0)
