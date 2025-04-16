@@ -97,9 +97,6 @@ struct GameView: View {
                                     .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 3)
                             )
                             
-                            // Game mode selector
-                            gameModeSelector
-                            
                             // Player indicator (for PvP mode)
                             if gameLogic.gameMode == .playerVsPlayer {
                                 playerIndicator
@@ -134,90 +131,6 @@ struct GameView: View {
     }
     
     // MARK: - UI Components
-    
-    // Game Mode selector buttons
-    private var gameModeSelector: some View {
-        HStack(spacing: 15) {
-            // AI mode button
-            Button(action: {
-                if gameLogic.gameMode != .aiOpponent {
-                    SoundManager.shared.playSound(.tap)
-                    SoundManager.shared.playHaptic()
-                    gameLogic.changeGameMode(to: .aiOpponent)
-                }
-            }) {
-                aiButtonContent
-            }
-            
-            // PvP mode button
-            Button(action: {
-                SoundManager.shared.playSound(.tap)
-                SoundManager.shared.playHaptic()
-                
-                if isPvPUnlocked {
-                    if gameLogic.gameMode != .playerVsPlayer {
-                        gameLogic.changeGameMode(to: .playerVsPlayer)
-                    }
-                } else {
-                    showPurchaseView = true
-                }
-            }) {
-                pvpButtonContent
-            }
-        }
-        .padding(.vertical, 6)
-    }
-    
-    private var aiButtonContent: some View {
-        let isSelected = gameLogic.gameMode == .aiOpponent
-        let foregroundColor = isSelected ? Color.white : Color.white.opacity(0.8)
-        let backgroundColor = isSelected ? Color.blue.opacity(0.7) : Color.white.opacity(0.15)
-        let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
-        
-        return HStack {
-            Image(systemName: "cpu")
-                .font(.system(size: 16))
-            Text("AI")
-                .font(.system(size: 16, weight: .medium))
-        }
-        .foregroundColor(foregroundColor)
-        .padding(.horizontal, 18)
-        .padding(.vertical, 10)
-        .background(
-            Capsule()
-                .fill(backgroundColor)
-                .shadow(color: shadowColor, radius: 5)
-        )
-    }
-    
-    private var pvpButtonContent: some View {
-        let isSelected = gameLogic.gameMode == .playerVsPlayer
-        let isUnlocked = isPvPUnlocked
-        let foregroundColor = isSelected ? Color.white : Color.white.opacity(0.8)
-        let backgroundColor = isSelected ? Color.purple.opacity(0.7) : Color.white.opacity(0.15)
-        let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
-        
-        return HStack {
-            Image(systemName: "person.2")
-                .font(.system(size: 16))
-            Text("PvP")
-                .font(.system(size: 16, weight: .medium))
-            
-            if !isUnlocked {
-                Image(systemName: "lock.fill")
-                    .font(.system(size: 12))
-                    .foregroundColor(.yellow)
-            }
-        }
-        .foregroundColor(foregroundColor)
-        .padding(.horizontal, 18)
-        .padding(.vertical, 10)
-        .background(
-            Capsule()
-                .fill(backgroundColor)
-                .shadow(color: shadowColor, radius: 5)
-        )
-    }
     
     private var playerIndicator: some View {
         let currentPlayer = gameLogic.currentPlayer
