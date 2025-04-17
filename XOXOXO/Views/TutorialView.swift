@@ -145,31 +145,39 @@ struct TutorialView: View {
     
     private func contentSection(for index: Int) -> some View {
         VStack(spacing: isLandscape ? 10 : 20) {
-            // Title and content based on index
             Group {
                 switch index {
                 case 0:
                     tutorialContent(
                         title: "Welcome to XO Tournament!",
-                        subtitle: "Where classic meets challenge!",
-                        description: "Play the classic Tic-Tac-Toe game in a completely new way. Compete against AI on multiple boards simultaneously!"
+                        subtitle: "Classic Game, Revolutionary Experience!",
+                        description: "Discover an exciting strategic game that\n takes Tic-Tac-Toe to a whole new level!\n\nPlay on multiple boards simultaneously!\n\nOutsmart your opponent and become the tournament champion.",
+                        titleColor: .blue,
+                        subtitleColor: Color(red: 0.3, green: 0.7, blue: 1.0)
                     )
                 case 1:
                     tutorialContent(
-                        title: "Game Rules",
-                        description: "Win by connecting three identical symbols in a line - horizontally, vertically, or diagonally. But watch out, the AI will try to stop you!"
+                        title: "Game-Changing Rules",
+                        subtitle: "More Boards, More Strategy!",
+                        description: "Win by connecting three identical symbols in a line - horizontally, vertically, or diagonally.\n\nBeware! Your move on one board determines where your opponent must play next.\n\nA masterful move can lead to victory or defeat!",
+                        titleColor: .purple,
+                        subtitleColor: Color(red: 0.8, green: 0.4, blue: 1.0)
                     )
                 case 2:
                     tutorialContent(
-                        title: "Strategy",
-                        description: "Think ahead! Each move on one board can affect your strategy on other boards."
+                        title: "Dual Challenge",
+                        subtitle: "Choose Your Path to Victory!",
+                        description: "🤖 PvAI Mode:\nTest your skills against our advanced AI opponent that learns and adapts to your playing style.\n\n👥 PvP Mode:\nChallenge a friend to a duel and prove who's the better strategist in local multiplayer.",
+                        titleColor: .orange,
+                        subtitleColor: Color(red: 1.0, green: 0.6, blue: 0.2)
                     )
                 case 3:
                     tutorialContent(
-                        title: "Ready to Play?",
-                        subtitle: "Think you're a champion? Prove it in this Tournament!",
-                        description: "Challenge yourself against our AI and see if you can master the multi-board strategy!",
-                        showButton: true
+                        title: "Ready for the Challenge?",
+                        subtitle: "Time to Become a Champion!",
+                        description: "Explore new strategies!\n\nPerfect your skills!\n\nBecome a master of multi-board tactics.\n\nAre you ready to experience the most exciting version \nof Tic-Tac-Toe ever?",
+                        titleColor: .green,
+                        subtitleColor: Color(red: 0.3, green: 0.9, blue: 0.4)
                     )
                 default:
                     EmptyView()
@@ -198,18 +206,24 @@ struct TutorialView: View {
             .padding(.top, isLandscape ? 10 : 40)
     }
     
-    private func tutorialContent(title: String, subtitle: String? = nil, description: String, showButton: Bool = false) -> some View {
+    private func tutorialContent(
+        title: String,
+        subtitle: String? = nil,
+        description: String,
+        titleColor: Color = .primary,
+        subtitleColor: Color = .secondary
+    ) -> some View {
         VStack(spacing: isLandscape ? 8 : 15) {
             Text(title)
                 .font(.system(size: titleSize, weight: .bold))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
-                .foregroundColor(.primary)
+                .foregroundColor(titleColor)
             
             if let subtitle = subtitle {
                 Text(subtitle)
                     .font(.system(size: subtitleSize))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(subtitleColor)
                     .multilineTextAlignment(.center)
                     .padding(.top, 1)
             }
@@ -221,31 +235,7 @@ struct TutorialView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, isLandscape ? 20 : 30)
                 .padding(.top, isLandscape ? 5 : 20)
-            
-            if showButton {
-                Button(action: {
-                    startGame = true
-                    dismiss()
-                }) {
-                    Text("Accept the Challenge!")
-                        .font(.system(size: isLandscape ? 18 : 20, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.vertical, isLandscape ? 12 : 16)
-                        .padding(.horizontal, isLandscape ? 25 : 30)
-                        .background(
-                            Capsule()
-                                .fill(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [.green, Color(red: 0.1, green: 0.8, blue: 0.4)]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .shadow(color: .green.opacity(0.4), radius: 10, x: 0, y: 5)
-                        )
-                }
-                .padding(.top, isLandscape ? 10 : 20)
-            }
+                .lineSpacing(8)
         }
     }
 }
