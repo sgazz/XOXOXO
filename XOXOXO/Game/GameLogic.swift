@@ -53,9 +53,13 @@ class GameLogic: ObservableObject {
             boards[boardIndex] = Array(repeating: "", count: 9)
         }
 
+        // Change current player
         currentPlayer = currentPlayer == "X" ? "O" : "X"
-        // Always update board after any player move
-        currentBoard = (boardIndex + 1) % Self.BOARD_COUNT
+        
+        // Update board only when X's turn comes (after O played)
+        if currentPlayer == "X" {
+            currentBoard = (boardIndex + 1) % Self.BOARD_COUNT
+        }
     }
 
     private func checkBoardComplete(in boardIndex: Int) -> Bool {
@@ -73,11 +77,11 @@ class GameLogic: ObservableObject {
         return nil
     }
 
-    func makeAIMove(in boardIndex: Int, completion: @escaping () -> Void) {
+    func makeAIMove(in boardIndex: Int, thinkingTime: TimeInterval = 0.5, completion: @escaping () -> Void) {
         // AI moves only available in AI mode
         if gameMode == .aiOpponent {
             isThinking = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + thinkingTime) {
                 if let aiMove = TicTacToeAI.shared.makeMove(in: self.boards[boardIndex]) {
                     self.makeMove(at: aiMove, in: boardIndex)
                 }

@@ -3,7 +3,15 @@ struct GameView: View {
     @StateObject private var gameLogic: GameLogic
     @State private var showPurchaseView = false
     @State private var isPvPUnlocked: Bool = false
-
+    @State private var playerXTime: TimeInterval = 300 // 5 minutes in seconds
+    @State private var playerOTime: TimeInterval = 300 // 5 minutes in seconds
+    @State private var timer: Timer? = nil
+    @State private var isTimerRunning = false
+    @State private var showGameOver = false
+    @State private var timeoutPlayer: String? = nil
+    
+    private let defaultTime: TimeInterval = 300 // 5 minutes in seconds
+    
     // Dynamic layout properties
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -73,35 +81,77 @@ struct GameView: View {
                 // Game content in scrollview
                 ScrollView(.vertical, showsIndicators: true) {
                     VStack(spacing: 20) {
-                        // Score display
-                        HStack(spacing: 15) {
-                            Text("\(gameLogic.totalScore.x)")
-                                .foregroundColor(.blue)
+                        // Score display with timers
+                        HStack(spacing: 25) {
+                            // Player X timer
+                            Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
+                                .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white)
                                 .font(largeScoreFont)
-
-                            Text(":")
-                                .font(largeScoreFont)
+                            
+                            // Main score
+                            Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
                                 .foregroundColor(.white)
-
-                            Text("\(gameLogic.totalScore.o)")
-                                .foregroundColor(.red)
+                                .font(largeScoreFont)
+                            
+                            // Player O timer
+                            Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
+                                .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white)
                                 .font(largeScoreFont)
                         }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(Color.white.opacity(0.15))
-                                .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 3)
-                        )
+                        .padding(.top, isIPad ? 20 : 10)
 
                         // Game boards grid
                         gameBoardsGrid(geometry: geometry)
                     }
                 }
+                
+                // Game Over overlay
+                if showGameOver {
+                    Color.black.opacity(0.7)
+                        .ignoresSafeArea()
+                        .blur(radius: 3)
+                    
+                    VStack(spacing: 30) {
+                        Text("Game Over")
+                            .font(.system(size: 46, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        if let player = timeoutPlayer {
+                            Text("\(player == "X" ? "Blue" : "Red") player ran out of time!")
+                                .font(.title2)
+                                .foregroundColor(.red)
+                                .multilineTextAlignment(.center)
+                        }
+                        
+                        Button(action: resetGame) {
+                            Text("Play Again")
+                                .font(.title2.bold())
+                                .foregroundColor(.white)
+                                .frame(width: 200, height: 50)
+                                .background(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [.blue, .purple]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .cornerRadius(25)
+                                .shadow(color: .purple.opacity(0.4), radius: 6, x: 0, y: 3)
+                        }
+                    }
+                    .transition(.scale.combined(with: .opacity))
+                }
             }
             .sheet(isPresented: $showPurchaseView) {
                 PurchaseView(isPvPUnlocked: $isPvPUnlocked)
             }
+        }
+        .onAppear {
+            resetTimers()
+            startTimer()
+        }
+        .onDisappear {
+            stopTimer()
         }
         .onChange(of: isPvPUnlocked) { oldValue, newValue in
             if newValue && !oldValue {
@@ -143,6 +193,39 @@ struct GameView: View {
         .frame(maxWidth: isIPad ? 180 : 120)
     }
     
+    private func startTimer() {
+        isTimerRunning = true
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            if gameLogic.currentPlayer == "X" {
+                if playerXTime > 0 {
+                    playerXTime -= 1
+                    if playerXTime == 0 {
+                        handleTimeout(player: "X")
+                    }
+                }
+            } else {
+                if playerOTime > 0 {
+                    playerOTime -= 1
+                    if playerOTime == 0 {
+                        handleTimeout(player: "O")
+                    }
+                }
+            }
+        }
+    }
+    
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+        isTimerRunning = false
+    }
+    
+    private func resetTimers() {
+        playerXTime = defaultTime
+        playerOTime = defaultTime
+        stopTimer()
+    }
+
     private func handleBoardTap(boardIndex: Int, position: Int) {
         // Check if valid move
         if gameLogic.boards[boardIndex][position].isEmpty &&
@@ -150,20 +233,48 @@ struct GameView: View {
            gameLogic.currentBoard == boardIndex &&
            (!gameLogic.gameOver) {
 
+            // Stop timer for current player
+            stopTimer()
+
             // Sound and haptics for player move
             SoundManager.shared.playSound(.move)
             SoundManager.shared.playHaptic()
 
             gameLogic.makeMove(at: position, in: boardIndex)
 
-            // For AI mode, make AI move
+            // Start timer for next player
+            startTimer()
+
+            // For AI mode, make AI move with random thinking time
             if gameLogic.gameMode == .aiOpponent && !gameLogic.gameOver {
-                gameLogic.makeAIMove(in: boardIndex) {
+                let thinkingTime = Double.random(in: 0.5...1.5)
+                gameLogic.makeAIMove(in: boardIndex, thinkingTime: thinkingTime) {
                     // Sound for AI move
                     SoundManager.shared.playSound(.move)
+                    // Stop timer after AI move
+                    stopTimer()
+                    // Start timer for player
+                    startTimer()
                 }
             }
         }
+    }
+    
+    private func handleTimeout(player: String) {
+        stopTimer()
+        timeoutPlayer = player
+        // Сачекај 3 секунде пре приказа Game Over екрана
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            showGameOver = true
+        }
+    }
+    
+    private func resetGame() {
+        showGameOver = false
+        timeoutPlayer = nil
+        resetTimers()
+        gameLogic.resetGame()
+        startTimer()
     }
     
     // Background gradient
