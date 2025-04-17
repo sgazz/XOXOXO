@@ -219,6 +219,7 @@ struct TutorialView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
                 .foregroundColor(titleColor)
+                .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 1)
             
             if let subtitle = subtitle {
                 Text(subtitle)
@@ -226,6 +227,7 @@ struct TutorialView: View {
                     .foregroundColor(subtitleColor)
                     .multilineTextAlignment(.center)
                     .padding(.top, 1)
+                    .shadow(color: Color.black.opacity(0.2), radius: 1.5, x: 0, y: 1)
             }
             
             Text(description)
@@ -236,7 +238,14 @@ struct TutorialView: View {
                 .padding(.horizontal, isLandscape ? 20 : 30)
                 .padding(.top, isLandscape ? 5 : 20)
                 .lineSpacing(8)
+                .shadow(color: Color.black.opacity(0.15), radius: 1, x: 0, y: 0.5)
         }
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.05))
+                .shadow(color: Color.black.opacity(0.1), radius: 10)
+        )
+        .padding(.horizontal, isLandscape ? 10 : 20)
     }
 }
 
