@@ -9,6 +9,7 @@ struct SplashView: View {
     @State private var backgroundOpacity = 0.0
     @State private var showTapPrompt = false
     @State private var showTutorial = false
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     // Анимација прелаза
     @State private var startGameTransition = false
@@ -28,6 +29,8 @@ struct SplashView: View {
                     ))
             } else {
                 GeometryReader { geometry in
+                    let isLandscape = geometry.size.width > geometry.size.height
+                    
                     ZStack {
                         // Modern gradient background
                         LinearGradient(
@@ -44,102 +47,90 @@ struct SplashView: View {
                         
                         // Floating symbols with specific starting positions
                         Group {
-                            // Left side symbols
-                            FloatingSymbol(symbol: "X", size: 120, startX: -geometry.size.width * 0.4, startY: -geometry.size.height * 0.3)
-                            FloatingSymbol(symbol: "O", size: 140, startX: -geometry.size.width * 0.35, startY: geometry.size.height * 0.3)
+                            // Adjust symbol positions based on orientation
+                            FloatingSymbol(symbol: "X", size: isLandscape ? 80 : 120, 
+                                         startX: -geometry.size.width * (isLandscape ? 0.3 : 0.4), 
+                                         startY: -geometry.size.height * (isLandscape ? 0.2 : 0.3))
+                            FloatingSymbol(symbol: "O", size: isLandscape ? 100 : 140, 
+                                         startX: -geometry.size.width * (isLandscape ? 0.25 : 0.35), 
+                                         startY: geometry.size.height * (isLandscape ? 0.2 : 0.3))
                             
-                            // Right side symbols
-                            FloatingSymbol(symbol: "X", size: 100, startX: geometry.size.width * 0.4, startY: -geometry.size.height * 0.25)
-                            FloatingSymbol(symbol: "O", size: 110, startX: geometry.size.width * 0.35, startY: geometry.size.height * 0.25)
+                            FloatingSymbol(symbol: "X", size: isLandscape ? 70 : 100, 
+                                         startX: geometry.size.width * (isLandscape ? 0.3 : 0.4), 
+                                         startY: -geometry.size.height * (isLandscape ? 0.15 : 0.25))
+                            FloatingSymbol(symbol: "O", size: isLandscape ? 80 : 110, 
+                                         startX: geometry.size.width * (isLandscape ? 0.25 : 0.35), 
+                                         startY: geometry.size.height * (isLandscape ? 0.15 : 0.25))
                             
-                            // Center area symbols (further apart)
-                            FloatingSymbol(symbol: "X", size: 90, startX: geometry.size.width * 0.15, startY: -geometry.size.height * 0.1)
-                            FloatingSymbol(symbol: "O", size: 130, startX: -geometry.size.width * 0.15, startY: geometry.size.height * 0.1)
+                            FloatingSymbol(symbol: "X", size: isLandscape ? 60 : 90, 
+                                         startX: geometry.size.width * (isLandscape ? 0.1 : 0.15), 
+                                         startY: -geometry.size.height * (isLandscape ? 0.05 : 0.1))
+                            FloatingSymbol(symbol: "O", size: isLandscape ? 90 : 130, 
+                                         startX: -geometry.size.width * (isLandscape ? 0.1 : 0.15), 
+                                         startY: geometry.size.height * (isLandscape ? 0.05 : 0.1))
                         }
                         .opacity(backgroundOpacity * 1.5)
                         
-                        VStack {
-                            Spacer()
-                            
-                            // Title
-                            Text("XO Tournament")
-                                .font(.system(size: 46, weight: .heavy, design: .rounded))
-                                .foregroundColor(.white)
-                                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
-                                .offset(titleOffset)
-                                .rotationEffect(.degrees(titleRotation))
-                                .padding(.bottom, 50)
-                            
-                            if showTapPrompt {
-                                // Режими игре
-                                gameModeSelector
-                                    .padding(.bottom, 30)
-                                    .transition(.opacity)
+                        if isLandscape {
+                            HStack(spacing: 20) {
+                                Spacer()
                                 
-                                // Start Game button
-                                Button(action: {
-                                    SoundManager.shared.playSound(.tap)
-                                    SoundManager.shared.playHaptic()
-                                    
-                                    withAnimation(.easeInOut(duration: 0.6)) {
-                                        startGameTransition = true
-                                    }
-                                    
-                                    // Мала одгода пре стварне промене стања
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                        self.isActive = true
-                                    }
-                                }) {
-                                    Text("Start Game")
-                                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                                // Title and buttons on the left
+                                VStack {
+                                    Text("XO Tournament")
+                                        .font(.system(size: 36, weight: .heavy, design: .rounded))
                                         .foregroundColor(.white)
-                                        .padding(.vertical, 16)
-                                        .padding(.horizontal, 50)
-                                        .background(
-                                            Capsule()
-                                                .fill(
-                                                    LinearGradient(
-                                                        gradient: Gradient(colors: [
-                                                            Color(red: 0.3, green: 0.4, blue: 0.9),
-                                                            Color(red: 0.2, green: 0.3, blue: 0.7)
-                                                        ]),
-                                                        startPoint: .leading,
-                                                        endPoint: .trailing
-                                                    )
-                                                )
-                                                .shadow(color: Color(red: 0.2, green: 0.3, blue: 0.7).opacity(0.5), radius: 10, x: 0, y: 5)
-                                        )
-                                }
-                                .scaleEffect(1.0)
-                                .transition(.scale.combined(with: .opacity))
-                            }
-                            
-                            Spacer()
-                            
-                            // "How to Play" button
-                            if showTapPrompt {
-                                Button(action: {
-                                    SoundManager.shared.playSound(.tap)
-                                    SoundManager.shared.playLightHaptic()
-                                    self.showTutorial = true
-                                }) {
-                                    HStack {
-                                        Image(systemName: "questionmark.circle.fill")
-                                            .font(.system(size: 18))
-                                        Text("How to Play?")
-                                            .font(.system(size: 18, weight: .medium, design: .rounded))
+                                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
+                                        .offset(titleOffset)
+                                        .rotationEffect(.degrees(titleRotation))
+                                        .padding(.bottom, 20)
+                                    
+                                    if showTapPrompt {
+                                        gameModeSelector
+                                            .padding(.bottom, 20)
+                                            .transition(.opacity)
+                                        
+                                        startGameButton
+                                            .scaleEffect(1.0)
+                                            .transition(.scale.combined(with: .opacity))
+                                        
+                                        tutorialButton
+                                            .padding(.top, 10)
+                                            .transition(.opacity)
                                     }
-                                    .foregroundColor(.white)
-                                    .padding(.vertical, 12)
-                                    .padding(.horizontal, 24)
-                                    .background(
-                                        Capsule()
-                                            .fill(Color.white.opacity(0.2))
-                                            .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
-                                    )
                                 }
-                                .padding(.bottom, 30)
-                                .transition(.opacity)
+                                .frame(width: geometry.size.width * 0.4)
+                                
+                                Spacer()
+                            }
+                        } else {
+                            // Portrait layout remains unchanged
+                            VStack {
+                                Spacer()
+                                
+                                Text("XO Tournament")
+                                    .font(.system(size: 46, weight: .heavy, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
+                                    .offset(titleOffset)
+                                    .rotationEffect(.degrees(titleRotation))
+                                    .padding(.bottom, 50)
+                                
+                                if showTapPrompt {
+                                    gameModeSelector
+                                        .padding(.bottom, 30)
+                                        .transition(.opacity)
+                                    
+                                    startGameButton
+                                        .scaleEffect(1.0)
+                                        .transition(.scale.combined(with: .opacity))
+                                    
+                                    Spacer()
+                                    
+                                    tutorialButton
+                                        .padding(.bottom, 30)
+                                        .transition(.opacity)
+                                }
                             }
                         }
                     }
@@ -264,6 +255,66 @@ struct SplashView: View {
                 .fill(backgroundColor)
                 .shadow(color: shadowColor, radius: 5)
         )
+    }
+    
+    // MARK: - UI Components
+    
+    private var startGameButton: some View {
+        Button(action: {
+            SoundManager.shared.playSound(.tap)
+            SoundManager.shared.playHaptic()
+            
+            withAnimation(.easeInOut(duration: 0.6)) {
+                startGameTransition = true
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.isActive = true
+            }
+        }) {
+            Text("Start Game")
+                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+                .padding(.vertical, 16)
+                .padding(.horizontal, 50)
+                .background(
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color(red: 0.3, green: 0.4, blue: 0.9),
+                                    Color(red: 0.2, green: 0.3, blue: 0.7)
+                                ]),
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .shadow(color: Color(red: 0.2, green: 0.3, blue: 0.7).opacity(0.5), radius: 10, x: 0, y: 5)
+                )
+        }
+    }
+    
+    private var tutorialButton: some View {
+        Button(action: {
+            SoundManager.shared.playSound(.tap)
+            SoundManager.shared.playLightHaptic()
+            self.showTutorial = true
+        }) {
+            HStack {
+                Image(systemName: "questionmark.circle.fill")
+                    .font(.system(size: 18))
+                Text("How to Play?")
+                    .font(.system(size: 18, weight: .medium, design: .rounded))
+            }
+            .foregroundColor(.white)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 24)
+            .background(
+                Capsule()
+                    .fill(Color.white.opacity(0.2))
+                    .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+            )
+        }
     }
 }
 
