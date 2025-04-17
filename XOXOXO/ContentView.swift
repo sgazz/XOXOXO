@@ -46,7 +46,7 @@ struct GameView: View {
     private var gridSpacing: CGFloat {
         switch deviceLayout {
             case .iphone: return 12
-            case .iphoneLandscape: return 15
+            case .iphoneLandscape: return 10
             case .ipad: return 30
             case .ipadLandscape: return 35
         }
@@ -55,7 +55,7 @@ struct GameView: View {
     private var scoreFont: Font {
         switch deviceLayout {
             case .iphone: return .system(size: 32, weight: .bold)
-            case .iphoneLandscape: return .system(size: 28, weight: .bold)
+            case .iphoneLandscape: return .system(size: 24, weight: .bold)
             case .ipad: return .system(size: 48, weight: .bold)
             case .ipadLandscape: return .system(size: 42, weight: .bold)
         }
@@ -105,24 +105,28 @@ struct GameView: View {
                     .ignoresSafeArea()
                 
                 // Game content
-                ScrollView(deviceLayout.isLandscape ? .horizontal : .vertical, showsIndicators: false) {
-                    VStack(spacing: deviceLayout.isLandscape ? 10 : 15) {
-                        // Score display with timers
+                if deviceLayout.isLandscape {
+                    // Landscape layout - користимо цео екран
+                    HStack(spacing: 0) {
+                        // Score display with timers for landscape
                         scoreView
+                            .frame(width: geometry.size.width * 0.12)
                         
                         // Game boards grid
                         gameBoardsGrid(geometry: geometry)
-                            .padding(.bottom, deviceLayout.isIphone ? geometry.safeAreaInsets.bottom + 20 : 0)
                     }
-                    .frame(
-                        minWidth: deviceLayout.isLandscape ? geometry.size.width : nil,
-                        minHeight: deviceLayout.isLandscape ? nil : geometry.size.height - (deviceLayout.isIphone ? 120 : 0)
-                    )
-                }
-                .safeAreaInset(edge: .bottom) {
-                    if deviceLayout.isIphone {
-                        Spacer()
-                            .frame(height: 20)
+                    .ignoresSafeArea(.container, edges: [.leading, .trailing, .bottom])
+                } else {
+                    // Portrait layout - задржавамо постојећи
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 15) {
+                            scoreView
+                            gameBoardsGrid(geometry: geometry)
+                                .padding(.bottom, deviceLayout.isIphone ? geometry.safeAreaInsets.bottom + 20 : 0)
+                        }
+                        .frame(
+                            minHeight: geometry.size.height - (deviceLayout.isIphone ? 120 : 0)
+                        )
                     }
                 }
                 
@@ -185,43 +189,73 @@ struct GameView: View {
     // MARK: - UI Components
     
     private var scoreView: some View {
-        HStack(spacing: deviceLayout.scoreSpacing) {
-            // Player X timer
-            Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
-                .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
-                .font(scoreFont)
-                .minimumScaleFactor(0.5)
-            
-            // Main score
-            Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
-                .foregroundColor(.white)
-                .font(scoreFont.weight(.heavy))
-                .minimumScaleFactor(0.5)
-            
-            // Player O timer
-            Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
-                .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
-                .font(scoreFont)
-                .minimumScaleFactor(0.5)
+        Group {
+            if deviceLayout.isLandscape {
+                // Landscape score view
+                VStack(spacing: 10) {
+                    Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
+                        .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
+                        .font(.system(size: 20, weight: .bold))
+                        .minimumScaleFactor(0.5)
+                    
+                    Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
+                        .foregroundColor(.white)
+                        .font(.system(size: 32, weight: .heavy))
+                        .minimumScaleFactor(0.5)
+                    
+                    Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
+                        .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
+                        .font(.system(size: 20, weight: .bold))
+                        .minimumScaleFactor(0.5)
+                }
+            } else {
+                // Portrait score view
+                HStack(spacing: deviceLayout.scoreSpacing) {
+                    Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
+                        .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
+                        .font(scoreFont)
+                        .minimumScaleFactor(0.5)
+                    
+                    Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
+                        .foregroundColor(.white)
+                        .font(scoreFont.weight(.heavy))
+                        .minimumScaleFactor(0.5)
+                    
+                    Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
+                        .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
+                        .font(scoreFont)
+                        .minimumScaleFactor(0.5)
+                }
+                .padding(.vertical, deviceLayout.isIphone ? 5 : 10)
+            }
         }
-        .padding(.vertical, deviceLayout.isIphone ? 5 : 10)
     }
     
     private func gameBoardsGrid(geometry: GeometryProxy) -> some View {
-        LazyVGrid(
-            columns: gridLayout,
-            spacing: gridSpacing
+        let isLandscape = deviceLayout.isLandscape
+        let availableWidth = isLandscape ? geometry.size.width * 0.88 : geometry.size.width // 88% за табле у landscape
+        let spacing: CGFloat = isLandscape ? 8 : gridSpacing
+        
+        let gridItems = isLandscape ? [
+            GridItem(.flexible(), spacing: spacing),
+            GridItem(.flexible(), spacing: spacing),
+            GridItem(.flexible(), spacing: spacing),
+            GridItem(.flexible(), spacing: spacing)
+        ] : gridLayout
+        
+        return LazyVGrid(
+            columns: gridItems,
+            spacing: spacing
         ) {
             ForEach(0..<8) { index in
                 boardView(for: index, geometry: geometry)
             }
         }
-        .padding(.horizontal, deviceLayout.gridPadding)
-        .padding(.vertical, deviceLayout.isLandscape ? 10 : deviceLayout.gridPadding)
+        .frame(maxWidth: availableWidth)
     }
     
     private func boardView(for index: Int, geometry: GeometryProxy) -> some View {
-        let maxWidth = deviceLayout.maxBoardWidth(for: geometry.size)
+        let maxWidth = calculateBoardWidth(for: geometry)
         return BoardView(
             board: .init(
                 get: { gameLogic.boards[index] },
@@ -232,7 +266,18 @@ struct GameView: View {
                 handleBoardTap(boardIndex: index, position: position)
             }
         )
-        .frame(maxWidth: maxWidth)
+        .frame(maxWidth: maxWidth, maxHeight: maxWidth)
+    }
+    
+    private func calculateBoardWidth(for geometry: GeometryProxy) -> CGFloat {
+        if deviceLayout.isLandscape {
+            let availableWidth = geometry.size.width * 0.88 // 88% екрана за табле
+            let horizontalSpacing: CGFloat = 8 * 3 // 3 размака између 4 колоне
+            let boardWidth = (availableWidth - horizontalSpacing) / 4 // 4 табле у реду
+            return min(boardWidth, geometry.size.height * 0.45) // Ограничавамо висином
+        } else {
+            return deviceLayout.maxBoardWidth(for: geometry.size)
+        }
     }
     
     private func startTimer() {
@@ -321,8 +366,6 @@ struct GameView: View {
     
     // Background gradient
     private var backgroundGradient: some View {
-        let darkMode = colorScheme == .dark
-        
         // Користимо исте боје као у SplashView
         let colors: [Color] = [
             Color(red: 0.1, green: 0.2, blue: 0.45), // Deep blue
@@ -421,7 +464,8 @@ private enum DeviceLayout {
             case .iphone:
                 return min(140, (size.width - 40) / 2)
             case .iphoneLandscape:
-                return min(120, (size.width - 60) / 4)
+                let availableWidth = size.width * 0.85 // 85% екрана за табле
+                return min(size.height * 0.45, (availableWidth - 60) / 4) // Веће табле у landscape режиму
             case .ipad:
                 return min(200, (size.width - 80) / 3)
             case .ipadLandscape:
