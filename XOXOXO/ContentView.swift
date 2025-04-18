@@ -16,8 +16,15 @@ struct GameView: View {
     @State private var xBonusScale: CGFloat = 1.0
     @State private var oBonusScale: CGFloat = 1.0
     
+    // Нове променљиве за одузимање времена
+    @State private var showXPenalty = false
+    @State private var showOPenalty = false
+    @State private var xPenaltyScale: CGFloat = 1.0
+    @State private var oPenaltyScale: CGFloat = 1.0
+    
     private let defaultTime: TimeInterval = 300 // 5 minutes in seconds
     private let bonusTime: TimeInterval = 15 // 15 seconds bonus
+    private let penaltyTime: TimeInterval = 10 // 10 seconds penalty
     
     // Dynamic layout properties
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -292,10 +299,10 @@ struct GameView: View {
                             .minimumScaleFactor(0.5)
                         
                         // Бонус време за X
-                        Text(showXBonus ? "+15sec" : "00sec")
-                            .foregroundColor(showXBonus ? .green : .gray)
+                        Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : "00sec"))
+                            .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : .gray))
                             .font(.system(size: 14, weight: .medium))
-                            .scaleEffect(xBonusScale)
+                            .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : 1.0))
                     }
                     
                     Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
@@ -311,10 +318,10 @@ struct GameView: View {
                             .minimumScaleFactor(0.5)
                         
                         // Бонус време за O
-                        Text(showOBonus ? "+15sec" : "00sec")
-                            .foregroundColor(showOBonus ? .green : .gray)
+                        Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : "00sec"))
+                            .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : .gray))
                             .font(.system(size: 14, weight: .medium))
-                            .scaleEffect(oBonusScale)
+                            .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : 1.0))
                     }
                 }
             } else {
@@ -340,15 +347,15 @@ struct GameView: View {
                     
                     // Време потеза
                     HStack(spacing: deviceLayout.scoreSpacing * 1.5) {
-                        Text(showXBonus ? "+15sec" : "00sec")
-                            .foregroundColor(showXBonus ? .green : .gray)
+                        Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : "00sec"))
+                            .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : .gray))
                             .font(.system(size: deviceLayout.isIphone ? 16 : 20, weight: .medium))
-                            .scaleEffect(xBonusScale)
+                            .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : 1.0))
                         
-                        Text(showOBonus ? "+15sec" : "00sec")
-                            .foregroundColor(showOBonus ? .green : .gray)
+                        Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : "00sec"))
+                            .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : .gray))
                             .font(.system(size: deviceLayout.isIphone ? 16 : 20, weight: .medium))
-                            .scaleEffect(oBonusScale)
+                            .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : 1.0))
                     }
                     .padding(.top, 2)
                 }
@@ -493,13 +500,18 @@ struct GameView: View {
         }
     }
     
-    private func awardBonusTime(to player: String) {
-        // Додај бонус време
-        if player == "X" {
+    private func awardBonusTime(to winner: String) {
+        if winner == "X" {
             playerXTime += bonusTime
             showXBonus = true
             withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
                 xBonusScale = 1.3
+            }
+            // Одузми време губитнику
+            playerOTime = max(0, playerOTime - penaltyTime)
+            showOPenalty = true
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+                oPenaltyScale = 1.3
             }
         } else {
             playerOTime += bonusTime
@@ -507,20 +519,30 @@ struct GameView: View {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
                 oBonusScale = 1.3
             }
+            // Одузми време губитнику
+            playerXTime = max(0, playerXTime - penaltyTime)
+            showXPenalty = true
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+                xPenaltyScale = 1.3
+            }
         }
         
         // Пусти звук за бонус
         SoundManager.shared.playSound(.win)
         
-        // Ресетуј приказ бонуса након 1.5 секунде
+        // Ресетуј приказ бонуса и казне након 1.5 секунде
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             withAnimation(.easeOut(duration: 0.3)) {
-                if player == "X" {
+                if winner == "X" {
                     showXBonus = false
+                    showOPenalty = false
                     xBonusScale = 1.0
+                    oPenaltyScale = 1.0
                 } else {
                     showOBonus = false
+                    showXPenalty = false
                     oBonusScale = 1.0
+                    xPenaltyScale = 1.0
                 }
             }
         }
