@@ -22,9 +22,16 @@ struct GameView: View {
     @State private var xPenaltyScale: CGFloat = 1.0
     @State private var oPenaltyScale: CGFloat = 1.0
     
+    // Нове променљиве за нерешену партију
+    @State private var showXDrawPenalty = false
+    @State private var showODrawPenalty = false
+    @State private var xDrawPenaltyScale: CGFloat = 1.0
+    @State private var oDrawPenaltyScale: CGFloat = 1.0
+    
     private let defaultTime: TimeInterval = 300 // 5 minutes in seconds
     private let bonusTime: TimeInterval = 15 // 15 seconds bonus
     private let penaltyTime: TimeInterval = 10 // 10 seconds penalty
+    private let drawPenaltyTime: TimeInterval = 5 // 5 seconds penalty for draw
     
     // Dynamic layout properties
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -260,8 +267,8 @@ struct GameView: View {
                         .offset(y: -20)
                     }
                     .transition(.asymmetric(
-                        insertion: .scale.combined(with: .opacity),
-                        removal: .scale.combined(with: .opacity)
+                        insertion: .scale(scale: 0.8).combined(with: .opacity),
+                        removal: .scale(scale: 1.1).combined(with: .opacity)
                     ))
                 }
             }
@@ -298,11 +305,11 @@ struct GameView: View {
                             .font(.system(size: 20, weight: .bold))
                             .minimumScaleFactor(0.5)
                         
-                        // Бонус време за X
-                        Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : "00sec"))
-                            .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : .gray))
+                        // Бонус/казна време за X
+                        Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "00sec")))
+                            .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : (showXDrawPenalty ? .orange : .gray)))
                             .font(.system(size: 14, weight: .medium))
-                            .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : 1.0))
+                            .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : (showXDrawPenalty ? xDrawPenaltyScale : 1.0)))
                     }
                     
                     Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
@@ -317,11 +324,11 @@ struct GameView: View {
                             .font(.system(size: 20, weight: .bold))
                             .minimumScaleFactor(0.5)
                         
-                        // Бонус време за O
-                        Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : "00sec"))
-                            .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : .gray))
+                        // Бонус/казна време за O
+                        Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "00sec")))
+                            .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
                             .font(.system(size: 14, weight: .medium))
-                            .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : 1.0))
+                            .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
                     }
                 }
             } else {
@@ -347,15 +354,15 @@ struct GameView: View {
                     
                     // Време потеза
                     HStack(spacing: deviceLayout.scoreSpacing * 1.5) {
-                        Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : "00sec"))
-                            .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : .gray))
+                        Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "00sec")))
+                            .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : (showXDrawPenalty ? .orange : .gray)))
                             .font(.system(size: deviceLayout.isIphone ? 16 : 20, weight: .medium))
-                            .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : 1.0))
+                            .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : (showXDrawPenalty ? xDrawPenaltyScale : 1.0)))
                         
-                        Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : "00sec"))
-                            .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : .gray))
+                        Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "00sec")))
+                            .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
                             .font(.system(size: deviceLayout.isIphone ? 16 : 20, weight: .medium))
-                            .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : 1.0))
+                            .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
                     }
                     .padding(.top, 2)
                 }
@@ -422,20 +429,22 @@ struct GameView: View {
     private func startTimer() {
         isTimerRunning = true
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            // Одузми време тренутном играчу
             if gameLogic.currentPlayer == "X" {
                 if playerXTime > 0 {
                     playerXTime -= 1
-                    if playerXTime == 0 {
-                        handleTimeout(player: "X")
-                    }
                 }
             } else {
                 if playerOTime > 0 {
                     playerOTime -= 1
-                    if playerOTime == 0 {
-                        handleTimeout(player: "O")
-                    }
                 }
+            }
+            
+            // Провери да ли је неком истекло време
+            if playerXTime == 0 && !showGameOver {
+                handleTimeout(player: "X")
+            } else if playerOTime == 0 && !showGameOver {
+                handleTimeout(player: "O")
             }
         }
     }
@@ -457,7 +466,8 @@ struct GameView: View {
         if gameLogic.boards[boardIndex][position].isEmpty &&
            !gameLogic.isThinking &&
            gameLogic.currentBoard == boardIndex &&
-           (!gameLogic.gameOver) {
+           (!gameLogic.gameOver) &&
+           playerXTime > 0 && playerOTime > 0 {
 
             // Stop timer for current player
             stopTimer()
@@ -466,13 +476,15 @@ struct GameView: View {
             SoundManager.shared.playSound(.move)
             SoundManager.shared.playHaptic()
 
-            // Провери да ли ће потез бити победнички
-            if let winner = gameLogic.simulateMove(at: position, in: boardIndex, for: gameLogic.currentPlayer) {
-                awardBonusTime(to: winner)
-            }
-            
-            // Направи прави потез
+            // Направи потез
             gameLogic.makeMove(at: position, in: boardIndex)
+            
+            // Провери резултат
+            if let winner = gameLogic.getLastWinner(for: boardIndex) {
+                awardBonusTime(to: winner)
+            } else if gameLogic.wasLastMoveDraw(in: boardIndex) {
+                handleDrawPenalty()
+            }
 
             // Start timer for next player
             startTimer()
@@ -480,15 +492,17 @@ struct GameView: View {
             // For AI mode, make AI move with random thinking time
             if gameLogic.gameMode == .aiOpponent && !gameLogic.gameOver {
                 let thinkingTime = Double.random(in: 0.5...1.5)
-                let currentBoardIndex = gameLogic.currentBoard // Сачувај тренутну таблу
+                let currentBoardIndex = gameLogic.currentBoard
                 
                 gameLogic.makeAIMove(in: currentBoardIndex, thinkingTime: thinkingTime) {
                     // Sound for AI move
                     SoundManager.shared.playSound(.move)
                     
-                    // Провери да ли је AI победио на табли
+                    // Провери резултат након AI потеза
                     if let winner = self.gameLogic.getLastWinner(for: currentBoardIndex) {
                         self.awardBonusTime(to: winner)
+                    } else if self.gameLogic.wasLastMoveDraw(in: currentBoardIndex) {
+                        self.handleDrawPenalty()
                     }
                     
                     // Stop timer after AI move
@@ -551,8 +565,13 @@ struct GameView: View {
     private func handleTimeout(player: String) {
         stopTimer()
         timeoutPlayer = player
-        // Сачекај 3 секунде пре приказа Game Over екрана
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+        gameLogic.gameOver = true
+        
+        // Пусти звук за крај игре
+        SoundManager.shared.playSound(.win)
+        
+        // Одмах прикажи Game Over екран
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
             showGameOver = true
         }
     }
@@ -563,6 +582,34 @@ struct GameView: View {
         resetTimers()
         gameLogic.resetGame()
         startTimer()
+    }
+    
+    private func handleDrawPenalty() {
+        // Одузми време обојици играча
+        playerXTime = max(0, playerXTime - drawPenaltyTime)
+        playerOTime = max(0, playerOTime - drawPenaltyTime)
+        
+        // Прикажи анимације
+        showXDrawPenalty = true
+        showODrawPenalty = true
+        
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+            xDrawPenaltyScale = 1.3
+            oDrawPenaltyScale = 1.3
+        }
+        
+        // Пусти звук за нерешено
+        SoundManager.shared.playSound(.move)
+        
+        // Ресетуј приказ након 1.5 секунде
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.easeOut(duration: 0.3)) {
+                showXDrawPenalty = false
+                showODrawPenalty = false
+                xDrawPenaltyScale = 1.0
+                oDrawPenaltyScale = 1.0
+            }
+        }
     }
     
     // Background gradient
