@@ -238,7 +238,7 @@ struct TutorialView: View {
                 .padding(.horizontal, isLandscape ? 20 : 30)
                 .padding(.top, isLandscape ? 5 : 20)
                 .lineSpacing(8)
-                .shadow(color: Color.black.opacity(0.15), radius: 1, x: 0, y: 0.5)
+                .shadow(color: Color.black.opacity(0.3), radius: 1, x: 0, y: 0.5)
         }
         .background(
             RoundedRectangle(cornerRadius: 20)
