@@ -16,6 +16,10 @@ class GameLogic: ObservableObject {
     @Published var boardScores: [(x: Int, o: Int)]
     @Published var totalScore: (x: Int, o: Int)
     @Published var gameMode: GameMode = .aiOpponent
+    
+    // Додајемо променљиву за праћење последњег победника
+    private var lastWinner: String?
+    private var lastWinningBoard: Int?
 
     static let winningCombinations = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8], // horizontal
@@ -35,12 +39,20 @@ class GameLogic: ObservableObject {
     }
 
     func makeMove(at position: Int, in boardIndex: Int) {
+        // Ресетујемо праћење победника
+        lastWinner = nil
+        lastWinningBoard = nil
+        
         boards[boardIndex][position] = currentPlayer
 
         // Check if this board is complete
         if checkBoardComplete(in: boardIndex) {
             // Update scores if there is a winner
             if let boardWinner = checkBoardWinner(in: boardIndex) {
+                // Памтимо победника пре ресетовања табле
+                lastWinner = boardWinner
+                lastWinningBoard = boardIndex
+                
                 if boardWinner == "X" {
                     boardScores[boardIndex].x += 1
                     totalScore.x += 1
@@ -66,7 +78,7 @@ class GameLogic: ObservableObject {
         return checkBoardWinner(in: boardIndex) != nil || !boards[boardIndex].contains("")
     }
 
-    private func checkBoardWinner(in boardIndex: Int) -> String? {
+    func checkBoardWinner(in boardIndex: Int) -> String? {
         for combination in Self.winningCombinations {
             if boards[boardIndex][combination[0]] != "" &&
                boards[boardIndex][combination[0]] == boards[boardIndex][combination[1]] &&
@@ -128,5 +140,30 @@ class GameLogic: ObservableObject {
         
         // Обавести UI да се мод променио
         objectWillChange.send()
+    }
+
+    // Нова функција за симулацију потеза
+    func simulateMove(at position: Int, in boardIndex: Int, for player: String) -> String? {
+        // Сачувај тренутно стање
+        let originalValue = boards[boardIndex][position]
+        
+        // Симулирај потез
+        boards[boardIndex][position] = player
+        
+        // Провери победника
+        let winner = checkBoardWinner(in: boardIndex)
+        
+        // Врати на оригинално стање
+        boards[boardIndex][position] = originalValue
+        
+        return winner
+    }
+
+    // Нова функција за проверу последњег победника
+    func getLastWinner(for boardIndex: Int) -> String? {
+        if lastWinningBoard == boardIndex {
+            return lastWinner
+        }
+        return nil
     }
 }

@@ -10,7 +10,14 @@ struct GameView: View {
     @State private var showGameOver = false
     @State private var timeoutPlayer: String? = nil
     
+    // Нове променљиве за бонус време
+    @State private var showXBonus = false
+    @State private var showOBonus = false
+    @State private var xBonusScale: CGFloat = 1.0
+    @State private var oBonusScale: CGFloat = 1.0
+    
     private let defaultTime: TimeInterval = 300 // 5 minutes in seconds
+    private let bonusTime: TimeInterval = 15 // 15 seconds bonus
     
     // Dynamic layout properties
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -132,39 +139,123 @@ struct GameView: View {
                 
                 // Game Over overlay
                 if showGameOver {
-                    Color.black.opacity(0.7)
-                        .ignoresSafeArea()
-                        .blur(radius: 3)
-                    
-                    VStack(spacing: 30) {
-                        Text("Game Over")
-                            .font(.system(size: 46, weight: .bold))
-                            .foregroundColor(.white)
+                    ZStack {
+                        // Замагљена позадина са градијентом
+                        backgroundGradient
+                            .blur(radius: 20)
+                            .opacity(0.98)
+                            .ignoresSafeArea()
                         
-                        if let player = timeoutPlayer {
-                            Text("\(player == "X" ? "Blue" : "Red") player ran out of time!")
-                                .font(.title2)
-                                .foregroundColor(.red)
-                                .multilineTextAlignment(.center)
-                        }
-                        
-                        Button(action: resetGame) {
-                            Text("Play Again")
-                                .font(.title2.bold())
-                                .foregroundColor(.white)
-                                .frame(width: 200, height: 50)
-                                .background(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [.blue, .purple]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
+                        // Садржај Game Over прозора
+                        VStack(spacing: 25) {
+                            // Анимирана икона
+                            ZStack {
+                                Circle()
+                                    .fill(LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            timeoutPlayer == nil ? Color.green : Color.red,
+                                            timeoutPlayer == nil ? Color.blue : Color.orange
+                                        ]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ))
+                                    .frame(width: 120, height: 120)
+                                    .shadow(color: (timeoutPlayer == nil ? Color.green : Color.red).opacity(0.5), radius: 15)
+                                
+                                Image(systemName: timeoutPlayer == nil ? "trophy.fill" : "timer")
+                                    .font(.system(size: 50))
+                                    .foregroundColor(.white)
+                                    .shadow(color: .black.opacity(0.2), radius: 2)
+                            }
+                            .scaleEffect(1.2)
+                            .rotation3DEffect(.degrees(showGameOver ? 360 : 0), axis: (x: 0, y: 1, z: 0))
+                            .animation(.spring(response: 0.6, dampingFraction: 0.6), value: showGameOver)
+                            
+                            // Наслов и поднаслов
+                            VStack(spacing: 10) {
+                                Text("Game Over")
+                                    .font(.system(size: 46, weight: .heavy))
+                                    .foregroundColor(.white)
+                                    .shadow(color: .black.opacity(0.2), radius: 2)
+                                
+                                if let player = timeoutPlayer {
+                                    Text("\(player == "X" ? "Blue" : "Red") player ran out of time!")
+                                        .font(.title2)
+                                        .foregroundColor(.white.opacity(0.9))
+                                        .multilineTextAlignment(.center)
+                                }
+                            }
+                            
+                            // Статистика игре
+                            HStack(spacing: 30) {
+                                // Време плавог играча
+                                VStack {
+                                    Text("Blue Time")
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.8))
+                                    Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
+                                        .font(.title2.bold())
+                                        .foregroundColor(.blue)
+                                }
+                                
+                                // Резултат
+                                VStack {
+                                    Text("Score")
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.8))
+                                    Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
+                                        .font(.title.bold())
+                                        .foregroundColor(.white)
+                                }
+                                
+                                // Време црвеног играча
+                                VStack {
+                                    Text("Red Time")
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.8))
+                                    Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
+                                        .font(.title2.bold())
+                                        .foregroundColor(.red)
+                                }
+                            }
+                            .padding(.vertical, 20)
+                            .padding(.horizontal, 30)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(.ultraThinMaterial)
+                                    .shadow(color: .black.opacity(0.2), radius: 10)
+                            )
+                            
+                            // Дугме за поновну игру
+                            Button(action: resetGame) {
+                                Text("Play Again")
+                                    .font(.title2.bold())
+                                    .foregroundColor(.white)
+                                    .frame(width: 200, height: 50)
+                                    .background(
+                                        Capsule()
+                                            .fill(
+                                                LinearGradient(
+                                                    gradient: Gradient(colors: [
+                                                        Color(red: 0.3, green: 0.4, blue: 0.9),
+                                                        Color(red: 0.2, green: 0.3, blue: 0.7)
+                                                    ]),
+                                                    startPoint: .leading,
+                                                    endPoint: .trailing
+                                                )
+                                            )
                                     )
-                                )
-                                .cornerRadius(25)
-                                .shadow(color: .purple.opacity(0.4), radius: 6, x: 0, y: 3)
+                                    .shadow(color: Color(red: 0.2, green: 0.3, blue: 0.7).opacity(0.5), radius: 10, x: 0, y: 5)
+                            }
+                            .scaleEffect(1.0)
+                            .animation(.spring(response: 0.4, dampingFraction: 0.6), value: showGameOver)
                         }
+                        .offset(y: -20)
                     }
-                    .transition(.scale.combined(with: .opacity))
+                    .transition(.asymmetric(
+                        insertion: .scale.combined(with: .opacity),
+                        removal: .scale.combined(with: .opacity)
+                    ))
                 }
             }
             .sheet(isPresented: $showPurchaseView) {
@@ -193,42 +284,83 @@ struct GameView: View {
             if deviceLayout.isLandscape {
                 // Landscape score view
                 VStack(spacing: 10) {
-                    Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
-                        .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
-                        .font(.system(size: 20, weight: .bold))
-                        .minimumScaleFactor(0.5)
+                    // Време плавог играча (X)
+                    VStack(spacing: 4) {
+                        Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
+                            .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
+                            .font(.system(size: 20, weight: .bold))
+                            .minimumScaleFactor(0.5)
+                        
+                        // Бонус време за X
+                        Text(showXBonus ? "+15sec" : "00sec")
+                            .foregroundColor(showXBonus ? .green : .gray)
+                            .font(.system(size: 14, weight: .medium))
+                            .scaleEffect(xBonusScale)
+                    }
                     
                     Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
                         .foregroundColor(.white)
                         .font(.system(size: 32, weight: .heavy))
                         .minimumScaleFactor(0.5)
                     
-                    Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
-                        .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
-                        .font(.system(size: 20, weight: .bold))
-                        .minimumScaleFactor(0.5)
+                    // Време црвеног играча (O)
+                    VStack(spacing: 4) {
+                        Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
+                            .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
+                            .font(.system(size: 20, weight: .bold))
+                            .minimumScaleFactor(0.5)
+                        
+                        // Бонус време за O
+                        Text(showOBonus ? "+15sec" : "00sec")
+                            .foregroundColor(showOBonus ? .green : .gray)
+                            .font(.system(size: 14, weight: .medium))
+                            .scaleEffect(oBonusScale)
+                    }
                 }
             } else {
                 // Portrait score view
-                HStack(spacing: deviceLayout.scoreSpacing) {
-                    Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
-                        .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
-                        .font(scoreFont)
-                        .minimumScaleFactor(0.5)
+                VStack(spacing: 8) {
+                    // Резултат и тајмери
+                    HStack(spacing: deviceLayout.scoreSpacing) {
+                        Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
+                            .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
+                            .font(scoreFont)
+                            .minimumScaleFactor(0.5)
+                        
+                        Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
+                            .foregroundColor(.white)
+                            .font(scoreFont.weight(.heavy))
+                            .minimumScaleFactor(0.5)
+                        
+                        Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
+                            .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
+                            .font(scoreFont)
+                            .minimumScaleFactor(0.5)
+                    }
                     
-                    Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
-                        .foregroundColor(.white)
-                        .font(scoreFont.weight(.heavy))
-                        .minimumScaleFactor(0.5)
-                    
-                    Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
-                        .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
-                        .font(scoreFont)
-                        .minimumScaleFactor(0.5)
+                    // Време потеза
+                    HStack(spacing: deviceLayout.scoreSpacing * 1.5) {
+                        Text(showXBonus ? "+15sec" : "00sec")
+                            .foregroundColor(showXBonus ? .green : .gray)
+                            .font(.system(size: deviceLayout.isIphone ? 16 : 20, weight: .medium))
+                            .scaleEffect(xBonusScale)
+                        
+                        Text(showOBonus ? "+15sec" : "00sec")
+                            .foregroundColor(showOBonus ? .green : .gray)
+                            .font(.system(size: deviceLayout.isIphone ? 16 : 20, weight: .medium))
+                            .scaleEffect(oBonusScale)
+                    }
+                    .padding(.top, 2)
                 }
                 .padding(.vertical, deviceLayout.isIphone ? 5 : 10)
             }
         }
+        .background(
+            RoundedRectangle(cornerRadius: 15)
+                .fill(Color.white.opacity(0.05))
+                .shadow(color: Color.black.opacity(0.1), radius: 5)
+        )
+        .padding(.horizontal, deviceLayout.isIphone ? 10 : 20)
     }
     
     private func gameBoardsGrid(geometry: GeometryProxy) -> some View {
@@ -327,6 +459,12 @@ struct GameView: View {
             SoundManager.shared.playSound(.move)
             SoundManager.shared.playHaptic()
 
+            // Провери да ли ће потез бити победнички
+            if let winner = gameLogic.simulateMove(at: position, in: boardIndex, for: gameLogic.currentPlayer) {
+                awardBonusTime(to: winner)
+            }
+            
+            // Направи прави потез
             gameLogic.makeMove(at: position, in: boardIndex)
 
             // Start timer for next player
@@ -335,13 +473,54 @@ struct GameView: View {
             // For AI mode, make AI move with random thinking time
             if gameLogic.gameMode == .aiOpponent && !gameLogic.gameOver {
                 let thinkingTime = Double.random(in: 0.5...1.5)
-                gameLogic.makeAIMove(in: boardIndex, thinkingTime: thinkingTime) {
+                let currentBoardIndex = gameLogic.currentBoard // Сачувај тренутну таблу
+                
+                gameLogic.makeAIMove(in: currentBoardIndex, thinkingTime: thinkingTime) {
                     // Sound for AI move
                     SoundManager.shared.playSound(.move)
+                    
+                    // Провери да ли је AI победио на табли
+                    if let winner = self.gameLogic.getLastWinner(for: currentBoardIndex) {
+                        self.awardBonusTime(to: winner)
+                    }
+                    
                     // Stop timer after AI move
-                    stopTimer()
+                    self.stopTimer()
                     // Start timer for player
-                    startTimer()
+                    self.startTimer()
+                }
+            }
+        }
+    }
+    
+    private func awardBonusTime(to player: String) {
+        // Додај бонус време
+        if player == "X" {
+            playerXTime += bonusTime
+            showXBonus = true
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+                xBonusScale = 1.3
+            }
+        } else {
+            playerOTime += bonusTime
+            showOBonus = true
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+                oBonusScale = 1.3
+            }
+        }
+        
+        // Пусти звук за бонус
+        SoundManager.shared.playSound(.win)
+        
+        // Ресетуј приказ бонуса након 1.5 секунде
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.easeOut(duration: 0.3)) {
+                if player == "X" {
+                    showXBonus = false
+                    xBonusScale = 1.0
+                } else {
+                    showOBonus = false
+                    oBonusScale = 1.0
                 }
             }
         }
