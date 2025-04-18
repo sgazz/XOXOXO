@@ -1,4 +1,5 @@
 import SwiftUI
+
 struct GameView: View {
     @StateObject private var gameLogic: GameLogic
     @State private var showPurchaseView = false
@@ -153,123 +154,23 @@ struct GameView: View {
                 
                 // Game Over overlay
                 if showGameOver {
-                    ZStack {
-                        // Замагљена позадина са градијентом
-                        backgroundGradient
-                            .blur(radius: 20)
-                            .opacity(0.98)
-                            .ignoresSafeArea()
-                        
-                        // Садржај Game Over прозора
-                        VStack(spacing: 25) {
-                            // Анимирана икона
-                            ZStack {
-                                Circle()
-                                    .fill(LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            timeoutPlayer == nil ? Color.green : Color.red,
-                                            timeoutPlayer == nil ? Color.blue : Color.orange
-                                        ]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ))
-                                    .frame(width: 120, height: 120)
-                                    .shadow(color: (timeoutPlayer == nil ? Color.green : Color.red).opacity(0.5), radius: 15)
-                                
-                                Image(systemName: timeoutPlayer == nil ? "trophy.fill" : "timer")
-                                    .font(.system(size: 50))
-                                    .foregroundColor(.white)
-                                    .shadow(color: .black.opacity(0.2), radius: 2)
-                            }
-                            .scaleEffect(1.2)
-                            .rotation3DEffect(.degrees(showGameOver ? 360 : 0), axis: (x: 0, y: 1, z: 0))
-                            .animation(.spring(response: 0.6, dampingFraction: 0.6), value: showGameOver)
-                            
-                            // Наслов и поднаслов
-                            VStack(spacing: 10) {
-                                Text("Game Over")
-                                    .font(.system(size: 46, weight: .heavy))
-                                    .foregroundColor(.white)
-                                    .shadow(color: .black.opacity(0.2), radius: 2)
-                                
-                                if let player = timeoutPlayer {
-                                    Text("\(player == "X" ? "Blue" : "Red") player ran out of time!")
-                                        .font(.title2)
-                                        .foregroundColor(.white.opacity(0.9))
-                                        .multilineTextAlignment(.center)
-                                }
-                            }
-                            
-                            // Статистика игре
-                            HStack(spacing: 30) {
-                                // Време плавог играча
-                                VStack {
-                                    Text("Blue Time")
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.8))
-                                    Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
-                                        .font(.title2.bold())
-                                        .foregroundColor(.blue)
-                                }
-                                
-                                // Резултат
-                                VStack {
-                                    Text("Score")
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.8))
-                                    Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
-                                        .font(.title.bold())
-                                        .foregroundColor(.white)
-                                }
-                                
-                                // Време црвеног играча
-                                VStack {
-                                    Text("Red Time")
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.8))
-                                    Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
-                                        .font(.title2.bold())
-                                        .foregroundColor(.red)
-                                }
-                            }
-                            .padding(.vertical, 20)
-                            .padding(.horizontal, 30)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(.ultraThinMaterial)
-                                    .shadow(color: .black.opacity(0.2), radius: 10)
-                            )
-                            
-                            // Дугме за поновну игру
-                            Button(action: resetGame) {
-                                Text("Play Again")
-                                    .font(.title2.bold())
-                                    .foregroundColor(.white)
-                                    .frame(width: 200, height: 50)
-                                    .background(
-                                        Capsule()
-                                            .fill(
-                                                LinearGradient(
-                                                    gradient: Gradient(colors: [
-                                                        Color(red: 0.3, green: 0.4, blue: 0.9),
-                                                        Color(red: 0.2, green: 0.3, blue: 0.7)
-                                                    ]),
-                                                    startPoint: .leading,
-                                                    endPoint: .trailing
-                                                )
-                                            )
-                                    )
-                                    .shadow(color: Color(red: 0.2, green: 0.3, blue: 0.7).opacity(0.5), radius: 10, x: 0, y: 5)
-                            }
-                            .scaleEffect(1.0)
-                            .animation(.spring(response: 0.4, dampingFraction: 0.6), value: showGameOver)
-                        }
-                        .offset(y: -20)
-                    }
-                    .transition(.asymmetric(
-                        insertion: .scale(scale: 0.8).combined(with: .opacity),
-                        removal: .scale(scale: 1.1).combined(with: .opacity)
-                    ))
+                    GameOverView(
+                        timeoutPlayer: timeoutPlayer,
+                        playerXTime: playerXTime,
+                        playerOTime: playerOTime,
+                        score: gameLogic.totalScore,
+                        isPvPUnlocked: isPvPUnlocked,
+                        deviceLayout: deviceLayout,
+                        onPlayVsAI: {
+                            gameLogic.changeGameMode(to: .aiOpponent)
+                            resetGame()
+                        },
+                        onPlayVsPlayer: {
+                            gameLogic.changeGameMode(to: .playerVsPlayer)
+                            resetGame()
+                        },
+                        onShowPurchase: { showPurchaseView = true }
+                    )
                 }
             }
             .sheet(isPresented: $showPurchaseView) {
@@ -655,69 +556,4 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-}
-
-private enum DeviceLayout {
-    case iphone
-    case iphoneLandscape
-    case ipad
-    case ipadLandscape
-    
-    var isLandscape: Bool {
-        self == .iphoneLandscape || self == .ipadLandscape
-    }
-    
-    var isIphone: Bool {
-        self == .iphone || self == .iphoneLandscape
-    }
-    
-    var topPadding: CGFloat {
-        switch self {
-            case .iphone: return 10
-            case .iphoneLandscape: return 5
-            case .ipad: return 30
-            case .ipadLandscape: return 20
-        }
-    }
-    
-    var bottomSafeArea: CGFloat {
-        switch self {
-            case .iphone: return 30
-            case .iphoneLandscape: return 20
-            case .ipad: return 40
-            case .ipadLandscape: return 30
-        }
-    }
-    
-    var scoreSpacing: CGFloat {
-        switch self {
-            case .iphone: return 20
-            case .iphoneLandscape: return 15
-            case .ipad: return 40
-            case .ipadLandscape: return 30
-        }
-    }
-    
-    var gridPadding: CGFloat {
-        switch self {
-            case .iphone: return 16
-            case .iphoneLandscape: return 12
-            case .ipad: return 24
-            case .ipadLandscape: return 20
-        }
-    }
-    
-    func maxBoardWidth(for size: CGSize) -> CGFloat {
-        switch self {
-            case .iphone:
-                return min(140, (size.width - 40) / 2)
-            case .iphoneLandscape:
-                let availableWidth = size.width * 0.85 // 85% екрана за табле
-                return min(size.height * 0.45, (availableWidth - 60) / 4) // Веће табле у landscape режиму
-            case .ipad:
-                return min(200, (size.width - 80) / 3)
-            case .ipadLandscape:
-                return min(180, (size.width - 100) / 3)
-        }
-    }
 }

@@ -20,6 +20,8 @@ class GameLogic: ObservableObject {
     // Додајемо променљиву за праћење последњег победника
     private var lastWinner: String?
     private var lastWinningBoard: Int?
+    // Додајемо променљиву за праћење нерешеног резултата
+    private var lastDrawBoard: Int?
 
     static let winningCombinations = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8], // horizontal
@@ -39,9 +41,10 @@ class GameLogic: ObservableObject {
     }
 
     func makeMove(at position: Int, in boardIndex: Int) {
-        // Ресетујемо праћење победника
+        // Ресетујемо праћење
         lastWinner = nil
         lastWinningBoard = nil
+        lastDrawBoard = nil
         
         boards[boardIndex][position] = currentPlayer
 
@@ -60,6 +63,9 @@ class GameLogic: ObservableObject {
                     boardScores[boardIndex].o += 1
                     totalScore.o += 1
                 }
+            } else {
+                // Ако нема победника а табла је пуна, то је нерешено
+                lastDrawBoard = boardIndex
             }
             // Reset this board
             boards[boardIndex] = Array(repeating: "", count: 9)
@@ -165,5 +171,10 @@ class GameLogic: ObservableObject {
             return lastWinner
         }
         return nil
+    }
+
+    // Нова функција за проверу нерешеног резултата
+    func wasLastMoveDraw(in boardIndex: Int) -> Bool {
+        return lastDrawBoard == boardIndex
     }
 }
