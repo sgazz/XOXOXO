@@ -32,15 +32,15 @@ struct SplashView: View {
                     
                     // Прилагођене величине за iPad и iPhone landscape
                     let titleSize = isIPad ? 
-                        min(geometry.size.width * (isLandscape ? 0.1 : 0.15), 96) : 
+                        min(geometry.size.width * (isLandscape ? 0.09 : 0.135), 86) :
                         min(geometry.size.width * (isLandscape ? 0.06 : 0.12), 56)
                     
                     let subtitleSize = isIPad ? 
-                        min(geometry.size.width * (isLandscape ? 0.04 : 0.06), 36) : 
+                        min(geometry.size.width * (isLandscape ? 0.036 : 0.054), 32) :
                         min(geometry.size.width * (isLandscape ? 0.025 : 0.045), 24)
                     
                     let descriptionSize = isIPad ? 
-                        min(geometry.size.width * (isLandscape ? 0.03 : 0.045), 28) : 
+                        min(geometry.size.width * (isLandscape ? 0.027 : 0.0405), 25) :
                         min(geometry.size.width * (isLandscape ? 0.02 : 0.035), 18)
                     
                     let buttonWidth = isIPad ? 
@@ -53,20 +53,20 @@ struct SplashView: View {
                     
                     let buttonHeight = isIPad ? 
                         (isLandscape ? 100 : 120) : 
-                        (isLandscape ? 55 : 80)
+                        80 // Иста висина за оба мода на iPhone
                     
                     // Прилагођени размаци
                     let verticalSpacing = isIPad ? 
                         (isLandscape ? 15.0 : 20.0) : 
-                        (isLandscape ? 8.0 : 12.0)
+                        12.0 // Исти размак за оба мода на iPhone
                     
                     let topPadding = geometry.size.height * (isIPad ? 
                         (isLandscape ? 0.05 : 0.08) : 
-                        (isLandscape ? 0.05 : 0.05))
+                        0.05)
                     
                     let bottomPadding = geometry.size.height * (isIPad ? 
                         (isLandscape ? 0.04 : 0.06) : 
-                        (isLandscape ? 0.05 : 0.04))
+                        0.04)
 
                     // Floating elements величине
                     let boardSizes = isIPad ?
@@ -477,15 +477,15 @@ struct SplashView: View {
     
     private func aiButtonContent(geometry: GeometryProxy, isIPad: Bool, buttonWidth: CGFloat, isLandscape: Bool) -> some View {
         let fontSize = isIPad ? 
-            min(geometry.size.width * 0.04, 36) : 
-            min(geometry.size.width * (isLandscape ? 0.02 : 0.06), 24)
+            min(geometry.size.width * 0.036, 32) : 
+            min(geometry.size.width * 0.054, 22)
         
         let isSelected = selectedGameMode == .aiOpponent
         let foregroundColor = isSelected ? Color.white : Color.white.opacity(0.8)
         let backgroundColor = isSelected ? Color.blue.opacity(0.7) : Color.white.opacity(0.15)
         let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
         
-        return HStack(spacing: isIPad ? 20 : (isLandscape ? 8 : 15)) {
+        return HStack(spacing: isIPad ? 20 : 15) { // Исти размак за оба мода
             Image(systemName: "cpu")
                 .font(.system(size: fontSize))
                 .layoutPriority(1)
@@ -496,12 +496,12 @@ struct SplashView: View {
         }
         .foregroundColor(foregroundColor)
         .frame(width: buttonWidth)
-        .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : (isLandscape ? 0.02 : 0.06)))
-        .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : (isLandscape ? 0.01 : 0.03)))
+        .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : 0.06)) // Исти padding за оба мода
+        .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : 0.03)) // Исти padding за оба мода
         .background(
             Capsule()
                 .fill(backgroundColor)
-                .shadow(color: shadowColor, radius: isIPad ? 8 : (isLandscape ? 3 : 5))
+                .shadow(color: shadowColor, radius: isIPad ? 8 : 5) // Иста сенка за оба мода
         )
         .scaleEffect(isSelected ? 1.05 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isSelected)
@@ -509,8 +509,8 @@ struct SplashView: View {
     
     private func pvpButtonContent(geometry: GeometryProxy, isIPad: Bool, buttonWidth: CGFloat, isLandscape: Bool) -> some View {
         let fontSize = isIPad ? 
-            min(geometry.size.width * 0.04, 36) : 
-            min(geometry.size.width * (isLandscape ? 0.02 : 0.06), 24)
+            min(geometry.size.width * 0.036, 32) : 
+            min(geometry.size.width * 0.054, 22)
         
         let isSelected = selectedGameMode == .playerVsPlayer
         let isUnlocked = isPvPUnlocked
@@ -518,7 +518,7 @@ struct SplashView: View {
         let backgroundColor = isSelected ? Color.purple.opacity(0.7) : Color.white.opacity(0.15)
         let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
         
-        return HStack(spacing: isIPad ? 20 : (isLandscape ? 8 : 15)) {
+        return HStack(spacing: isIPad ? 20 : 15) { // Исти размак за оба мода
             Image(systemName: "person.2")
                 .font(.system(size: fontSize))
                 .layoutPriority(1)
@@ -536,12 +536,12 @@ struct SplashView: View {
         }
         .foregroundColor(foregroundColor)
         .frame(width: buttonWidth)
-        .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : (isLandscape ? 0.02 : 0.06)))
-        .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : (isLandscape ? 0.01 : 0.03)))
+        .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : 0.06)) // Исти padding за оба мода
+        .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : 0.03)) // Исти padding за оба мода
         .background(
             Capsule()
                 .fill(backgroundColor)
-                .shadow(color: shadowColor, radius: isIPad ? 8 : (isLandscape ? 3 : 5))
+                .shadow(color: shadowColor, radius: isIPad ? 8 : 5) // Иста сенка за оба мода
         )
         .scaleEffect(isSelected ? 1.05 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isSelected)
@@ -551,8 +551,8 @@ struct SplashView: View {
     
     private func startGameButton(geometry: GeometryProxy, isIPad: Bool, buttonWidth: CGFloat, isLandscape: Bool) -> some View {
         let fontSize = isIPad ? 
-            min(geometry.size.width * 0.04, 42) : 
-            min(geometry.size.width * (isLandscape ? 0.02 : 0.06), 28)
+            min(geometry.size.width * 0.036, 38) : 
+            min(geometry.size.width * 0.054, 25)
         
         return Button(action: {
             withAnimation(.easeInOut(duration: 0.5)) {
@@ -563,8 +563,8 @@ struct SplashView: View {
                 .font(.system(size: fontSize, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: buttonWidth)
-                .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : (isLandscape ? 0.02 : 0.06)))
-                .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : (isLandscape ? 0.01 : 0.03)))
+                .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : 0.06)) // Исти padding за оба мода
+                .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : 0.03)) // Исти padding за оба мода
                 .background(
                     ZStack {
                         Capsule()
@@ -588,11 +588,11 @@ struct SplashView: View {
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 ),
-                                lineWidth: isIPad ? 3 : (isLandscape ? 1.5 : 2)
+                                lineWidth: isIPad ? 3 : 2
                             )
                     }
                 )
-                .shadow(color: .white.opacity(0.3), radius: isIPad ? 15 : (isLandscape ? 6 : 10), x: 0, y: 0)
+                .shadow(color: .white.opacity(0.3), radius: isIPad ? 15 : 10, x: 0, y: 0)
         }
     }
     
