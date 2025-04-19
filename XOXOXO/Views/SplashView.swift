@@ -43,7 +43,7 @@ struct SplashView: View {
                         .opacity(backgroundOpacity)
                         .ignoresSafeArea()
                         
-                        // Floating symbols with specific starting positions
+                        // Floating elements
                         Group {
                             // Floating boards
                             FloatingBoard(
@@ -58,7 +58,13 @@ struct SplashView: View {
                                 startY: geometry.size.height * (isLandscape ? 0.25 : 0.35)
                             )
                             
-                            // Existing floating symbols
+                            FloatingBoard(
+                                size: isLandscape ? 90 : 120,
+                                startX: -geometry.size.width * (isLandscape ? 0.15 : 0.25),
+                                startY: geometry.size.height * (isLandscape ? 0.35 : 0.45)
+                            )
+                            
+                            // Floating symbols - Left side
                             FloatingSymbol(symbol: "X", size: isLandscape ? 80 : 120, 
                                          startX: -geometry.size.width * (isLandscape ? 0.3 : 0.4), 
                                          startY: -geometry.size.height * (isLandscape ? 0.2 : 0.3))
@@ -66,6 +72,7 @@ struct SplashView: View {
                                          startX: -geometry.size.width * (isLandscape ? 0.25 : 0.35), 
                                          startY: geometry.size.height * (isLandscape ? 0.2 : 0.3))
                             
+                            // Floating symbols - Right side
                             FloatingSymbol(symbol: "X", size: isLandscape ? 70 : 100, 
                                          startX: geometry.size.width * (isLandscape ? 0.3 : 0.4), 
                                          startY: -geometry.size.height * (isLandscape ? 0.15 : 0.25))
@@ -73,12 +80,28 @@ struct SplashView: View {
                                          startX: geometry.size.width * (isLandscape ? 0.25 : 0.35), 
                                          startY: geometry.size.height * (isLandscape ? 0.15 : 0.25))
                             
+                            // Additional floating symbols
                             FloatingSymbol(symbol: "X", size: isLandscape ? 60 : 90, 
                                          startX: geometry.size.width * (isLandscape ? 0.1 : 0.15), 
                                          startY: -geometry.size.height * (isLandscape ? 0.05 : 0.1))
                             FloatingSymbol(symbol: "O", size: isLandscape ? 90 : 130, 
                                          startX: -geometry.size.width * (isLandscape ? 0.1 : 0.15), 
                                          startY: geometry.size.height * (isLandscape ? 0.05 : 0.1))
+                            
+                            // New floating symbols
+                            FloatingSymbol(symbol: "X", size: isLandscape ? 65 : 95,
+                                         startX: geometry.size.width * (isLandscape ? 0.4 : 0.5),
+                                         startY: geometry.size.height * (isLandscape ? 0.3 : 0.4))
+                            FloatingSymbol(symbol: "O", size: isLandscape ? 75 : 105,
+                                         startX: -geometry.size.width * (isLandscape ? 0.4 : 0.5),
+                                         startY: -geometry.size.height * (isLandscape ? 0.3 : 0.4))
+                            
+                            FloatingSymbol(symbol: "X", size: isLandscape ? 55 : 85,
+                                         startX: -geometry.size.width * (isLandscape ? 0.2 : 0.3),
+                                         startY: -geometry.size.height * (isLandscape ? 0.4 : 0.5))
+                            FloatingSymbol(symbol: "O", size: isLandscape ? 85 : 115,
+                                         startX: geometry.size.width * (isLandscape ? 0.2 : 0.3),
+                                         startY: geometry.size.height * (isLandscape ? 0.4 : 0.5))
                         }
                         .opacity(backgroundOpacity * 1.5)
                         

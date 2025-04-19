@@ -14,7 +14,7 @@ struct FloatingBoard: View {
         )
         _offset = State(initialValue: randomOffset)
         _rotation = State(initialValue: Double.random(in: -10...10))
-        self.animationDuration = slowMotion ? Double.random(in: 15...25) : Double.random(in: 8...12)
+        self.animationDuration = Double.random(in: 20...30)
     }
     
     var body: some View {

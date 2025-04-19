@@ -16,8 +16,8 @@ public struct FloatingSymbol: View {
         )
         _offset = State(initialValue: randomOffset)
         _rotation = State(initialValue: Double.random(in: -15...15))
-        // Спорија анимација за GameView ако је slowMotion = true
-        self.animationDuration = slowMotion ? Double.random(in: 15...25) : Double.random(in: 8...12)
+        // Успорена анимација
+        self.animationDuration = Double.random(in: 20...30) // Повећано трајање анимације
     }
     
     public var body: some View {
