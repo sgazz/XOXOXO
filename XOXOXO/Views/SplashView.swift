@@ -45,7 +45,20 @@ struct SplashView: View {
                         
                         // Floating symbols with specific starting positions
                         Group {
-                            // Adjust symbol positions based on orientation
+                            // Floating boards
+                            FloatingBoard(
+                                size: isLandscape ? 120 : 160,
+                                startX: -geometry.size.width * (isLandscape ? 0.35 : 0.45),
+                                startY: -geometry.size.height * (isLandscape ? 0.25 : 0.35)
+                            )
+                            
+                            FloatingBoard(
+                                size: isLandscape ? 100 : 140,
+                                startX: geometry.size.width * (isLandscape ? 0.35 : 0.45),
+                                startY: geometry.size.height * (isLandscape ? 0.25 : 0.35)
+                            )
+                            
+                            // Existing floating symbols
                             FloatingSymbol(symbol: "X", size: isLandscape ? 80 : 120, 
                                          startX: -geometry.size.width * (isLandscape ? 0.3 : 0.4), 
                                          startY: -geometry.size.height * (isLandscape ? 0.2 : 0.3))
