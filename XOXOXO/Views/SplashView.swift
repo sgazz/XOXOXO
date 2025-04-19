@@ -4,8 +4,6 @@ import SwiftUI
 
 struct SplashView: View {
     @State private var isActive = false
-    @State private var titleOffset = CGSize(width: -600, height: 0)
-    @State private var titleRotation: Double = -30
     @State private var backgroundOpacity = 0.0
     @State private var showTapPrompt = false
     @State private var showTutorial = false
@@ -81,14 +79,42 @@ struct SplashView: View {
                                         .font(.system(size: 36, weight: .heavy, design: .rounded))
                                         .foregroundColor(.white)
                                         .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
-                                        .offset(titleOffset)
-                                        .rotationEffect(.degrees(titleRotation))
+                                        .padding(.top, 40)
                                         .padding(.bottom, 20)
                                     
                                     if showTapPrompt {
-                                        gameModeSelector
-                                            .padding(.bottom, 20)
-                                            .transition(.opacity)
+                                        HStack(spacing: 15) {
+                                            // Single Player mode button
+                                            Button(action: {
+                                                if selectedGameMode != .aiOpponent {
+                                                    SoundManager.shared.playSound(.tap)
+                                                    SoundManager.shared.playHaptic()
+                                                    selectedGameMode = .aiOpponent
+                                                }
+                                            }) {
+                                                aiButtonContent
+                                                    .frame(width: 200)
+                                            }
+                                            
+                                            // Multiplayer mode button
+                                            Button(action: {
+                                                SoundManager.shared.playSound(.tap)
+                                                SoundManager.shared.playHaptic()
+                                                
+                                                if isPvPUnlocked {
+                                                    if selectedGameMode != .playerVsPlayer {
+                                                        selectedGameMode = .playerVsPlayer
+                                                    }
+                                                } else {
+                                                    showPurchaseView = true
+                                                }
+                                            }) {
+                                                pvpButtonContent
+                                                    .frame(width: 200)
+                                            }
+                                        }
+                                        .padding(.bottom, 20)
+                                        .transition(.opacity)
                                         
                                         startGameButton
                                             .scaleEffect(1.0)
@@ -112,8 +138,7 @@ struct SplashView: View {
                                     .font(.system(size: 46, weight: .heavy, design: .rounded))
                                     .foregroundColor(.white)
                                     .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
-                                    .offset(titleOffset)
-                                    .rotationEffect(.degrees(titleRotation))
+                                    .padding(.top, 40)
                                     .padding(.bottom, 50)
                                 
                                 if showTapPrompt {
@@ -143,18 +168,6 @@ struct SplashView: View {
                             backgroundOpacity = 1.0
                         }
                         
-                        // Title animation
-                        withAnimation(
-                            .spring(
-                                response: 0.8,
-                                dampingFraction: 0.6,
-                                blendDuration: 0
-                            )
-                        ) {
-                            titleOffset = .zero
-                            titleRotation = 0
-                        }
-                        
                         // Show tap prompt after title animation
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                             withAnimation(.easeInOut(duration: 0.5)) {
@@ -175,35 +188,79 @@ struct SplashView: View {
     
     // Селектор режима игре
     private var gameModeSelector: some View {
-        HStack(spacing: 15) {
-            // AI mode button
-            Button(action: {
-                if selectedGameMode != .aiOpponent {
-                    SoundManager.shared.playSound(.tap)
-                    SoundManager.shared.playHaptic()
-                    selectedGameMode = .aiOpponent
-                }
-            }) {
-                aiButtonContent
-            }
+        GeometryReader { geometry in
+            let isLandscape = geometry.size.width > geometry.size.height
             
-            // PvP mode button
-            Button(action: {
-                SoundManager.shared.playSound(.tap)
-                SoundManager.shared.playHaptic()
-                
-                if isPvPUnlocked {
-                    if selectedGameMode != .playerVsPlayer {
-                        selectedGameMode = .playerVsPlayer
+            Group {
+                if isLandscape {
+                    // Landscape layout
+                    VStack(spacing: 15) {
+                        // Single Player mode button
+                        Button(action: {
+                            if selectedGameMode != .aiOpponent {
+                                SoundManager.shared.playSound(.tap)
+                                SoundManager.shared.playHaptic()
+                                selectedGameMode = .aiOpponent
+                            }
+                        }) {
+                            aiButtonContent
+                                .frame(width: 200) // Иста ширина као Start Game дугме
+                        }
+                        
+                        // Multiplayer mode button
+                        Button(action: {
+                            SoundManager.shared.playSound(.tap)
+                            SoundManager.shared.playHaptic()
+                            
+                            if isPvPUnlocked {
+                                if selectedGameMode != .playerVsPlayer {
+                                    selectedGameMode = .playerVsPlayer
+                                }
+                            } else {
+                                showPurchaseView = true
+                            }
+                        }) {
+                            pvpButtonContent
+                                .frame(width: 200) // Иста ширина као Start Game дугме
+                        }
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.vertical, 6)
                 } else {
-                    showPurchaseView = true
+                    // Portrait layout remains unchanged
+                    HStack(spacing: 15) {
+                        // Single Player mode button
+                        Button(action: {
+                            if selectedGameMode != .aiOpponent {
+                                SoundManager.shared.playSound(.tap)
+                                SoundManager.shared.playHaptic()
+                                selectedGameMode = .aiOpponent
+                            }
+                        }) {
+                            aiButtonContent
+                        }
+                        
+                        // Multiplayer mode button
+                        Button(action: {
+                            SoundManager.shared.playSound(.tap)
+                            SoundManager.shared.playHaptic()
+                            
+                            if isPvPUnlocked {
+                                if selectedGameMode != .playerVsPlayer {
+                                    selectedGameMode = .playerVsPlayer
+                                }
+                            } else {
+                                showPurchaseView = true
+                            }
+                        }) {
+                            pvpButtonContent
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
                 }
-            }) {
-                pvpButtonContent
             }
         }
-        .padding(.vertical, 6)
     }
     
     private var aiButtonContent: some View {
@@ -215,7 +272,7 @@ struct SplashView: View {
         return HStack {
             Image(systemName: "cpu")
                 .font(.system(size: 16))
-            Text("AI")
+            Text("Single Player")
                 .font(.system(size: 16, weight: .medium))
         }
         .foregroundColor(foregroundColor)
@@ -238,7 +295,7 @@ struct SplashView: View {
         return HStack {
             Image(systemName: "person.2")
                 .font(.system(size: 16))
-            Text("PvP")
+            Text("Multiplayer")
                 .font(.system(size: 16, weight: .medium))
             
             if !isUnlocked {
@@ -261,59 +318,30 @@ struct SplashView: View {
     
     private var startGameButton: some View {
         Button(action: {
-            SoundManager.shared.playSound(.tap)
-            SoundManager.shared.playHaptic()
-            
-            withAnimation(.easeInOut(duration: 0.6)) {
+            withAnimation(.easeInOut(duration: 0.5)) {
                 startGameTransition = true
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.isActive = true
             }
         }) {
             Text("Start Game")
-                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .font(.system(size: 24, weight: .bold))
                 .foregroundColor(.white)
-                .padding(.vertical, 16)
-                .padding(.horizontal, 50)
-                .background(
+                .padding(.horizontal, 40)
+                .padding(.vertical, 15)
+                .background(Color.clear)
+                .overlay(
                     Capsule()
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color(red: 0.3, green: 0.4, blue: 0.9),
-                                    Color(red: 0.2, green: 0.3, blue: 0.7)
-                                ]),
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .shadow(color: Color(red: 0.2, green: 0.3, blue: 0.7).opacity(0.5), radius: 10, x: 0, y: 5)
+                        .stroke(Color.white, lineWidth: 2)
                 )
         }
     }
     
     private var tutorialButton: some View {
         Button(action: {
-            SoundManager.shared.playSound(.tap)
-            SoundManager.shared.playLightHaptic()
-            self.showTutorial = true
+            showTutorial = true
         }) {
-            HStack {
-                Image(systemName: "questionmark.circle.fill")
-                    .font(.system(size: 18))
-                Text("How to Play?")
-                    .font(.system(size: 18, weight: .medium, design: .rounded))
-            }
-            .foregroundColor(.white)
-            .padding(.vertical, 12)
-            .padding(.horizontal, 24)
-            .background(
-                Capsule()
-                    .fill(Color.white.opacity(0.2))
-                    .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
-            )
+            Image(systemName: "questionmark.circle.fill")
+                .font(.system(size: 24))
+                .foregroundColor(.orange)
         }
     }
 }
