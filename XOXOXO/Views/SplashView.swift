@@ -30,27 +30,53 @@ struct SplashView: View {
                     let isLandscape = geometry.size.width > geometry.size.height
                     let isIPad = horizontalSizeClass == .regular
                     
-                    // Прилагођене величине за iPad
+                    // Прилагођене величине за iPad и iPhone landscape
                     let titleSize = isIPad ? 
                         min(geometry.size.width * (isLandscape ? 0.1 : 0.15), 96) : 
-                        min(geometry.size.width * (isLandscape ? 0.08 : 0.12), 56)
+                        min(geometry.size.width * (isLandscape ? 0.06 : 0.12), 56)
                     
                     let subtitleSize = isIPad ? 
                         min(geometry.size.width * (isLandscape ? 0.04 : 0.06), 36) : 
-                        min(geometry.size.width * (isLandscape ? 0.03 : 0.045), 24)
+                        min(geometry.size.width * (isLandscape ? 0.025 : 0.045), 24)
                     
                     let descriptionSize = isIPad ? 
                         min(geometry.size.width * (isLandscape ? 0.03 : 0.045), 28) : 
-                        min(geometry.size.width * (isLandscape ? 0.022 : 0.035), 18)
+                        min(geometry.size.width * (isLandscape ? 0.02 : 0.035), 18)
                     
                     let buttonWidth = isIPad ? 
                         min(geometry.size.width * (isLandscape ? 0.35 : 0.6), 500) : 
-                        min(geometry.size.width * (isLandscape ? 0.3 : 0.8), 400)
+                        min(geometry.size.width * (isLandscape ? 0.28 : 0.8), 400)
                     
                     let containerWidth = isIPad ? 
                         (isLandscape ? geometry.size.width * 0.7 : geometry.size.width * 0.8) : 
-                        (isLandscape ? geometry.size.width * 0.5 : geometry.size.width)
+                        (isLandscape ? geometry.size.width * 0.9 : geometry.size.width)
                     
+                    let buttonHeight = isIPad ? 
+                        (isLandscape ? 100 : 120) : 
+                        (isLandscape ? 55 : 80)
+                    
+                    // Прилагођени размаци
+                    let verticalSpacing = isIPad ? 
+                        (isLandscape ? 15.0 : 20.0) : 
+                        (isLandscape ? 8.0 : 12.0)
+                    
+                    let topPadding = geometry.size.height * (isIPad ? 
+                        (isLandscape ? 0.05 : 0.08) : 
+                        (isLandscape ? 0.05 : 0.05))
+                    
+                    let bottomPadding = geometry.size.height * (isIPad ? 
+                        (isLandscape ? 0.04 : 0.06) : 
+                        (isLandscape ? 0.05 : 0.04))
+
+                    // Floating elements величине
+                    let boardSizes = isIPad ?
+                        (isLandscape ? [120.0, 100.0, 90.0] : [160.0, 140.0, 120.0]) :
+                        (isLandscape ? [80.0, 70.0, 60.0] : [120.0, 100.0, 90.0])
+                    
+                    let symbolSizes = isIPad ?
+                        (isLandscape ? [80.0, 70.0, 60.0] : [120.0, 100.0, 90.0]) :
+                        (isLandscape ? [60.0, 50.0, 40.0] : [100.0, 80.0, 70.0])
+
                     ZStack {
                         // Modern gradient background
                         LinearGradient(
@@ -69,69 +95,214 @@ struct SplashView: View {
                         Group {
                             // Floating boards
                             FloatingBoard(
-                                size: isLandscape ? 120 : 160,
+                                size: boardSizes[0],
                                 startX: -geometry.size.width * (isLandscape ? 0.35 : 0.45),
                                 startY: -geometry.size.height * (isLandscape ? 0.25 : 0.35)
                             )
                             
                             FloatingBoard(
-                                size: isLandscape ? 100 : 140,
+                                size: boardSizes[1],
                                 startX: geometry.size.width * (isLandscape ? 0.35 : 0.45),
                                 startY: geometry.size.height * (isLandscape ? 0.25 : 0.35)
                             )
                             
                             FloatingBoard(
-                                size: isLandscape ? 90 : 120,
+                                size: boardSizes[2],
                                 startX: -geometry.size.width * (isLandscape ? 0.15 : 0.25),
                                 startY: geometry.size.height * (isLandscape ? 0.35 : 0.45)
                             )
                             
                             // Floating symbols - Left side
-                            FloatingSymbol(symbol: "X", size: isLandscape ? 80 : 120, 
-                                         startX: -geometry.size.width * (isLandscape ? 0.3 : 0.4), 
-                                         startY: -geometry.size.height * (isLandscape ? 0.2 : 0.3))
-                            FloatingSymbol(symbol: "O", size: isLandscape ? 100 : 140, 
-                                         startX: -geometry.size.width * (isLandscape ? 0.25 : 0.35), 
-                                         startY: geometry.size.height * (isLandscape ? 0.2 : 0.3))
+                            FloatingSymbol(
+                                symbol: "X",
+                                size: symbolSizes[0],
+                                startX: -geometry.size.width * (isLandscape ? 0.3 : 0.4),
+                                startY: -geometry.size.height * (isLandscape ? 0.2 : 0.3)
+                            )
+                            
+                            FloatingSymbol(
+                                symbol: "O",
+                                size: symbolSizes[1],
+                                startX: geometry.size.width * (isLandscape ? 0.25 : 0.35),
+                                startY: geometry.size.height * (isLandscape ? 0.15 : 0.25)
+                            )
                             
                             // Floating symbols - Right side
-                            FloatingSymbol(symbol: "X", size: isLandscape ? 70 : 100, 
+                            FloatingSymbol(symbol: "X", size: isLandscape ? 70.0 : 100.0, 
                                          startX: geometry.size.width * (isLandscape ? 0.3 : 0.4), 
                                          startY: -geometry.size.height * (isLandscape ? 0.15 : 0.25))
-                            FloatingSymbol(symbol: "O", size: isLandscape ? 80 : 110, 
+                            FloatingSymbol(symbol: "O", size: isLandscape ? 80.0 : 110.0, 
                                          startX: geometry.size.width * (isLandscape ? 0.25 : 0.35), 
                                          startY: geometry.size.height * (isLandscape ? 0.15 : 0.25))
                             
                             // Additional floating symbols
-                            FloatingSymbol(symbol: "X", size: isLandscape ? 60 : 90, 
+                            FloatingSymbol(symbol: "X", size: isLandscape ? 60.0 : 90.0, 
                                          startX: geometry.size.width * (isLandscape ? 0.1 : 0.15), 
                                          startY: -geometry.size.height * (isLandscape ? 0.05 : 0.1))
-                            FloatingSymbol(symbol: "O", size: isLandscape ? 90 : 130, 
+                            FloatingSymbol(symbol: "O", size: isLandscape ? 90.0 : 130.0, 
                                          startX: -geometry.size.width * (isLandscape ? 0.1 : 0.15), 
                                          startY: geometry.size.height * (isLandscape ? 0.05 : 0.1))
                             
                             // New floating symbols
-                            FloatingSymbol(symbol: "X", size: isLandscape ? 65 : 95,
+                            FloatingSymbol(symbol: "X", size: isLandscape ? 65.0 : 95.0,
                                          startX: geometry.size.width * (isLandscape ? 0.4 : 0.5),
                                          startY: geometry.size.height * (isLandscape ? 0.3 : 0.4))
-                            FloatingSymbol(symbol: "O", size: isLandscape ? 75 : 105,
+                            FloatingSymbol(symbol: "O", size: isLandscape ? 75.0 : 105.0,
                                          startX: -geometry.size.width * (isLandscape ? 0.4 : 0.5),
                                          startY: -geometry.size.height * (isLandscape ? 0.3 : 0.4))
                             
-                            FloatingSymbol(symbol: "X", size: isLandscape ? 55 : 85,
+                            FloatingSymbol(symbol: "X", size: isLandscape ? 55.0 : 85.0,
                                          startX: -geometry.size.width * (isLandscape ? 0.2 : 0.3),
                                          startY: -geometry.size.height * (isLandscape ? 0.4 : 0.5))
-                            FloatingSymbol(symbol: "O", size: isLandscape ? 85 : 115,
+                            FloatingSymbol(symbol: "O", size: isLandscape ? 85.0 : 115.0,
                                          startX: geometry.size.width * (isLandscape ? 0.2 : 0.3),
                                          startY: geometry.size.height * (isLandscape ? 0.4 : 0.5))
                         }
                         .opacity(backgroundOpacity * 1.5)
                         
-                        if isLandscape {
-                            HStack(spacing: isIPad ? 40 : 20) {
-                                Spacer()
+                        if isLandscape && !isIPad {
+                            // Нови layout за iPhone landscape
+                            HStack(spacing: 0) {
+                                // Лева страна - текст
+                                VStack(alignment: .leading, spacing: verticalSpacing) {
+                                    Text("XO Tournament")
+                                        .font(.system(size: titleSize, weight: .heavy, design: .rounded))
+                                        .foregroundColor(.white)
+                                        .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
+                                    
+                                    Text("8 Boards. 5 Minutes. 1 Champion.")
+                                        .font(.system(size: subtitleSize, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white.opacity(0.9))
+                                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                    
+                                    Text("Multi-board Tic Tac Toe with\nlightning-fast rounds and tactical gameplay.")
+                                        .font(.system(size: descriptionSize, weight: .medium))
+                                        .foregroundColor(.white.opacity(0.8))
+                                        .multilineTextAlignment(.leading)
+                                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 1)
+                                }
+                                .padding(.leading, geometry.size.width * 0.05)
+                                .frame(width: geometry.size.width * 0.45, alignment: .leading)
                                 
-                                VStack(spacing: isIPad ? 20 : 10) {
+                                // Десна страна - дугмад
+                                VStack(spacing: verticalSpacing * 1.2) {
+                                    if showTapPrompt {
+                                        Button(action: {
+                                            if selectedGameMode != .aiOpponent {
+                                                SoundManager.shared.playSound(.tap)
+                                                SoundManager.shared.playHaptic()
+                                                selectedGameMode = .aiOpponent
+                                            }
+                                        }) {
+                                            aiButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
+                                                .frame(height: CGFloat(buttonHeight))
+                                        }
+                                        
+                                        Button(action: {
+                                            SoundManager.shared.playSound(.tap)
+                                            SoundManager.shared.playHaptic()
+                                            
+                                            if isPvPUnlocked {
+                                                if selectedGameMode != .playerVsPlayer {
+                                                    selectedGameMode = .playerVsPlayer
+                                                }
+                                            } else {
+                                                showPurchaseView = true
+                                            }
+                                        }) {
+                                            pvpButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
+                                                .frame(height: CGFloat(buttonHeight))
+                                        }
+                                        
+                                        startGameButton(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
+                                            .frame(height: CGFloat(buttonHeight))
+                                        
+                                        tutorialButton(geometry: geometry, isIPad: isIPad, isLandscape: isLandscape)
+                                            .padding(.top, verticalSpacing * 0.3)
+                                    }
+                                }
+                                .frame(width: geometry.size.width * 0.45)
+                                .padding(.trailing, geometry.size.width * 0.05)
+                            }
+                            .frame(maxWidth: .infinity)
+                        } else {
+                            // Постојећи portrait и iPad layout остаје исти
+                            if isLandscape {
+                                HStack(spacing: isIPad ? 40 : 15) {
+                                    Spacer()
+                                    
+                                    VStack(spacing: verticalSpacing) {
+                                        Text("XO Tournament")
+                                            .font(.system(size: titleSize, weight: .heavy, design: .rounded))
+                                            .foregroundColor(.white)
+                                            .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
+                                            .padding(.top, topPadding)
+                                        
+                                        Text("8 Boards. 5 Minutes. 1 Champion.")
+                                            .font(.system(size: subtitleSize, weight: .bold, design: .rounded))
+                                            .foregroundColor(.white.opacity(0.9))
+                                            .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                            .padding(.top, verticalSpacing * 0.3)
+                                        
+                                        Text("Multi-board Tic Tac Toe with\nlightning-fast rounds and tactical gameplay.")
+                                            .font(.system(size: descriptionSize, weight: .medium))
+                                            .foregroundColor(.white.opacity(0.8))
+                                            .multilineTextAlignment(.center)
+                                            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 1)
+                                            .padding(.top, verticalSpacing * 0.2)
+                                            .padding(.bottom, bottomPadding)
+                                        
+                                        if showTapPrompt {
+                                            VStack(spacing: verticalSpacing) {
+                                                Button(action: {
+                                                    if selectedGameMode != .aiOpponent {
+                                                        SoundManager.shared.playSound(.tap)
+                                                        SoundManager.shared.playHaptic()
+                                                        selectedGameMode = .aiOpponent
+                                                    }
+                                                }) {
+                                                    aiButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
+                                                        .frame(height: CGFloat(buttonHeight))
+                                                }
+                                                
+                                                Button(action: {
+                                                    SoundManager.shared.playSound(.tap)
+                                                    SoundManager.shared.playHaptic()
+                                                    
+                                                    if isPvPUnlocked {
+                                                        if selectedGameMode != .playerVsPlayer {
+                                                            selectedGameMode = .playerVsPlayer
+                                                        }
+                                                    } else {
+                                                        showPurchaseView = true
+                                                    }
+                                                }) {
+                                                    pvpButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
+                                                        .frame(height: CGFloat(buttonHeight))
+                                                }
+                                            }
+                                            .padding(.bottom, verticalSpacing)
+                                            .transition(.opacity)
+                                            
+                                            startGameButton(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
+                                                .frame(height: CGFloat(buttonHeight))
+                                                .scaleEffect(1.0)
+                                                .transition(.scale.combined(with: .opacity))
+                                            
+                                            tutorialButton(geometry: geometry, isIPad: isIPad, isLandscape: isLandscape)
+                                                .padding(.top, verticalSpacing * 0.5)
+                                                .transition(.opacity)
+                                        }
+                                    }
+                                    .frame(width: containerWidth)
+                                    
+                                    Spacer()
+                                }
+                            } else {
+                                // Portrait layout
+                                VStack {
+                                    Spacer()
+                                    
                                     Text("XO Tournament")
                                         .font(.system(size: titleSize, weight: .heavy, design: .rounded))
                                         .foregroundColor(.white)
@@ -161,8 +332,8 @@ struct SplashView: View {
                                                     selectedGameMode = .aiOpponent
                                                 }
                                             }) {
-                                                aiButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth)
-                                                    .frame(height: isIPad ? 100 : 80)
+                                                aiButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
+                                                    .frame(height: CGFloat(isIPad ? 100 : 80))
                                             }
                                             
                                             Button(action: {
@@ -177,97 +348,27 @@ struct SplashView: View {
                                                     showPurchaseView = true
                                                 }
                                             }) {
-                                                pvpButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth)
-                                                    .frame(height: isIPad ? 100 : 80)
+                                                pvpButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
+                                                    .frame(height: CGFloat(isIPad ? 100 : 80))
                                             }
                                         }
                                         .padding(.bottom, isIPad ? 15 : 8)
                                         .transition(.opacity)
                                         
-                                        startGameButton(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth)
-                                            .frame(height: isIPad ? 100 : 80)
+                                        startGameButton(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
+                                            .frame(height: CGFloat(buttonHeight))
                                             .scaleEffect(1.0)
                                             .transition(.scale.combined(with: .opacity))
                                         
-                                        tutorialButton(geometry: geometry, isIPad: isIPad)
-                                            .padding(.top, isIPad ? 8 : 4)
+                                        Spacer()
+                                        
+                                        tutorialButton(geometry: geometry, isIPad: isIPad, isLandscape: isLandscape)
+                                            .padding(.bottom, isIPad ? 40 : 30)
                                             .transition(.opacity)
                                     }
                                 }
                                 .frame(width: containerWidth)
-                                
-                                Spacer()
                             }
-                        } else {
-                            // Portrait layout
-                            VStack {
-                                Spacer()
-                                
-                                Text("XO Tournament")
-                                    .font(.system(size: titleSize, weight: .heavy, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
-                                    .padding(.top, geometry.size.height * (isIPad ? 0.05 : 0.03))
-                                
-                                Text("8 Boards. 5 Minutes. 1 Champion.")
-                                    .font(.system(size: subtitleSize, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.9))
-                                    .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-                                    .padding(.top, isIPad ? 6 : 3)
-                                
-                                Text("Multi-board Tic Tac Toe with\nlightning-fast rounds and tactical gameplay.")
-                                    .font(.system(size: descriptionSize, weight: .medium))
-                                    .foregroundColor(.white.opacity(0.8))
-                                    .multilineTextAlignment(.center)
-                                    .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 1)
-                                    .padding(.top, isIPad ? 3 : 2)
-                                    .padding(.bottom, geometry.size.height * (isIPad ? 0.04 : 0.02))
-                                
-                                if showTapPrompt {
-                                    VStack(spacing: isIPad ? 15 : 10) {
-                                        Button(action: {
-                                            if selectedGameMode != .aiOpponent {
-                                                SoundManager.shared.playSound(.tap)
-                                                SoundManager.shared.playHaptic()
-                                                selectedGameMode = .aiOpponent
-                                            }
-                                        }) {
-                                            aiButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth)
-                                                .frame(height: isIPad ? 100 : 80)
-                                        }
-                                        
-                                        Button(action: {
-                                            SoundManager.shared.playSound(.tap)
-                                            SoundManager.shared.playHaptic()
-                                            
-                                            if isPvPUnlocked {
-                                                if selectedGameMode != .playerVsPlayer {
-                                                    selectedGameMode = .playerVsPlayer
-                                                }
-                                            } else {
-                                                showPurchaseView = true
-                                            }
-                                        }) {
-                                            pvpButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth)
-                                                .frame(height: isIPad ? 100 : 80)
-                                        }
-                                    }
-                                    .padding(.bottom, isIPad ? 15 : 8)
-                                    .transition(.opacity)
-                                    
-                                    startGameButton(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth)
-                                        .frame(height: isIPad ? 100 : 80)
-                                        .scaleEffect(1.0)
-                                        .transition(.scale.combined(with: .opacity))
-                                    
-                                    Spacer()
-                                    
-                                    tutorialButton(geometry: geometry, isIPad: isIPad)
-                                        .padding(.bottom, isIPad ? 40 : 30)
-                                        .transition(.opacity)
-                                }
-                            }
-                            .frame(width: containerWidth)
                         }
                     }
                     .onAppear {
@@ -314,7 +415,7 @@ struct SplashView: View {
                                 selectedGameMode = .aiOpponent
                             }
                         }) {
-                            aiButtonContent(geometry: geometry, isIPad: false, buttonWidth: 200)
+                            aiButtonContent(geometry: geometry, isIPad: false, buttonWidth: 200, isLandscape: isLandscape)
                                 .frame(width: 200) // Иста ширина као Start Game дугме
                         }
                         
@@ -331,7 +432,7 @@ struct SplashView: View {
                                 showPurchaseView = true
                             }
                         }) {
-                            pvpButtonContent(geometry: geometry, isIPad: false, buttonWidth: 200)
+                            pvpButtonContent(geometry: geometry, isIPad: false, buttonWidth: 200, isLandscape: isLandscape)
                                 .frame(width: 200) // Иста ширина као Start Game дугме
                         }
                     }
@@ -348,7 +449,7 @@ struct SplashView: View {
                                 selectedGameMode = .aiOpponent
                             }
                         }) {
-                            aiButtonContent(geometry: geometry, isIPad: false, buttonWidth: 400)
+                            aiButtonContent(geometry: geometry, isIPad: false, buttonWidth: 400, isLandscape: isLandscape)
                         }
                         
                         // Multiplayer mode button
@@ -364,7 +465,7 @@ struct SplashView: View {
                                 showPurchaseView = true
                             }
                         }) {
-                            pvpButtonContent(geometry: geometry, isIPad: false, buttonWidth: 400)
+                            pvpButtonContent(geometry: geometry, isIPad: false, buttonWidth: 400, isLandscape: isLandscape)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -374,17 +475,17 @@ struct SplashView: View {
         }
     }
     
-    private func aiButtonContent(geometry: GeometryProxy, isIPad: Bool, buttonWidth: CGFloat) -> some View {
+    private func aiButtonContent(geometry: GeometryProxy, isIPad: Bool, buttonWidth: CGFloat, isLandscape: Bool) -> some View {
         let fontSize = isIPad ? 
             min(geometry.size.width * 0.04, 36) : 
-            min(geometry.size.width * 0.06, 36)
+            min(geometry.size.width * (isLandscape ? 0.02 : 0.06), 24)
         
         let isSelected = selectedGameMode == .aiOpponent
         let foregroundColor = isSelected ? Color.white : Color.white.opacity(0.8)
         let backgroundColor = isSelected ? Color.blue.opacity(0.7) : Color.white.opacity(0.15)
         let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
         
-        return HStack(spacing: isIPad ? 20 : 15) {
+        return HStack(spacing: isIPad ? 20 : (isLandscape ? 8 : 15)) {
             Image(systemName: "cpu")
                 .font(.system(size: fontSize))
                 .layoutPriority(1)
@@ -395,21 +496,21 @@ struct SplashView: View {
         }
         .foregroundColor(foregroundColor)
         .frame(width: buttonWidth)
-        .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : 0.06))
-        .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : 0.03))
+        .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : (isLandscape ? 0.02 : 0.06)))
+        .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : (isLandscape ? 0.01 : 0.03)))
         .background(
             Capsule()
                 .fill(backgroundColor)
-                .shadow(color: shadowColor, radius: isIPad ? 8 : 5)
+                .shadow(color: shadowColor, radius: isIPad ? 8 : (isLandscape ? 3 : 5))
         )
         .scaleEffect(isSelected ? 1.05 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isSelected)
     }
     
-    private func pvpButtonContent(geometry: GeometryProxy, isIPad: Bool, buttonWidth: CGFloat) -> some View {
+    private func pvpButtonContent(geometry: GeometryProxy, isIPad: Bool, buttonWidth: CGFloat, isLandscape: Bool) -> some View {
         let fontSize = isIPad ? 
             min(geometry.size.width * 0.04, 36) : 
-            min(geometry.size.width * 0.06, 36)
+            min(geometry.size.width * (isLandscape ? 0.02 : 0.06), 24)
         
         let isSelected = selectedGameMode == .playerVsPlayer
         let isUnlocked = isPvPUnlocked
@@ -417,7 +518,7 @@ struct SplashView: View {
         let backgroundColor = isSelected ? Color.purple.opacity(0.7) : Color.white.opacity(0.15)
         let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
         
-        return HStack(spacing: isIPad ? 20 : 15) {
+        return HStack(spacing: isIPad ? 20 : (isLandscape ? 8 : 15)) {
             Image(systemName: "person.2")
                 .font(.system(size: fontSize))
                 .layoutPriority(1)
@@ -435,12 +536,12 @@ struct SplashView: View {
         }
         .foregroundColor(foregroundColor)
         .frame(width: buttonWidth)
-        .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : 0.06))
-        .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : 0.03))
+        .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : (isLandscape ? 0.02 : 0.06)))
+        .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : (isLandscape ? 0.01 : 0.03)))
         .background(
             Capsule()
                 .fill(backgroundColor)
-                .shadow(color: shadowColor, radius: isIPad ? 8 : 5)
+                .shadow(color: shadowColor, radius: isIPad ? 8 : (isLandscape ? 3 : 5))
         )
         .scaleEffect(isSelected ? 1.05 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isSelected)
@@ -448,10 +549,10 @@ struct SplashView: View {
     
     // MARK: - UI Components
     
-    private func startGameButton(geometry: GeometryProxy, isIPad: Bool, buttonWidth: CGFloat) -> some View {
+    private func startGameButton(geometry: GeometryProxy, isIPad: Bool, buttonWidth: CGFloat, isLandscape: Bool) -> some View {
         let fontSize = isIPad ? 
             min(geometry.size.width * 0.04, 42) : 
-            min(geometry.size.width * 0.06, 36)
+            min(geometry.size.width * (isLandscape ? 0.02 : 0.06), 28)
         
         return Button(action: {
             withAnimation(.easeInOut(duration: 0.5)) {
@@ -462,8 +563,8 @@ struct SplashView: View {
                 .font(.system(size: fontSize, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: buttonWidth)
-                .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : 0.06))
-                .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : 0.03))
+                .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : (isLandscape ? 0.02 : 0.06)))
+                .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : (isLandscape ? 0.01 : 0.03)))
                 .background(
                     ZStack {
                         Capsule()
@@ -487,18 +588,18 @@ struct SplashView: View {
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 ),
-                                lineWidth: isIPad ? 3 : 2
+                                lineWidth: isIPad ? 3 : (isLandscape ? 1.5 : 2)
                             )
                     }
                 )
-                .shadow(color: .white.opacity(0.3), radius: isIPad ? 15 : 10, x: 0, y: 0)
+                .shadow(color: .white.opacity(0.3), radius: isIPad ? 15 : (isLandscape ? 6 : 10), x: 0, y: 0)
         }
     }
     
-    private func tutorialButton(geometry: GeometryProxy, isIPad: Bool) -> some View {
+    private func tutorialButton(geometry: GeometryProxy, isIPad: Bool, isLandscape: Bool) -> some View {
         let buttonSize = isIPad ? 
             min(geometry.size.width * 0.05, 48) : 
-            min(geometry.size.width * 0.07, 32)
+            min(geometry.size.width * (isLandscape ? 0.03 : 0.07), 28)
         
         return Button(action: {
             showTutorial = true
