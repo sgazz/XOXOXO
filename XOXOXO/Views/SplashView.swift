@@ -36,12 +36,12 @@ struct SplashView: View {
                         min(geometry.size.width * (isLandscape ? 0.06 : 0.12), 56)
                     
                     let subtitleSize = isIPad ? 
-                        min(geometry.size.width * (isLandscape ? 0.036 : 0.054), 32) :
-                        min(geometry.size.width * (isLandscape ? 0.025 : 0.045), 24)
+                        min(geometry.size.width * (isLandscape ? 0.042 : 0.064), 38) :
+                        min(geometry.size.width * (isLandscape ? 0.03 : 0.055), 28)
                     
                     let descriptionSize = isIPad ? 
-                        min(geometry.size.width * (isLandscape ? 0.027 : 0.0405), 25) :
-                        min(geometry.size.width * (isLandscape ? 0.02 : 0.035), 18)
+                        min(geometry.size.width * (isLandscape ? 0.032 : 0.048), 30) :
+                        min(geometry.size.width * (isLandscape ? 0.025 : 0.04), 22)
                     
                     let buttonWidth = isIPad ? 
                         min(geometry.size.width * (isLandscape ? 0.35 : 0.6), 500) : 
@@ -173,13 +173,14 @@ struct SplashView: View {
                                     Text("8 Boards. 5 Minutes. 1 Champion.")
                                         .font(.system(size: subtitleSize, weight: .bold, design: .rounded))
                                         .foregroundColor(.white.opacity(0.9))
-                                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                        .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
+                                        .padding(.top, verticalSpacing * 0.3)
                                     
                                     Text("Multi-board Tic Tac Toe with\nlightning-fast rounds and tactical gameplay.")
                                         .font(.system(size: descriptionSize, weight: .medium))
                                         .foregroundColor(.white.opacity(0.8))
                                         .multilineTextAlignment(.leading)
-                                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 1)
+                                        .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 1.5)
                                 }
                                 .padding(.leading, geometry.size.width * 0.05)
                                 .frame(width: geometry.size.width * 0.45, alignment: .leading)
@@ -240,19 +241,22 @@ struct SplashView: View {
                                         Text("8 Boards. 5 Minutes. 1 Champion.")
                                             .font(.system(size: subtitleSize, weight: .bold, design: .rounded))
                                             .foregroundColor(.white.opacity(0.9))
-                                            .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                            .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
                                             .padding(.top, verticalSpacing * 0.3)
                                         
                                         Text("Multi-board Tic Tac Toe with\nlightning-fast rounds and tactical gameplay.")
                                             .font(.system(size: descriptionSize, weight: .medium))
                                             .foregroundColor(.white.opacity(0.8))
                                             .multilineTextAlignment(.center)
-                                            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 1)
+                                            .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 1.5)
                                             .padding(.top, verticalSpacing * 0.2)
                                             .padding(.bottom, bottomPadding)
                                         
                                         if showTapPrompt {
                                             VStack(spacing: verticalSpacing) {
+                                                Spacer()
+                                                    .frame(height: geometry.size.height * 0.4)
+                                                
                                                 Button(action: {
                                                     SoundManager.shared.playSound(.tap)
                                                     SoundManager.shared.playHaptic()
@@ -308,19 +312,22 @@ struct SplashView: View {
                                     Text("8 Boards. 5 Minutes. 1 Champion.")
                                         .font(.system(size: subtitleSize, weight: .bold, design: .rounded))
                                         .foregroundColor(.white.opacity(0.9))
-                                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                        .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
                                         .padding(.top, isIPad ? 6 : 3)
                                     
                                     Text("Multi-board Tic Tac Toe with\nlightning-fast rounds and tactical gameplay.")
                                         .font(.system(size: descriptionSize, weight: .medium))
                                         .foregroundColor(.white.opacity(0.8))
                                         .multilineTextAlignment(.center)
-                                        .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 1)
+                                        .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 1.5)
                                         .padding(.top, isIPad ? 3 : 2)
                                         .padding(.bottom, geometry.size.height * (isIPad ? 0.04 : 0.02))
                                     
                                     if showTapPrompt {
                                         VStack(spacing: isIPad ? 15 : 10) {
+                                            Spacer()
+                                                .frame(height: geometry.size.height * 0.3)
+                                                
                                             Button(action: {
                                                 SoundManager.shared.playSound(.tap)
                                                 SoundManager.shared.playHaptic()
@@ -354,6 +361,7 @@ struct SplashView: View {
                                         .transition(.opacity)
                                         
                                         Spacer()
+                                            .frame(maxHeight: geometry.size.height * 0.1)
                                         
                                         tutorialButton(geometry: geometry, isIPad: isIPad, isLandscape: isLandscape)
                                             .padding(.bottom, isIPad ? 40 : 30)
@@ -576,8 +584,8 @@ struct SplashView: View {
     
     private func tutorialButton(geometry: GeometryProxy, isIPad: Bool, isLandscape: Bool) -> some View {
         let buttonSize = isIPad ? 
-            min(geometry.size.width * 0.05, 48) : 
-            min(geometry.size.width * (isLandscape ? 0.03 : 0.07), 28)
+            min(geometry.size.width * 0.06, 56) : 
+            min(geometry.size.width * (isLandscape ? 0.04 : 0.08), 36)
         
         return Button(action: {
             showTutorial = true
@@ -585,7 +593,7 @@ struct SplashView: View {
             Image(systemName: "questionmark.circle.fill")
                 .font(.system(size: buttonSize))
                 .foregroundColor(.orange)
-                .shadow(color: .orange.opacity(0.4), radius: isIPad ? 10 : 6, x: 0, y: 0)
+                .shadow(color: .orange.opacity(0.4), radius: isIPad ? 12 : 8, x: 0, y: 0)
         }
     }
 }
