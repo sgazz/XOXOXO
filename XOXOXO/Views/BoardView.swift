@@ -15,7 +15,7 @@ struct BoardView: View {
     
     private let symbols = ["", "X", "O"]
     private let gridSize: CGFloat = 3
-    private let spacing: CGFloat = 2
+    private let spacing: CGFloat = 4  // Смањен размак између ћелија
     
     private var deviceLayout: DeviceLayout {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
@@ -24,6 +24,7 @@ struct BoardView: View {
     var body: some View {
         GeometryReader { geometry in
             let cellSize = calculateCellSize(for: geometry.size)
+            let totalWidth = cellSize * 3 + spacing * 2
             
             VStack(spacing: spacing) {
                 ForEach(0..<3) { row in
@@ -45,28 +46,10 @@ struct BoardView: View {
                     }
                 }
             }
-            .padding(deviceLayout.gridPadding)
-            .background(
-                RoundedRectangle(cornerRadius: deviceLayout.gridPadding * 2)
-                    .fill(colorScheme == .dark ? 
-                          Color(.systemBackground) : 
-                          Color.white.opacity(0.8))
-                    .shadow(
-                        color: isActive ? Color.blue.opacity(0.6) : Color.black.opacity(0.2),
-                        radius: isActive ? deviceLayout.gridPadding * 2 : deviceLayout.gridPadding,
-                        x: 0,
-                        y: isActive ? 5 : 2
-                    )
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: deviceLayout.gridPadding * 2)
-                    .stroke(
-                        isActive ? Color.blue.opacity(0.8) : Color.gray.opacity(0.4), 
-                        lineWidth: isActive ? 3 : 1
-                    )
-            )
-            .scaleEffect(isActive ? 1.05 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isActive)
+            .frame(width: totalWidth, height: totalWidth)
+            .scaleEffect(isActive ? 1.02 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isActive)
+            .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
         }
         .aspectRatio(1, contentMode: .fit)
         .onChange(of: board) { oldValue, newValue in
@@ -76,8 +59,7 @@ struct BoardView: View {
     
     private func calculateCellSize(for size: CGSize) -> CGFloat {
         let minDimension = min(size.width, size.height)
-        let availableSpace = minDimension - (deviceLayout.gridPadding * 2)
-        return (availableSpace - spacing * 2) / gridSize
+        return (minDimension - spacing * 2) / gridSize
     }
     
     private func handleCellTap(at index: Int) {
@@ -85,14 +67,16 @@ struct BoardView: View {
             SoundManager.shared.playSound(.tap)
             SoundManager.shared.playLightHaptic()
             
-            withAnimation(.spring(dampingFraction: 0.7)) {
+            withAnimation(.interpolatingSpring(mass: 0.5, stiffness: 200, damping: 10)) {
                 cellAnimations[index] = true
             }
             
             onTap(index)
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                cellAnimations[index] = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                withAnimation(.interpolatingSpring(mass: 0.5, stiffness: 200, damping: 10)) {
+                    cellAnimations[index] = false
+                }
             }
         } else if !board[index].isEmpty {
             SoundManager.shared.playSound(.error)
@@ -145,59 +129,121 @@ struct CellView: View {
     let isWinningCell: Bool
     let deviceLayout: DeviceLayout
     
-    private var cellBackground: Color {
-        if isWinningCell {
-            return .green.opacity(0.2)
-        } else if isActive {
-            return .blue.opacity(0.1)
-        } else {
-            return .clear
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var isDark: Bool {
+        colorScheme == .dark
+    }
+    
+    private var cellBackground: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 6)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            isDark ? Color(red: 0.15, green: 0.15, blue: 0.2) : Color.white,
+                            isDark ? Color(red: 0.2, green: 0.2, blue: 0.25) : Color.white
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+            
+            if isActive {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.blue.opacity(0.3),
+                                Color.blue.opacity(0.15)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
         }
     }
     
-    private var cellBorder: Color {
-        if isWinningCell {
-            return .green.opacity(0.5)
-        } else if isActive {
-            return .blue.opacity(0.3)
-        } else {
-            return .gray.opacity(0.2)
-        }
+    private var cellBorder: some View {
+        RoundedRectangle(cornerRadius: 6)
+            .stroke(
+                LinearGradient(
+                    colors: isActive ? 
+                        [Color.blue.opacity(1), Color.blue.opacity(0.6)] :
+                        [Color.white.opacity(isDark ? 0.3 : 0.2), Color.white.opacity(isDark ? 0.1 : 0.05)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                lineWidth: 1.5
+            )
     }
     
     private var symbolSize: CGFloat {
-        deviceLayout.gridPadding * 2
+        deviceLayout.gridPadding * 1.5
     }
     
     var body: some View {
         ZStack {
-            Rectangle()
-                .fill(cellBackground)
-                .cornerRadius(deviceLayout.gridPadding)
-                .overlay(
-                    Rectangle()
-                        .stroke(cellBorder, lineWidth: deviceLayout.gridPadding * 0.5)
-                        .cornerRadius(deviceLayout.gridPadding)
-                )
+            cellBackground
+            cellBorder
             
             if symbol == "X" {
                 XView()
-                    .stroke(isWinningCell ? Color.green : Color.blue, lineWidth: deviceLayout.gridPadding * 0.5)
+                    .stroke(
+                        LinearGradient(
+                            colors: isWinningCell ? 
+                                [Color.green, Color.green.opacity(0.7)] :
+                                [Color.blue, Color(red: 0.4, green: 0.8, blue: 1.0)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        style: StrokeStyle(
+                            lineWidth: deviceLayout.gridPadding * 0.25,
+                            lineCap: .round,
+                            lineJoin: .round
+                        )
+                    )
                     .frame(width: symbolSize, height: symbolSize)
-                    .shadow(color: (isWinningCell ? Color.green : Color.blue).opacity(0.5),
-                           radius: isWinningCell ? 6 : 3)
-                    .scaleEffect(isAnimating ? 1.2 : 1.0)
+                    .shadow(
+                        color: (isWinningCell ? Color.green : Color.blue).opacity(0.3),
+                        radius: isWinningCell ? 6 : 3
+                    )
+                    .scaleEffect(isAnimating ? 1.1 : 1.0)
+                    .animation(.interpolatingSpring(mass: 0.5, stiffness: 200, damping: 10), value: isAnimating)
             } else if symbol == "O" {
                 OView()
-                    .stroke(isWinningCell ? Color.green : Color.red, lineWidth: deviceLayout.gridPadding * 0.5)
+                    .stroke(
+                        LinearGradient(
+                            colors: isWinningCell ? 
+                                [Color.green, Color.green.opacity(0.7)] :
+                                [Color.red, Color(red: 1.0, green: 0.4, blue: 0.4)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        style: StrokeStyle(
+                            lineWidth: deviceLayout.gridPadding * 0.25,
+                            lineCap: .round,
+                            lineJoin: .round
+                        )
+                    )
                     .frame(width: symbolSize, height: symbolSize)
-                    .shadow(color: (isWinningCell ? Color.green : Color.red).opacity(0.5),
-                           radius: isWinningCell ? 6 : 3)
-                    .scaleEffect(isAnimating ? 1.2 : 1.0)
+                    .shadow(
+                        color: (isWinningCell ? Color.green : Color.red).opacity(0.3),
+                        radius: isWinningCell ? 6 : 3
+                    )
+                    .scaleEffect(isAnimating ? 1.1 : 1.0)
+                    .animation(.interpolatingSpring(mass: 0.5, stiffness: 200, damping: 10), value: isAnimating)
             }
         }
+        .shadow(
+            color: Color.black.opacity(isDark ? 0.2 : 0.08),
+            radius: 4,
+            x: 0,
+            y: 2
+        )
         .scaleEffect(isWinningCell ? 1.1 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isWinningCell)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isWinningCell)
     }
 }
 
@@ -205,17 +251,17 @@ struct XView: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         
-        // Цртамо X
         let width = rect.width
         let height = rect.height
+        let padding: CGFloat = width * 0.2
         
         // Прва линија (горњи леви до доњи десни)
-        path.move(to: CGPoint(x: 0, y: 0))
-        path.addLine(to: CGPoint(x: width, y: height))
+        path.move(to: CGPoint(x: padding, y: padding))
+        path.addLine(to: CGPoint(x: width - padding, y: height - padding))
         
         // Друга линија (доњи леви до горњи десни)
-        path.move(to: CGPoint(x: 0, y: height))
-        path.addLine(to: CGPoint(x: width, y: 0))
+        path.move(to: CGPoint(x: padding, y: height - padding))
+        path.addLine(to: CGPoint(x: width - padding, y: padding))
         
         return path
     }
@@ -225,9 +271,8 @@ struct OView: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         
-        // Цртамо O (круг)
         let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radius = min(rect.width, rect.height) / 2
+        let radius = min(rect.width, rect.height) * 0.4
         
         path.addArc(center: center, radius: radius, startAngle: .degrees(0), endAngle: .degrees(360), clockwise: false)
         
