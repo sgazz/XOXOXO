@@ -36,7 +36,6 @@ struct GameView: View {
     
     // Dynamic layout properties
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Environment(\.colorScheme) private var colorScheme
 
     // Initializer that accepts a game mode
@@ -47,63 +46,22 @@ struct GameView: View {
 
     // Helper computed properties to simplify expressions
     private var isIPad: Bool {
-        horizontalSizeClass == .regular && verticalSizeClass == .regular
-    }
-
-    private var isLandscape: Bool {
-        verticalSizeClass == .compact
-    }
-    
-    // Enhanced dynamic layout properties
-    private var deviceLayout: DeviceLayout {
-        switch (horizontalSizeClass, verticalSizeClass) {
-            case (.compact, .regular): return .iphone
-            case (.compact, .compact): return .iphoneLandscape
-            case (.regular, .regular): return .ipad
-            case (.regular, .compact): return .ipadLandscape
-            default: return .iphone
-        }
+        horizontalSizeClass == .regular
     }
     
     private var gridSpacing: CGFloat {
-        switch deviceLayout {
-            case .iphone: return 12
-            case .iphoneLandscape: return 10
-            case .ipad: return 30
-            case .ipadLandscape: return 35
-        }
+        isIPad ? 30 : 12
     }
     
     private var scoreFont: Font {
-        switch deviceLayout {
-            case .iphone: return .system(size: 32, weight: .bold)
-            case .iphoneLandscape: return .system(size: 24, weight: .bold)
-            case .ipad: return .system(size: 48, weight: .bold)
-            case .ipadLandscape: return .system(size: 42, weight: .bold)
-        }
+        isIPad ? .system(size: 48, weight: .bold) : .system(size: 32, weight: .bold)
     }
     
     private var gridLayout: [GridItem] {
-        switch deviceLayout {
-            case .iphone:
-                return [
-                    GridItem(.flexible(), spacing: gridSpacing),
-                    GridItem(.flexible(), spacing: gridSpacing)
-                ]
-            case .iphoneLandscape:
-                return [
-                    GridItem(.flexible(), spacing: gridSpacing),
-                    GridItem(.flexible(), spacing: gridSpacing),
-                    GridItem(.flexible(), spacing: gridSpacing),
-                    GridItem(.flexible(), spacing: gridSpacing)
-                ]
-            case .ipad, .ipadLandscape:
-                return [
-                    GridItem(.flexible(), spacing: gridSpacing),
-                    GridItem(.flexible(), spacing: gridSpacing),
-                    GridItem(.flexible(), spacing: gridSpacing)
-                ]
-        }
+        [
+            GridItem(.flexible(), spacing: gridSpacing),
+            GridItem(.flexible(), spacing: gridSpacing)
+        ]
     }
     
     // Helper computed properties for background colors
@@ -126,31 +84,19 @@ struct GameView: View {
                 floatingSymbols(in: geometry)
                     .ignoresSafeArea()
                 
-                // Game content
-                if deviceLayout.isLandscape {
-                    // Landscape layout - користимо цео екран
-                    HStack(spacing: 0) {
-                        // Score display with timers for landscape
+                // Portrait layout
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 15) {
                         scoreView
-                            .frame(width: geometry.size.width * 0.12)
-                        
-                        // Game boards grid
+                            .padding(.top, isIPad ? 30 : 20)
                         gameBoardsGrid(geometry: geometry)
+                            .padding(.bottom, geometry.safeAreaInsets.bottom + 20)
                     }
-                    .ignoresSafeArea(.container, edges: [.leading, .trailing, .bottom])
-                } else {
-                    // Portrait layout - задржавамо постојећи
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 15) {
-                            scoreView
-                            gameBoardsGrid(geometry: geometry)
-                                .padding(.bottom, deviceLayout.isIphone ? geometry.safeAreaInsets.bottom + 20 : 0)
-                        }
-                        .frame(
-                            minHeight: geometry.size.height - (deviceLayout.isIphone ? 120 : 0)
-                        )
-                    }
+                    .frame(
+                        minHeight: geometry.size.height - 120
+                    )
                 }
+                .frame(maxHeight: .infinity)
                 
                 // Game Over overlay
                 if showGameOver {
@@ -160,7 +106,6 @@ struct GameView: View {
                         playerOTime: playerOTime,
                         score: gameLogic.totalScore,
                         isPvPUnlocked: isPvPUnlocked,
-                        deviceLayout: deviceLayout,
                         onPlayVsAI: {
                             gameLogic.changeGameMode(to: .aiOpponent)
                             resetGame()
@@ -195,110 +140,58 @@ struct GameView: View {
     // MARK: - UI Components
     
     private var scoreView: some View {
-        Group {
-            if deviceLayout.isLandscape {
-                // Landscape score view
-                VStack(spacing: 10) {
-                    // Време плавог играча (X)
-                    VStack(spacing: 4) {
-                        Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
-                            .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
-                            .font(.system(size: 20, weight: .bold))
-                            .minimumScaleFactor(0.5)
-                        
-                        // Бонус/казна време за X
-                        Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "00sec")))
-                            .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : (showXDrawPenalty ? .orange : .gray)))
-                            .font(.system(size: 14, weight: .medium))
-                            .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : (showXDrawPenalty ? xDrawPenaltyScale : 1.0)))
-                    }
-                    
-                    Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
-                        .foregroundColor(.white)
-                        .font(.system(size: 32, weight: .heavy))
-                        .minimumScaleFactor(0.5)
-                    
-                    // Време црвеног играча (O)
-                    VStack(spacing: 4) {
-                        Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
-                            .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
-                            .font(.system(size: 20, weight: .bold))
-                            .minimumScaleFactor(0.5)
-                        
-                        // Бонус/казна време за O
-                        Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "00sec")))
-                            .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
-                            .font(.system(size: 14, weight: .medium))
-                            .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
-                    }
-                }
-            } else {
-                // Portrait score view
-                VStack(spacing: 8) {
-                    // Резултат и тајмери
-                    HStack(spacing: deviceLayout.scoreSpacing) {
-                        Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
-                            .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
-                            .font(scoreFont)
-                            .minimumScaleFactor(0.5)
-                        
-                        Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
-                            .foregroundColor(.white)
-                            .font(scoreFont.weight(.heavy))
-                            .minimumScaleFactor(0.5)
-                        
-                        Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
-                            .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
-                            .font(scoreFont)
-                            .minimumScaleFactor(0.5)
-                    }
-                    
-                    // Време потеза
-                    HStack(spacing: deviceLayout.scoreSpacing * 1.5) {
-                        Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "00sec")))
-                            .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : (showXDrawPenalty ? .orange : .gray)))
-                            .font(.system(size: deviceLayout.isIphone ? 16 : 20, weight: .medium))
-                            .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : (showXDrawPenalty ? xDrawPenaltyScale : 1.0)))
-                        
-                        Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "00sec")))
-                            .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
-                            .font(.system(size: deviceLayout.isIphone ? 16 : 20, weight: .medium))
-                            .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
-                    }
-                    .padding(.top, 2)
-                }
-                .padding(.vertical, deviceLayout.isIphone ? 5 : 10)
+        VStack(spacing: 8) {
+            // Резултат и тајмери
+            HStack(spacing: isIPad ? 40 : 20) {
+                Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
+                    .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
+                    .font(scoreFont)
+                    .minimumScaleFactor(0.5)
+                
+                Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
+                    .foregroundColor(.white)
+                    .font(scoreFont.weight(.heavy))
+                    .minimumScaleFactor(0.5)
+                
+                Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
+                    .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
+                    .font(scoreFont)
+                    .minimumScaleFactor(0.5)
             }
+            
+            // Време потеза
+            HStack(spacing: isIPad ? 60 : 30) {
+                Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "00sec")))
+                    .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : (showXDrawPenalty ? .orange : .gray)))
+                    .font(.system(size: isIPad ? 20 : 16, weight: .medium))
+                    .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : (showXDrawPenalty ? xDrawPenaltyScale : 1.0)))
+                
+                Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "00sec")))
+                    .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
+                    .font(.system(size: isIPad ? 20 : 16, weight: .medium))
+                    .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
+            }
+            .padding(.top, 2)
         }
+        .padding(.vertical, isIPad ? 10 : 5)
         .background(
             RoundedRectangle(cornerRadius: 15)
                 .fill(Color.white.opacity(0.05))
                 .shadow(color: Color.black.opacity(0.1), radius: 5)
         )
-        .padding(.horizontal, deviceLayout.isIphone ? 10 : 20)
+        .padding(.horizontal, isIPad ? 20 : 10)
     }
     
     private func gameBoardsGrid(geometry: GeometryProxy) -> some View {
-        let isLandscape = deviceLayout.isLandscape
-        let availableWidth = isLandscape ? geometry.size.width * 0.88 : geometry.size.width // 88% за табле у landscape
-        let spacing: CGFloat = isLandscape ? 8 : gridSpacing
-        
-        let gridItems = isLandscape ? [
-            GridItem(.flexible(), spacing: spacing),
-            GridItem(.flexible(), spacing: spacing),
-            GridItem(.flexible(), spacing: spacing),
-            GridItem(.flexible(), spacing: spacing)
-        ] : gridLayout
-        
-        return LazyVGrid(
-            columns: gridItems,
-            spacing: spacing
+        LazyVGrid(
+            columns: gridLayout,
+            spacing: gridSpacing
         ) {
             ForEach(0..<8) { index in
                 boardView(for: index, geometry: geometry)
             }
         }
-        .frame(maxWidth: availableWidth)
+        .frame(maxWidth: geometry.size.width)
     }
     
     private func boardView(for index: Int, geometry: GeometryProxy) -> some View {
@@ -317,14 +210,10 @@ struct GameView: View {
     }
     
     private func calculateBoardWidth(for geometry: GeometryProxy) -> CGFloat {
-        if deviceLayout.isLandscape {
-            let availableWidth = geometry.size.width * 0.88 // 88% екрана за табле
-            let horizontalSpacing: CGFloat = 8 * 3 // 3 размака између 4 колоне
-            let boardWidth = (availableWidth - horizontalSpacing) / 4 // 4 табле у реду
-            return min(boardWidth, geometry.size.height * 0.45) // Ограничавамо висином
-        } else {
-            return deviceLayout.maxBoardWidth(for: geometry.size)
-        }
+        let availableWidth = geometry.size.width
+        let horizontalSpacing: CGFloat = gridSpacing
+        let boardWidth = (availableWidth - horizontalSpacing) / 2
+        return min(boardWidth, geometry.size.height * 0.45)
     }
     
     private func startTimer() {
@@ -544,7 +433,7 @@ struct GameView: View {
             FloatingSymbol(symbol: "X", size: 100, startX: geometry.size.width * 0.15, startY: -geometry.size.height * 0.6, slowMotion: true)
             FloatingSymbol(symbol: "O", size: 130, startX: -geometry.size.width * 0.15, startY: geometry.size.height * 0.5, slowMotion: true)
         }
-        .opacity(0.3) // Повећана непрозирност са 0.2 на 0.3
+        .opacity(0.3)
     }
 }
 

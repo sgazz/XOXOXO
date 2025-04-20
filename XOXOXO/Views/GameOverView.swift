@@ -7,7 +7,6 @@ struct GameOverView: View {
     let playerOTime: TimeInterval
     let score: (x: Int, o: Int)
     let isPvPUnlocked: Bool
-    let deviceLayout: DeviceLayout
     
     // Акције
     let onPlayVsAI: () -> Void
@@ -22,59 +21,23 @@ struct GameOverView: View {
                 .opacity(0.98)
                 .ignoresSafeArea()
             
-            // Садржај Game Over прозора
-            Group {
-                if deviceLayout.isLandscape {
-                    // Landscape layout
-                    HStack(spacing: 40) {
-                        // Лева страна - икона и наслов
-                        VStack(spacing: 20) {
-                            // Анимирана икона
-                            GameOverIcon(timeoutPlayer: timeoutPlayer)
-                            
-                            // Наслов и поднаслов
-                            GameOverTitle(timeoutPlayer: timeoutPlayer)
-                        }
-                        
-                        // Десна страна - статистика и дугмад
-                        VStack(spacing: 25) {
-                            // Статистика игре
-                            GameStats(
-                                playerXTime: playerXTime,
-                                playerOTime: playerOTime,
-                                score: score
-                            )
-                            
-                            // Дугмад за избор мода игре
-                            GameModeButtons(
-                                isPvPUnlocked: isPvPUnlocked,
-                                onPlayVsAI: onPlayVsAI,
-                                onPlayVsPlayer: onPlayVsPlayer,
-                                onShowPurchase: onShowPurchase
-                            )
-                        }
-                    }
-                    .padding(.horizontal, 40)
-                } else {
-                    // Portrait layout
-                    VStack(spacing: 25) {
-                        GameOverIcon(timeoutPlayer: timeoutPlayer)
-                        GameOverTitle(timeoutPlayer: timeoutPlayer)
-                        GameStats(
-                            playerXTime: playerXTime,
-                            playerOTime: playerOTime,
-                            score: score
-                        )
-                        GameModeButtons(
-                            isPvPUnlocked: isPvPUnlocked,
-                            onPlayVsAI: onPlayVsAI,
-                            onPlayVsPlayer: onPlayVsPlayer,
-                            onShowPurchase: onShowPurchase
-                        )
-                    }
-                    .offset(y: -20)
-                }
+            // Portrait layout
+            VStack(spacing: 25) {
+                GameOverIcon(timeoutPlayer: timeoutPlayer)
+                GameOverTitle(timeoutPlayer: timeoutPlayer)
+                GameStats(
+                    playerXTime: playerXTime,
+                    playerOTime: playerOTime,
+                    score: score
+                )
+                GameModeButtons(
+                    isPvPUnlocked: isPvPUnlocked,
+                    onPlayVsAI: onPlayVsAI,
+                    onPlayVsPlayer: onPlayVsPlayer,
+                    onShowPurchase: onShowPurchase
+                )
             }
+            .offset(y: -20)
         }
         .transition(.asymmetric(
             insertion: .scale(scale: 0.8).combined(with: .opacity),
@@ -209,7 +172,7 @@ private struct GameModeButtons: View {
                 HStack {
                     Image(systemName: "cpu")
                         .font(.title2)
-                    Text("Play vs AI")
+                    Text("Single Player")
                         .font(.title2.bold())
                 }
                 .foregroundColor(.white)
@@ -229,7 +192,7 @@ private struct GameModeButtons: View {
                 )
                 .shadow(color: Color(red: 0.2, green: 0.3, blue: 0.7).opacity(0.5), radius: 10, x: 0, y: 5)
             }
-            
+    
             // PvP дугме
             Button(action: {
                 if isPvPUnlocked {
@@ -241,7 +204,7 @@ private struct GameModeButtons: View {
                 HStack {
                     Image(systemName: "person.2.fill")
                         .font(.title2)
-                    Text("Play vs Friend")
+                    Text("Multiplayer")
                         .font(.title2.bold())
                 }
                 .foregroundColor(.white)
@@ -287,7 +250,6 @@ private struct GameModeButtons: View {
         playerOTime: 180,
         score: (x: 3, o: 5),
         isPvPUnlocked: false,
-        deviceLayout: .iphone,
         onPlayVsAI: {},
         onPlayVsPlayer: {},
         onShowPurchase: {}
