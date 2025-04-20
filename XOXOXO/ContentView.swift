@@ -10,6 +10,7 @@ struct GameView: View {
     @State private var isTimerRunning = false
     @State private var showGameOver = false
     @State private var timeoutPlayer: String? = nil
+    @State private var showResults = false
     
     // Нове променљиве за бонус време
     @State private var showXBonus = false
@@ -89,6 +90,11 @@ struct GameView: View {
                     scoreView
                         .padding(.horizontal, deviceLayout.boardSpacing * 2)
                         .padding(.top, deviceLayout.isIphone ? 10 : 20)
+                        .onTapGesture {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                showResults = true
+                            }
+                        }
                     
                     Spacer()
                         .frame(height: deviceLayout.boardSpacing * 2)
@@ -100,6 +106,49 @@ struct GameView: View {
                 .frame(
                     maxHeight: geometry.size.height - (geometry.safeAreaInsets.top + geometry.safeAreaInsets.bottom)
                 )
+                
+                // Results overlay
+                if showResults {
+                    Color.black.opacity(0.5)
+                        .ignoresSafeArea()
+                        .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showResults = false
+                            }
+                        }
+                    
+                    ResultView(
+                        playerXScore: gameLogic.totalScore.x,
+                        playerOScore: gameLogic.totalScore.o,
+                        draws: gameLogic.totalScore.x + gameLogic.totalScore.o,
+                        onNewGame: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showResults = false
+                                gameLogic.changeGameMode(to: .aiOpponent)
+                                resetGame()
+                            }
+                        },
+                        onClose: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showResults = false
+                            }
+                        },
+                        isPvPUnlocked: isPvPUnlocked,
+                        onShowPurchase: {
+                            showResults = false
+                            showPurchaseView = true
+                        },
+                        onPlayVsPlayer: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showResults = false
+                                gameLogic.changeGameMode(to: .playerVsPlayer)
+                                resetGame()
+                            }
+                        }
+                    )
+                    .transition(.scale(scale: 0.9).combined(with: .opacity))
+                }
                 
                 // Game Over overlay
                 if showGameOver {
