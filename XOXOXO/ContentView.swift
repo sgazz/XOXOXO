@@ -49,19 +49,19 @@ struct GameView: View {
         horizontalSizeClass == .regular
     }
     
-    private var gridSpacing: CGFloat {
-        isIPad ? 30 : 12
-    }
-    
-    private var scoreFont: Font {
-        isIPad ? .system(size: 48, weight: .bold) : .system(size: 32, weight: .bold)
+    private var deviceLayout: DeviceLayout {
+        DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: nil)
     }
     
     private var gridLayout: [GridItem] {
         [
-            GridItem(.flexible(), spacing: gridSpacing),
-            GridItem(.flexible(), spacing: gridSpacing)
+            GridItem(.flexible(), spacing: deviceLayout.boardSpacing),
+            GridItem(.flexible(), spacing: deviceLayout.boardSpacing)
         ]
+    }
+    
+    private var scoreFont: Font {
+        isIPad ? .system(size: 48, weight: .bold) : .system(size: 32, weight: .bold)
     }
     
     // Helper computed properties for background colors
@@ -185,7 +185,7 @@ struct GameView: View {
     private func gameBoardsGrid(geometry: GeometryProxy) -> some View {
         LazyVGrid(
             columns: gridLayout,
-            spacing: gridSpacing
+            spacing: deviceLayout.boardSpacing
         ) {
             ForEach(0..<8) { index in
                 boardView(for: index, geometry: geometry)
@@ -210,10 +210,7 @@ struct GameView: View {
     }
     
     private func calculateBoardWidth(for geometry: GeometryProxy) -> CGFloat {
-        let availableWidth = geometry.size.width
-        let horizontalSpacing: CGFloat = gridSpacing
-        let boardWidth = (availableWidth - horizontalSpacing) / 2
-        return min(boardWidth, geometry.size.height * 0.45)
+        return deviceLayout.calculateBoardWidth(for: geometry)
     }
     
     private func startTimer() {

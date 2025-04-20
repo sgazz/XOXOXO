@@ -8,6 +8,7 @@ struct SplashView: View {
     @State private var showTapPrompt = false
     @State private var showTutorial = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
     
     // Анимација прелаза
     @State private var startGameTransition = false
@@ -28,19 +29,12 @@ struct SplashView: View {
             } else {
                 GeometryReader { geometry in
                     let isIPad = horizontalSizeClass == .regular
+                    let deviceLayout = DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
                     
                     // Прилагођене величине за iPad и iPhone
-                    let titleSize = isIPad ? 
-                        min(geometry.size.width * 0.135, 86) :
-                        min(geometry.size.width * 0.12, 56)
-                    
-                    let subtitleSize = isIPad ? 
-                        min(geometry.size.width * 0.064, 38) :
-                        min(geometry.size.width * 0.055, 28)
-                    
-                    let descriptionSize = isIPad ? 
-                        min(geometry.size.width * 0.048, 30) :
-                        min(geometry.size.width * 0.04, 22)
+                    let titleSize = min(geometry.size.width * deviceLayout.titleScale, deviceLayout.titleSize)
+                    let subtitleSize = min(geometry.size.width * deviceLayout.subtitleScale, deviceLayout.subtitleSize)
+                    let descriptionSize = min(geometry.size.width * deviceLayout.descriptionScale, deviceLayout.descriptionSize)
                     
                     let buttonWidth = isIPad ? 
                         min(geometry.size.width * 0.6, 500) : 

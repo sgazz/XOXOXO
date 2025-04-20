@@ -17,14 +17,8 @@ struct BoardView: View {
     private let gridSize: CGFloat = 3
     private let spacing: CGFloat = 2
     
-    private var deviceType: DeviceType {
-        switch (horizontalSizeClass, verticalSizeClass) {
-        case (.compact, .regular): return .iphone
-        case (.compact, .compact): return .iphoneLandscape
-        case (.regular, .regular): return .ipad
-        case (.regular, .compact): return .ipadLandscape
-        default: return .iphone
-        }
+    private var deviceLayout: DeviceLayout {
+        DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
     }
     
     var body: some View {
@@ -41,7 +35,7 @@ struct BoardView: View {
                                 isActive: isActive && board[index].isEmpty,
                                 isAnimating: cellAnimations[index],
                                 isWinningCell: winningCombination.contains(index),
-                                deviceType: deviceType
+                                deviceLayout: deviceLayout
                             )
                             .frame(width: cellSize, height: cellSize)
                             .onTapGesture {
@@ -51,21 +45,21 @@ struct BoardView: View {
                     }
                 }
             }
-            .padding(deviceType.boardPadding)
+            .padding(deviceLayout.gridPadding)
             .background(
-                RoundedRectangle(cornerRadius: deviceType.cornerRadius)
+                RoundedRectangle(cornerRadius: deviceLayout.gridPadding * 2)
                     .fill(colorScheme == .dark ? 
                           Color(.systemBackground) : 
                           Color.white.opacity(0.8))
                     .shadow(
                         color: isActive ? Color.blue.opacity(0.6) : Color.black.opacity(0.2),
-                        radius: isActive ? deviceType.activeShadowRadius : deviceType.inactiveShadowRadius,
+                        radius: isActive ? deviceLayout.gridPadding * 2 : deviceLayout.gridPadding,
                         x: 0,
                         y: isActive ? 5 : 2
                     )
             )
             .overlay(
-                RoundedRectangle(cornerRadius: deviceType.cornerRadius)
+                RoundedRectangle(cornerRadius: deviceLayout.gridPadding * 2)
                     .stroke(
                         isActive ? Color.blue.opacity(0.8) : Color.gray.opacity(0.4), 
                         lineWidth: isActive ? 3 : 1
@@ -82,7 +76,7 @@ struct BoardView: View {
     
     private func calculateCellSize(for size: CGSize) -> CGFloat {
         let minDimension = min(size.width, size.height)
-        let availableSpace = minDimension - (deviceType.boardPadding * 2)
+        let availableSpace = minDimension - (deviceLayout.gridPadding * 2)
         return (availableSpace - spacing * 2) / gridSize
     }
     
@@ -106,25 +100,41 @@ struct BoardView: View {
     }
     
     private func checkWinningCombination(in board: [String]) {
-        // Проверавамо хоризонталне, вертикалне и дијагоналне комбинације
-        let winPatterns = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],  // хоризонтално
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],  // вертикално
-            [0, 4, 8], [2, 4, 6]              // дијагонално
-        ]
-        
-        for pattern in winPatterns {
-            let symbols = pattern.map { board[$0] }
-            if symbols[0] != "" && symbols[0] == symbols[1] && symbols[1] == symbols[2] {
-                withAnimation(.spring()) {
-                    isWinning = true
-                    winningCombination = pattern
-                }
-                SoundManager.shared.playSound(.win)
-                SoundManager.shared.playHeavyHaptic()
-                break
+        // Провери хоризонталне комбинације
+        for row in 0..<3 {
+            let start = row * 3
+            if board[start] != "" && board[start] == board[start + 1] && board[start] == board[start + 2] {
+                winningCombination = [start, start + 1, start + 2]
+                isWinning = true
+                return
             }
         }
+        
+        // Провери вертикалне комбинације
+        for col in 0..<3 {
+            if board[col] != "" && board[col] == board[col + 3] && board[col] == board[col + 6] {
+                winningCombination = [col, col + 3, col + 6]
+                isWinning = true
+                return
+            }
+        }
+        
+        // Провери дијагонале
+        if board[0] != "" && board[0] == board[4] && board[0] == board[8] {
+            winningCombination = [0, 4, 8]
+            isWinning = true
+            return
+        }
+        
+        if board[2] != "" && board[2] == board[4] && board[2] == board[6] {
+            winningCombination = [2, 4, 6]
+            isWinning = true
+            return
+        }
+        
+        // Ако нема победника, ресетуј стање
+        winningCombination = []
+        isWinning = false
     }
 }
 
@@ -133,57 +143,53 @@ struct CellView: View {
     let isActive: Bool
     let isAnimating: Bool
     let isWinningCell: Bool
-    fileprivate let deviceType: DeviceType
-    
-    @Environment(\.colorScheme) private var colorScheme
-    
-    fileprivate var symbolSize: CGFloat {
-        deviceType.symbolSize
-    }
+    let deviceLayout: DeviceLayout
     
     private var cellBackground: Color {
         if isWinningCell {
-            return Color.green.opacity(0.2)
+            return .green.opacity(0.2)
         } else if isActive {
-            return Color.blue.opacity(0.1)
+            return .blue.opacity(0.1)
         } else {
-            return colorScheme == .dark ? 
-                   Color(.systemBackground) : 
-                   Color(.systemGray5).opacity(0.7)
+            return .clear
         }
     }
     
     private var cellBorder: Color {
         if isWinningCell {
-            return Color.green.opacity(0.7)
+            return .green.opacity(0.5)
         } else if isActive {
-            return Color.blue.opacity(0.5)
+            return .blue.opacity(0.3)
         } else {
-            return Color.gray.opacity(0.5)
+            return .gray.opacity(0.2)
         }
+    }
+    
+    private var symbolSize: CGFloat {
+        deviceLayout.gridPadding * 2
     }
     
     var body: some View {
         ZStack {
             Rectangle()
                 .fill(cellBackground)
-                .cornerRadius(deviceType.cellCornerRadius)
+                .cornerRadius(deviceLayout.gridPadding)
                 .overlay(
                     Rectangle()
-                        .stroke(cellBorder, lineWidth: deviceType.cellBorderWidth)
-                        .cornerRadius(deviceType.cellCornerRadius)
+                        .stroke(cellBorder, lineWidth: deviceLayout.gridPadding * 0.5)
+                        .cornerRadius(deviceLayout.gridPadding)
                 )
             
             if symbol == "X" {
                 XView()
-                    .stroke(isWinningCell ? Color.green : Color.blue, lineWidth: deviceType.symbolStrokeWidth)
+                    .stroke(isWinningCell ? Color.green : Color.blue, lineWidth: deviceLayout.gridPadding * 0.5)
                     .frame(width: symbolSize, height: symbolSize)
                     .shadow(color: (isWinningCell ? Color.green : Color.blue).opacity(0.5),
                            radius: isWinningCell ? 6 : 3)
                     .scaleEffect(isAnimating ? 1.2 : 1.0)
             } else if symbol == "O" {
                 OView()
-                    .stroke(isWinningCell ? Color.green : Color.red, lineWidth: deviceType.symbolStrokeWidth)
+                    .stroke(isWinningCell ? Color.green : Color.red, lineWidth: deviceLayout.gridPadding * 0.5)
                     .frame(width: symbolSize, height: symbolSize)
                     .shadow(color: (isWinningCell ? Color.green : Color.red).opacity(0.5),
                            radius: isWinningCell ? 6 : 3)
@@ -226,85 +232,6 @@ struct OView: Shape {
         path.addArc(center: center, radius: radius, startAngle: .degrees(0), endAngle: .degrees(360), clockwise: false)
         
         return path
-    }
-}
-
-fileprivate enum DeviceType {
-    case iphone
-    case iphoneLandscape
-    case ipad
-    case ipadLandscape
-    
-    var boardPadding: CGFloat {
-        switch self {
-        case .iphone: return 4
-        case .iphoneLandscape: return 3
-        case .ipad: return 6
-        case .ipadLandscape: return 5
-        }
-    }
-    
-    var cornerRadius: CGFloat {
-        switch self {
-        case .iphone: return 10
-        case .iphoneLandscape: return 8
-        case .ipad: return 15
-        case .ipadLandscape: return 12
-        }
-    }
-    
-    var activeShadowRadius: CGFloat {
-        switch self {
-        case .iphone: return 15
-        case .iphoneLandscape: return 12
-        case .ipad: return 20
-        case .ipadLandscape: return 18
-        }
-    }
-    
-    var inactiveShadowRadius: CGFloat {
-        switch self {
-        case .iphone: return 5
-        case .iphoneLandscape: return 4
-        case .ipad: return 8
-        case .ipadLandscape: return 6
-        }
-    }
-    
-    var symbolSize: CGFloat {
-        switch self {
-        case .iphone: return 30
-        case .iphoneLandscape: return 25
-        case .ipad: return 40
-        case .ipadLandscape: return 35
-        }
-    }
-    
-    var symbolStrokeWidth: CGFloat {
-        switch self {
-        case .iphone: return 3
-        case .iphoneLandscape: return 2.5
-        case .ipad: return 4
-        case .ipadLandscape: return 3.5
-        }
-    }
-    
-    var cellCornerRadius: CGFloat {
-        switch self {
-        case .iphone: return 4
-        case .iphoneLandscape: return 3
-        case .ipad: return 6
-        case .ipadLandscape: return 5
-        }
-    }
-    
-    var cellBorderWidth: CGFloat {
-        switch self {
-        case .iphone: return 1.5
-        case .iphoneLandscape: return 1.2
-        case .ipad: return 2
-        case .ipadLandscape: return 1.8
-        }
     }
 }
 
