@@ -37,6 +37,7 @@ struct GameView: View {
     
     // Dynamic layout properties
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Environment(\.colorScheme) private var colorScheme
 
     // Initializer that accepts a game mode
@@ -51,7 +52,7 @@ struct GameView: View {
     }
     
     private var deviceLayout: DeviceLayout {
-        DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: nil)
+        DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
     }
     
     private var gridLayout: [GridItem] {
@@ -87,9 +88,11 @@ struct GameView: View {
                 
                 // Portrait layout
                 VStack(spacing: 0) {
+                    Spacer()
+                        .frame(height: deviceLayout.boardSpacing * 3)
+                    
                     scoreView
-                        .padding(.horizontal, deviceLayout.boardSpacing * 2)
-                        .padding(.top, deviceLayout.isIphone ? 10 : 20)
+                        .padding(.top, deviceLayout.isIphone ? 30 : 50)
                         .onTapGesture {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 showResults = true
@@ -97,7 +100,7 @@ struct GameView: View {
                         }
                     
                     Spacer()
-                        .frame(height: deviceLayout.boardSpacing * 2)
+                        .frame(height: deviceLayout.boardSpacing)
                     
                     gameBoardsGrid(geometry: geometry)
                     
@@ -192,45 +195,49 @@ struct GameView: View {
     // MARK: - UI Components
     
     private var scoreView: some View {
-        VStack(spacing: isIPad ? 12 : 8) {
-            // Резултат и тајмери
-            HStack(spacing: isIPad ? 40 : 20) {
-                Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
-                    .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
-                    .font(scoreFont)
-                    .minimumScaleFactor(0.5)
-                
-                Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
-                    .foregroundColor(.white)
-                    .font(scoreFont.weight(.heavy))
-                    .minimumScaleFactor(0.5)
-                
-                Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
-                    .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
-                    .font(scoreFont)
-                    .minimumScaleFactor(0.5)
-            }
-            .padding(.vertical, isIPad ? 8 : 4)
-            
-            // Време потеза
-            HStack(spacing: isIPad ? 60 : 30) {
-                Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "00sec")))
+        GeometryReader { geometry in
+            HStack(spacing: deviceLayout.adaptiveSpacing / 3) {
+                // Индикатор за X
+                Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "+/-")))
                     .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : (showXDrawPenalty ? .orange : .gray)))
-                    .font(.system(size: isIPad ? 20 : 16, weight: .medium))
+                    .font(.system(size: geometry.size.width * (isIPad ? 0.04 : 0.07), weight: .medium))
                     .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : (showXDrawPenalty ? xDrawPenaltyScale : 1.0)))
                 
-                Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "00sec")))
+                // Тајмер за X
+                Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
+                    .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
+                    .font(.system(size: geometry.size.width * (isIPad ? 0.05 : 0.09), weight: .bold))
+                    .minimumScaleFactor(0.5)
+                
+                // Резултат
+                Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
+                    .foregroundColor(.white)
+                    .font(.system(size: geometry.size.width * (isIPad ? 0.06 : 0.11), weight: .heavy))
+                    .minimumScaleFactor(0.5)
+                
+                // Тајмер за O
+                Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
+                    .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
+                    .font(.system(size: geometry.size.width * (isIPad ? 0.05 : 0.09), weight: .bold))
+                    .minimumScaleFactor(0.5)
+                
+                // Индикатор за O
+                Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "+/-")))
                     .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
-                    .font(.system(size: isIPad ? 20 : 16, weight: .medium))
+                    .font(.system(size: geometry.size.width * (isIPad ? 0.04 : 0.07), weight: .medium))
                     .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
             }
-            .padding(.bottom, isIPad ? 8 : 4)
+            .padding(.vertical, deviceLayout.adaptiveSpacing / 2)
+            .padding(.horizontal, deviceLayout.adaptiveSpacing / 2)
+            .background(
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color.white.opacity(0.05))
+                    .shadow(color: Color.black.opacity(0.1), radius: 5)
+            )
+            .frame(width: geometry.size.width * 0.85)
+            .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
         }
-        .background(
-            RoundedRectangle(cornerRadius: 15)
-                .fill(Color.white.opacity(0.05))
-                .shadow(color: Color.black.opacity(0.1), radius: 5)
-        )
+        .frame(height: deviceLayout.isIphone ? 70 : 80)
     }
     
     private func gameBoardsGrid(geometry: GeometryProxy) -> some View {
