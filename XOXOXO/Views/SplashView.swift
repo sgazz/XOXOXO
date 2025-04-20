@@ -188,10 +188,11 @@ struct SplashView: View {
                                 VStack(spacing: verticalSpacing * 1.2) {
                                     if showTapPrompt {
                                         Button(action: {
-                                            if selectedGameMode != .aiOpponent {
-                                                SoundManager.shared.playSound(.tap)
-                                                SoundManager.shared.playHaptic()
-                                                selectedGameMode = .aiOpponent
+                                            SoundManager.shared.playSound(.tap)
+                                            SoundManager.shared.playHaptic()
+                                            selectedGameMode = .aiOpponent
+                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                                startGameTransition = true
                                             }
                                         }) {
                                             aiButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
@@ -203,8 +204,9 @@ struct SplashView: View {
                                             SoundManager.shared.playHaptic()
                                             
                                             if isPvPUnlocked {
-                                                if selectedGameMode != .playerVsPlayer {
-                                                    selectedGameMode = .playerVsPlayer
+                                                selectedGameMode = .playerVsPlayer
+                                                withAnimation(.easeInOut(duration: 0.5)) {
+                                                    startGameTransition = true
                                                 }
                                             } else {
                                                 showPurchaseView = true
@@ -213,9 +215,6 @@ struct SplashView: View {
                                             pvpButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
                                                 .frame(height: CGFloat(buttonHeight))
                                         }
-                                        
-                                        startGameButton(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
-                                            .frame(height: CGFloat(buttonHeight))
                                         
                                         tutorialButton(geometry: geometry, isIPad: isIPad, isLandscape: isLandscape)
                                             .padding(.top, verticalSpacing * 0.3)
@@ -255,10 +254,11 @@ struct SplashView: View {
                                         if showTapPrompt {
                                             VStack(spacing: verticalSpacing) {
                                                 Button(action: {
-                                                    if selectedGameMode != .aiOpponent {
-                                                        SoundManager.shared.playSound(.tap)
-                                                        SoundManager.shared.playHaptic()
-                                                        selectedGameMode = .aiOpponent
+                                                    SoundManager.shared.playSound(.tap)
+                                                    SoundManager.shared.playHaptic()
+                                                    selectedGameMode = .aiOpponent
+                                                    withAnimation(.easeInOut(duration: 0.5)) {
+                                                        startGameTransition = true
                                                     }
                                                 }) {
                                                     aiButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
@@ -270,8 +270,9 @@ struct SplashView: View {
                                                     SoundManager.shared.playHaptic()
                                                     
                                                     if isPvPUnlocked {
-                                                        if selectedGameMode != .playerVsPlayer {
-                                                            selectedGameMode = .playerVsPlayer
+                                                        selectedGameMode = .playerVsPlayer
+                                                        withAnimation(.easeInOut(duration: 0.5)) {
+                                                            startGameTransition = true
                                                         }
                                                     } else {
                                                         showPurchaseView = true
@@ -283,11 +284,6 @@ struct SplashView: View {
                                             }
                                             .padding(.bottom, verticalSpacing)
                                             .transition(.opacity)
-                                            
-                                            startGameButton(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
-                                                .frame(height: CGFloat(buttonHeight))
-                                                .scaleEffect(1.0)
-                                                .transition(.scale.combined(with: .opacity))
                                             
                                             tutorialButton(geometry: geometry, isIPad: isIPad, isLandscape: isLandscape)
                                                 .padding(.top, verticalSpacing * 0.5)
@@ -326,10 +322,11 @@ struct SplashView: View {
                                     if showTapPrompt {
                                         VStack(spacing: isIPad ? 15 : 10) {
                                             Button(action: {
-                                                if selectedGameMode != .aiOpponent {
-                                                    SoundManager.shared.playSound(.tap)
-                                                    SoundManager.shared.playHaptic()
-                                                    selectedGameMode = .aiOpponent
+                                                SoundManager.shared.playSound(.tap)
+                                                SoundManager.shared.playHaptic()
+                                                selectedGameMode = .aiOpponent
+                                                withAnimation(.easeInOut(duration: 0.5)) {
+                                                    startGameTransition = true
                                                 }
                                             }) {
                                                 aiButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
@@ -341,8 +338,9 @@ struct SplashView: View {
                                                 SoundManager.shared.playHaptic()
                                                 
                                                 if isPvPUnlocked {
-                                                    if selectedGameMode != .playerVsPlayer {
-                                                        selectedGameMode = .playerVsPlayer
+                                                    selectedGameMode = .playerVsPlayer
+                                                    withAnimation(.easeInOut(duration: 0.5)) {
+                                                        startGameTransition = true
                                                     }
                                                 } else {
                                                     showPurchaseView = true
@@ -354,11 +352,6 @@ struct SplashView: View {
                                         }
                                         .padding(.bottom, isIPad ? 15 : 8)
                                         .transition(.opacity)
-                                        
-                                        startGameButton(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth, isLandscape: isLandscape)
-                                            .frame(height: CGFloat(buttonHeight))
-                                            .scaleEffect(1.0)
-                                            .transition(.scale.combined(with: .opacity))
                                         
                                         Spacer()
                                         
@@ -409,10 +402,11 @@ struct SplashView: View {
                     VStack(spacing: 15) {
                         // Single Player mode button
                         Button(action: {
-                            if selectedGameMode != .aiOpponent {
-                                SoundManager.shared.playSound(.tap)
-                                SoundManager.shared.playHaptic()
-                                selectedGameMode = .aiOpponent
+                            SoundManager.shared.playSound(.tap)
+                            SoundManager.shared.playHaptic()
+                            selectedGameMode = .aiOpponent
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                startGameTransition = true
                             }
                         }) {
                             aiButtonContent(geometry: geometry, isIPad: false, buttonWidth: 200, isLandscape: isLandscape)
@@ -425,8 +419,9 @@ struct SplashView: View {
                             SoundManager.shared.playHaptic()
                             
                             if isPvPUnlocked {
-                                if selectedGameMode != .playerVsPlayer {
-                                    selectedGameMode = .playerVsPlayer
+                                selectedGameMode = .playerVsPlayer
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    startGameTransition = true
                                 }
                             } else {
                                 showPurchaseView = true
@@ -443,10 +438,11 @@ struct SplashView: View {
                     HStack(spacing: 15) {
                         // Single Player mode button
                         Button(action: {
-                            if selectedGameMode != .aiOpponent {
-                                SoundManager.shared.playSound(.tap)
-                                SoundManager.shared.playHaptic()
-                                selectedGameMode = .aiOpponent
+                            SoundManager.shared.playSound(.tap)
+                            SoundManager.shared.playHaptic()
+                            selectedGameMode = .aiOpponent
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                startGameTransition = true
                             }
                         }) {
                             aiButtonContent(geometry: geometry, isIPad: false, buttonWidth: 400, isLandscape: isLandscape)
@@ -458,8 +454,9 @@ struct SplashView: View {
                             SoundManager.shared.playHaptic()
                             
                             if isPvPUnlocked {
-                                if selectedGameMode != .playerVsPlayer {
-                                    selectedGameMode = .playerVsPlayer
+                                selectedGameMode = .playerVsPlayer
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    startGameTransition = true
                                 }
                             } else {
                                 showPurchaseView = true
@@ -515,8 +512,8 @@ struct SplashView: View {
         let isSelected = selectedGameMode == .playerVsPlayer
         let isUnlocked = isPvPUnlocked
         let foregroundColor = isSelected ? Color.white : Color.white.opacity(0.8)
-        let backgroundColor = isSelected ? Color.purple.opacity(0.7) : Color.white.opacity(0.15)
-        let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
+        let backgroundColor = isSelected ? Color.purple.opacity(0.7) : (isUnlocked ? Color.purple.opacity(0.3) : Color.white.opacity(0.15))
+        let shadowColor = isSelected ? Color.black.opacity(0.3) : (isUnlocked ? Color.purple.opacity(0.3) : Color.black.opacity(0.1))
         
         return HStack(spacing: isIPad ? 20 : 15) { // Исти размак за оба мода
             Image(systemName: "person.2")
@@ -539,62 +536,43 @@ struct SplashView: View {
         .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : 0.06)) // Исти padding за оба мода
         .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : 0.03)) // Исти padding за оба мода
         .background(
-            Capsule()
-                .fill(backgroundColor)
-                .shadow(color: shadowColor, radius: isIPad ? 8 : 5) // Иста сенка за оба мода
+            ZStack {
+                if isSelected {
+                    Capsule()
+                        .fill(backgroundColor)
+                } else if isUnlocked {
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.purple.opacity(0.4), Color.purple.opacity(0.2)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                } else {
+                    Capsule()
+                        .fill(backgroundColor)
+                }
+                
+                if isUnlocked && !isSelected {
+                    Capsule()
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.purple.opacity(0.8), Color.purple.opacity(0.5)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: isIPad ? 2 : 1.5
+                        )
+                }
+            }
+            .shadow(color: shadowColor, radius: isIPad ? 8 : 5) // Иста сенка за оба мода
         )
         .scaleEffect(isSelected ? 1.05 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isSelected)
     }
     
     // MARK: - UI Components
-    
-    private func startGameButton(geometry: GeometryProxy, isIPad: Bool, buttonWidth: CGFloat, isLandscape: Bool) -> some View {
-        let fontSize = isIPad ? 
-            min(geometry.size.width * 0.036, 38) : 
-            min(geometry.size.width * 0.054, 25)
-        
-        return Button(action: {
-            withAnimation(.easeInOut(duration: 0.5)) {
-                startGameTransition = true
-            }
-        }) {
-            Text("Start Game")
-                .font(.system(size: fontSize, weight: .bold))
-                .foregroundColor(.white)
-                .frame(width: buttonWidth)
-                .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : 0.06)) // Исти padding за оба мода
-                .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : 0.03)) // Исти padding за оба мода
-                .background(
-                    ZStack {
-                        Capsule()
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        .white.opacity(0.2),
-                                        .white.opacity(0.1)
-                                    ]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                        Capsule()
-                            .stroke(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        .white.opacity(0.9),
-                                        .white.opacity(0.5)
-                                    ]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: isIPad ? 3 : 2
-                            )
-                    }
-                )
-                .shadow(color: .white.opacity(0.3), radius: isIPad ? 15 : 10, x: 0, y: 0)
-        }
-    }
     
     private func tutorialButton(geometry: GeometryProxy, isIPad: Bool, isLandscape: Bool) -> some View {
         let buttonSize = isIPad ? 
