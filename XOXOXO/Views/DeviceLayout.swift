@@ -2,8 +2,13 @@ import SwiftUI
 
 enum DeviceLayout {
     // Константе за израчунавање
-    private static let ipadScaleFactor: CGFloat = 1.5 // iPad елементи су 1.5x већи од iPhone
-    private static let landscapeScaleFactor: CGFloat = 0.85 // Landscape елементи су 0.85x од portrait
+    private static let ipadScaleFactor: CGFloat = 1.2 // Смањен фактор за iPad
+    private static let landscapeScaleFactor: CGFloat = 0.95 // Повећан фактор за landscape
+    
+    // Нове константе за израчунавање величине табле
+    private static let screenUsagePortrait: CGFloat = 0.85 // Користимо 85% ширине екрана у портрет моду
+    private static let screenUsageLandscape: CGFloat = 0.75 // Користимо 75% висине у пејзажном моду
+    private static let verticalSpacingFactor: CGFloat = 0.05 // 5% висине екрана за вертикални размак
     
     case iphone
     case iphoneLandscape
@@ -28,12 +33,12 @@ enum DeviceLayout {
         self == .iphone || self == .iphoneLandscape
     }
     
-    // Базне вредности за iPhone portrait
-    private var baseTopPadding: CGFloat { 10 }
-    private var baseBottomSafeArea: CGFloat { 30 }
-    private var baseScoreSpacing: CGFloat { 20 }
-    private var baseGridPadding: CGFloat { 16 }
-    private var baseBoardSpacing: CGFloat { 28 }
+    // Повећане базне вредности
+    private var baseTopPadding: CGFloat { 20 }
+    private var baseBottomSafeArea: CGFloat { 40 }
+    private var baseScoreSpacing: CGFloat { 30 }
+    private var baseGridPadding: CGFloat { 24 }
+    private var baseBoardSpacing: CGFloat { 40 }
     
     var topPadding: CGFloat {
         let base = baseTopPadding
@@ -85,6 +90,47 @@ enum DeviceLayout {
         }
     }
     
+    // Потпуно редизајнирана функција за израчунавање величине табле
+    func calculateBoardWidth(for geometry: GeometryProxy) -> CGFloat {
+        let availableWidth = geometry.size.width
+        let availableHeight = geometry.size.height
+        
+        // Резервишемо простор за горњи део (тајмер и резултат)
+        let topReservedSpace: CGFloat = isIphone ? 100.0 : 140.0
+        let usableHeight = availableHeight - topReservedSpace
+        
+        if isLandscape {
+            // У пејзажном моду, базирамо величину на висини
+            let maxHeight = usableHeight * Self.screenUsageLandscape
+            let boardHeight = maxHeight / 4.0 // 4 реда табли
+            let verticalSpacing = usableHeight * Self.verticalSpacingFactor
+            
+            // Осигуравамо да табле стану у ширину
+            let totalWidth = boardHeight * 2.0 + verticalSpacing
+            if totalWidth > availableWidth * 0.9 {
+                // Ако је превелико, базирамо на ширини
+                return (availableWidth * 0.9 - verticalSpacing) / 2.0
+            }
+            
+            return boardHeight
+        } else {
+            // У портрет моду, базирамо величину на ширини
+            let maxWidth = availableWidth * Self.screenUsagePortrait
+            let boardWidth = maxWidth / 2.0 // 2 колоне табли
+            let verticalSpacing = availableHeight * Self.verticalSpacingFactor
+            
+            // Проверавамо да ли табле стану у висину
+            let totalHeight = boardWidth * 4.0 + verticalSpacing * 3.0
+            if totalHeight > usableHeight * 0.95 {
+                // Ако је превелико, базирамо на висини
+                return (usableHeight * 0.95 - verticalSpacing * 3.0) / 4.0
+            }
+            
+            return boardWidth
+        }
+    }
+    
+    // Остале функције остају исте...
     var titleSize: CGFloat {
         switch self {
             case .iphone: return 56
@@ -137,47 +183,5 @@ enum DeviceLayout {
             case .ipad: return 0.048
             case .ipadLandscape: return 0.042
         }
-    }
-    
-    func maxBoardWidth(for size: CGSize) -> CGFloat {
-        switch self {
-            case .iphone:
-                return min(140, (size.width - 40) / 2)
-            case .iphoneLandscape:
-                let availableWidth = size.width * 0.85 // 85% екрана за табле
-                return min(size.height * 0.45, (availableWidth - 60) / 4) // Веће табле у landscape режиму
-            case .ipad:
-                return min(200, (size.width - 80) / 3)
-            case .ipadLandscape:
-                return min(180, (size.width - 100) / 3)
-        }
-    }
-    
-    func calculateBoardWidth(for geometry: GeometryProxy) -> CGFloat {
-        let availableWidth = geometry.size.width
-        let availableHeight = geometry.size.height
-        
-        // Константе за израчунавање
-        let topSpaceScale: CGFloat = isIphone ? 140/baseBoardSpacing : 200/baseBoardSpacing
-        let verticalSpacingScale: CGFloat = isIphone ? 5.0 : 5.5
-        let horizontalSpacingScale: CGFloat = isIphone ? 3.0 : 3.5
-        let sideMarginScale: CGFloat = isIphone ? 56/baseBoardSpacing : 80/baseBoardSpacing
-        let boardScale: CGFloat = isIphone ? 0.85 : 0.80
-        
-        // Одузимамо простор за горњи део (тајмер и резултат)
-        let topSpace: CGFloat = boardSpacing * topSpaceScale
-        let usableHeight = availableHeight - topSpace
-        
-        // Рачунамо размаке између табли
-        let verticalSpacing = boardSpacing * verticalSpacingScale
-        let horizontalSpacing = boardSpacing * horizontalSpacingScale
-        
-        // Рачунамо максималне димензије
-        let maxHeightForBoard = (usableHeight - verticalSpacing) / 4
-        let sideMargins: CGFloat = boardSpacing * sideMarginScale
-        let maxWidthForBoard = (availableWidth - horizontalSpacing - sideMargins) / 2
-        
-        // Узимамо мању вредност да бисмо одржали квадратни облик
-        return min(maxHeightForBoard, maxWidthForBoard) * boardScale
     }
 } 

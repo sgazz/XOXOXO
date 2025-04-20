@@ -85,18 +85,21 @@ struct GameView: View {
                     .ignoresSafeArea()
                 
                 // Portrait layout
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 15) {
-                        scoreView
-                            .padding(.top, isIPad ? 30 : 20)
-                        gameBoardsGrid(geometry: geometry)
-                            .padding(.bottom, geometry.safeAreaInsets.bottom + 20)
-                    }
-                    .frame(
-                        minHeight: geometry.size.height - 120
-                    )
+                VStack(spacing: 0) {
+                    scoreView
+                        .padding(.horizontal, deviceLayout.boardSpacing * 2)
+                        .padding(.top, deviceLayout.isIphone ? 10 : 20)
+                    
+                    Spacer()
+                        .frame(height: deviceLayout.boardSpacing * 2)
+                    
+                    gameBoardsGrid(geometry: geometry)
+                    
+                    Spacer(minLength: deviceLayout.boardSpacing * 2)
                 }
-                .frame(maxHeight: .infinity)
+                .frame(
+                    maxHeight: geometry.size.height - (geometry.safeAreaInsets.top + geometry.safeAreaInsets.bottom)
+                )
                 
                 // Game Over overlay
                 if showGameOver {
@@ -140,7 +143,7 @@ struct GameView: View {
     // MARK: - UI Components
     
     private var scoreView: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: isIPad ? 12 : 8) {
             // Резултат и тајмери
             HStack(spacing: isIPad ? 40 : 20) {
                 Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
@@ -158,6 +161,7 @@ struct GameView: View {
                     .font(scoreFont)
                     .minimumScaleFactor(0.5)
             }
+            .padding(.vertical, isIPad ? 8 : 4)
             
             // Време потеза
             HStack(spacing: isIPad ? 60 : 30) {
@@ -171,19 +175,19 @@ struct GameView: View {
                     .font(.system(size: isIPad ? 20 : 16, weight: .medium))
                     .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
             }
-            .padding(.top, 2)
+            .padding(.bottom, isIPad ? 8 : 4)
         }
-        .padding(.vertical, isIPad ? 10 : 5)
         .background(
             RoundedRectangle(cornerRadius: 15)
                 .fill(Color.white.opacity(0.05))
                 .shadow(color: Color.black.opacity(0.1), radius: 5)
         )
-        .padding(.horizontal, isIPad ? 20 : 10)
     }
     
     private func gameBoardsGrid(geometry: GeometryProxy) -> some View {
-        LazyVGrid(
+        let maxWidth = geometry.size.width - (deviceLayout.boardSpacing * 2)
+        
+        return LazyVGrid(
             columns: gridLayout,
             spacing: deviceLayout.boardSpacing
         ) {
@@ -191,7 +195,8 @@ struct GameView: View {
                 boardView(for: index, geometry: geometry)
             }
         }
-        .frame(maxWidth: geometry.size.width)
+        .frame(width: maxWidth)
+        .padding(.horizontal, deviceLayout.boardSpacing)
     }
     
     private func boardView(for index: Int, geometry: GeometryProxy) -> some View {
@@ -206,7 +211,7 @@ struct GameView: View {
                 handleBoardTap(boardIndex: index, position: position)
             }
         )
-        .frame(maxWidth: maxWidth, maxHeight: maxWidth)
+        .frame(width: maxWidth, height: maxWidth)
     }
     
     private func calculateBoardWidth(for geometry: GeometryProxy) -> CGFloat {
