@@ -1,6 +1,10 @@
 import SwiftUI
 
 enum DeviceLayout {
+    // Константе за израчунавање
+    private static let ipadScaleFactor: CGFloat = 1.5 // iPad елементи су 1.5x већи од iPhone
+    private static let landscapeScaleFactor: CGFloat = 0.85 // Landscape елементи су 0.85x од portrait
+    
     case iphone
     case iphoneLandscape
     case ipad
@@ -24,39 +28,60 @@ enum DeviceLayout {
         self == .iphone || self == .iphoneLandscape
     }
     
+    // Базне вредности за iPhone portrait
+    private var baseTopPadding: CGFloat { 10 }
+    private var baseBottomSafeArea: CGFloat { 30 }
+    private var baseScoreSpacing: CGFloat { 20 }
+    private var baseGridPadding: CGFloat { 16 }
+    private var baseBoardSpacing: CGFloat { 28 }
+    
     var topPadding: CGFloat {
+        let base = baseTopPadding
         switch self {
-            case .iphone: return 10
-            case .iphoneLandscape: return 5
-            case .ipad: return 30
-            case .ipadLandscape: return 20
+            case .iphone: return base
+            case .iphoneLandscape: return base * Self.landscapeScaleFactor
+            case .ipad: return base * Self.ipadScaleFactor
+            case .ipadLandscape: return base * Self.ipadScaleFactor * Self.landscapeScaleFactor
         }
     }
     
     var bottomSafeArea: CGFloat {
+        let base = baseBottomSafeArea
         switch self {
-            case .iphone: return 30
-            case .iphoneLandscape: return 20
-            case .ipad: return 40
-            case .ipadLandscape: return 30
+            case .iphone: return base
+            case .iphoneLandscape: return base * Self.landscapeScaleFactor
+            case .ipad: return base * Self.ipadScaleFactor
+            case .ipadLandscape: return base * Self.ipadScaleFactor * Self.landscapeScaleFactor
         }
     }
     
     var scoreSpacing: CGFloat {
+        let base = baseScoreSpacing
         switch self {
-            case .iphone: return 20
-            case .iphoneLandscape: return 15
-            case .ipad: return 40
-            case .ipadLandscape: return 30
+            case .iphone: return base
+            case .iphoneLandscape: return base * Self.landscapeScaleFactor
+            case .ipad: return base * Self.ipadScaleFactor
+            case .ipadLandscape: return base * Self.ipadScaleFactor * Self.landscapeScaleFactor
         }
     }
     
     var gridPadding: CGFloat {
+        let base = baseGridPadding
         switch self {
-            case .iphone: return 16
-            case .iphoneLandscape: return 12
-            case .ipad: return 24
-            case .ipadLandscape: return 20
+            case .iphone: return base
+            case .iphoneLandscape: return base * Self.landscapeScaleFactor
+            case .ipad: return base * Self.ipadScaleFactor
+            case .ipadLandscape: return base * Self.ipadScaleFactor * Self.landscapeScaleFactor
+        }
+    }
+    
+    var boardSpacing: CGFloat {
+        let base = baseBoardSpacing
+        switch self {
+            case .iphone: return base
+            case .iphoneLandscape: return base * Self.landscapeScaleFactor
+            case .ipad: return base * Self.ipadScaleFactor
+            case .ipadLandscape: return base * Self.ipadScaleFactor * Self.landscapeScaleFactor
         }
     }
     
@@ -114,15 +139,6 @@ enum DeviceLayout {
         }
     }
     
-    var boardSpacing: CGFloat {
-        switch self {
-            case .iphone: return 8
-            case .iphoneLandscape: return 6
-            case .ipad: return 15
-            case .ipadLandscape: return 12
-        }
-    }
-    
     func maxBoardWidth(for size: CGSize) -> CGFloat {
         switch self {
             case .iphone:
@@ -141,30 +157,27 @@ enum DeviceLayout {
         let availableWidth = geometry.size.width
         let availableHeight = geometry.size.height
         
-        switch self {
-        case .iphone:
-            // За iPhone у portrait режиму, користимо 45% ширине екрана
-            let maxWidth = availableWidth * 0.45
-            let maxHeight = availableHeight * 0.2
-            return min(maxWidth, maxHeight)
-            
-        case .iphoneLandscape:
-            // За iPhone у landscape режиму, користимо 30% ширине екрана
-            let maxWidth = availableWidth * 0.3
-            let maxHeight = availableHeight * 0.4
-            return min(maxWidth, maxHeight)
-            
-        case .ipad:
-            // За iPad у portrait режиму, користимо 40% ширине екрана
-            let maxWidth = availableWidth * 0.4
-            let maxHeight = availableHeight * 0.25
-            return min(maxWidth, maxHeight)
-            
-        case .ipadLandscape:
-            // За iPad у landscape режиму, користимо 35% ширине екрана
-            let maxWidth = availableWidth * 0.35
-            let maxHeight = availableHeight * 0.35
-            return min(maxWidth, maxHeight)
-        }
+        // Константе за израчунавање
+        let topSpaceScale: CGFloat = isIphone ? 140/baseBoardSpacing : 200/baseBoardSpacing
+        let verticalSpacingScale: CGFloat = isIphone ? 5.0 : 5.5
+        let horizontalSpacingScale: CGFloat = isIphone ? 3.0 : 3.5
+        let sideMarginScale: CGFloat = isIphone ? 56/baseBoardSpacing : 80/baseBoardSpacing
+        let boardScale: CGFloat = isIphone ? 0.85 : 0.80
+        
+        // Одузимамо простор за горњи део (тајмер и резултат)
+        let topSpace: CGFloat = boardSpacing * topSpaceScale
+        let usableHeight = availableHeight - topSpace
+        
+        // Рачунамо размаке између табли
+        let verticalSpacing = boardSpacing * verticalSpacingScale
+        let horizontalSpacing = boardSpacing * horizontalSpacingScale
+        
+        // Рачунамо максималне димензије
+        let maxHeightForBoard = (usableHeight - verticalSpacing) / 4
+        let sideMargins: CGFloat = boardSpacing * sideMarginScale
+        let maxWidthForBoard = (availableWidth - horizontalSpacing - sideMargins) / 2
+        
+        // Узимамо мању вредност да бисмо одржали квадратни облик
+        return min(maxHeightForBoard, maxWidthForBoard) * boardScale
     }
 } 
