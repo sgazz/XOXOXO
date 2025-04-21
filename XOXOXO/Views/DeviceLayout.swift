@@ -43,55 +43,40 @@ enum DeviceLayout {
     private var baseScoreSpacing: CGFloat { 30 }
     private var baseGridPadding: CGFloat { 24 }
     private var baseBoardSpacing: CGFloat { 40 }
+    private var baseTitleSize: CGFloat { 56 }
+    private var baseSubtitleSize: CGFloat { 28 }
+    private var baseDescriptionSize: CGFloat { 22 }
+    private var baseTitleScale: CGFloat { 0.12 }
+    private var baseSubtitleScale: CGFloat { 0.055 }
+    private var baseDescriptionScale: CGFloat { 0.04 }
+    
+    private var layoutMultiplier: CGFloat {
+        switch self {
+        case .iphone: return 1.0
+        case .iphoneLandscape: return Self.landscapeScaleFactor
+        case .ipad: return Self.ipadScaleFactor
+        case .ipadLandscape: return Self.ipadScaleFactor * Self.landscapeScaleFactor
+        }
+    }
     
     var topPadding: CGFloat {
-        let base = baseTopPadding
-        switch self {
-            case .iphone: return base
-            case .iphoneLandscape: return base * Self.landscapeScaleFactor
-            case .ipad: return base * Self.ipadScaleFactor
-            case .ipadLandscape: return base * Self.ipadScaleFactor * Self.landscapeScaleFactor
-        }
+        baseTopPadding * layoutMultiplier
     }
     
     var bottomSafeArea: CGFloat {
-        let base = baseBottomSafeArea
-        switch self {
-            case .iphone: return base
-            case .iphoneLandscape: return base * Self.landscapeScaleFactor
-            case .ipad: return base * Self.ipadScaleFactor
-            case .ipadLandscape: return base * Self.ipadScaleFactor * Self.landscapeScaleFactor
-        }
+        baseBottomSafeArea * layoutMultiplier
     }
     
     var scoreSpacing: CGFloat {
-        let base = baseScoreSpacing
-        switch self {
-            case .iphone: return base
-            case .iphoneLandscape: return base * Self.landscapeScaleFactor
-            case .ipad: return base * Self.ipadScaleFactor
-            case .ipadLandscape: return base * Self.ipadScaleFactor * Self.landscapeScaleFactor
-        }
+        baseScoreSpacing * layoutMultiplier
     }
     
     var gridPadding: CGFloat {
-        let base = baseGridPadding
-        switch self {
-            case .iphone: return base
-            case .iphoneLandscape: return base * Self.landscapeScaleFactor
-            case .ipad: return base * Self.ipadScaleFactor
-            case .ipadLandscape: return base * Self.ipadScaleFactor * Self.landscapeScaleFactor
-        }
+        baseGridPadding * layoutMultiplier
     }
     
     var boardSpacing: CGFloat {
-        let base = baseBoardSpacing
-        switch self {
-            case .iphone: return base
-            case .iphoneLandscape: return base * Self.landscapeScaleFactor
-            case .ipad: return base * Self.ipadScaleFactor
-            case .ipadLandscape: return base * Self.ipadScaleFactor * Self.landscapeScaleFactor
-        }
+        baseBoardSpacing * layoutMultiplier
     }
     
     // Нова функција за оптимални распоред
@@ -107,12 +92,7 @@ enum DeviceLayout {
     
     // Нова функција за размак између елемената
     var adaptiveSpacing: CGFloat {
-        switch self {
-        case .iphone: return Self.stackSpacing
-        case .iphoneLandscape: return Self.stackSpacing * Self.landscapeScaleFactor
-        case .ipad: return Self.stackSpacing * Self.ipadScaleFactor
-        case .ipadLandscape: return Self.stackSpacing * Self.ipadScaleFactor * Self.landscapeScaleFactor
-        }
+        Self.stackSpacing * layoutMultiplier
     }
     
     // Побољшана функција за израчунавање величине табле
@@ -146,58 +126,27 @@ enum DeviceLayout {
         }
     }
     
-    // Остале функције остају исте...
     var titleSize: CGFloat {
-        switch self {
-            case .iphone: return 56
-            case .iphoneLandscape: return 48
-            case .ipad: return 86
-            case .ipadLandscape: return 72
-        }
+        baseTitleSize * layoutMultiplier
     }
     
     var titleScale: CGFloat {
-        switch self {
-            case .iphone: return 0.12
-            case .iphoneLandscape: return 0.10
-            case .ipad: return 0.135
-            case .ipadLandscape: return 0.115
-        }
+        baseTitleScale * layoutMultiplier
     }
     
     var subtitleSize: CGFloat {
-        switch self {
-            case .iphone: return 28
-            case .iphoneLandscape: return 24
-            case .ipad: return 38
-            case .ipadLandscape: return 32
-        }
+        baseSubtitleSize * layoutMultiplier
     }
     
     var subtitleScale: CGFloat {
-        switch self {
-            case .iphone: return 0.055
-            case .iphoneLandscape: return 0.048
-            case .ipad: return 0.064
-            case .ipadLandscape: return 0.056
-        }
+        baseSubtitleScale * layoutMultiplier
     }
     
     var descriptionSize: CGFloat {
-        switch self {
-            case .iphone: return 22
-            case .iphoneLandscape: return 20
-            case .ipad: return 30
-            case .ipadLandscape: return 26
-        }
+        baseDescriptionSize * layoutMultiplier
     }
     
     var descriptionScale: CGFloat {
-        switch self {
-            case .iphone: return 0.04
-            case .iphoneLandscape: return 0.035
-            case .ipad: return 0.048
-            case .ipadLandscape: return 0.042
-        }
+        baseDescriptionScale * layoutMultiplier
     }
 } 
