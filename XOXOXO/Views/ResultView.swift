@@ -1,5 +1,25 @@
 import SwiftUI
 
+// MARK: - ActionButton Component
+struct ActionButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: icon)
+                .font(.headline)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(color)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+    }
+}
+
 struct ResultView: View {
     let playerXScore: Int
     let playerOScore: Int
@@ -9,6 +29,7 @@ struct ResultView: View {
     let isPvPUnlocked: Bool
     let onShowPurchase: () -> Void
     let onPlayVsPlayer: () -> Void
+    let isGamePaused: Bool
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -19,146 +40,120 @@ struct ResultView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            let useVerticalLayout = deviceLayout.optimalStackOrientation(for: geometry)
-            
-            VStack(spacing: deviceLayout.adaptiveSpacing) {
+            VStack(spacing: 24) {
                 // Title
-                Text("Results")
-                    .font(.system(size: deviceLayout.titleSize * 0.8, weight: .bold))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.blue, Color(red: 0.4, green: 0.8, blue: 1.0)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                Text("🏆 Results")
+                    .font(.largeTitle.bold())
+                    .foregroundColor(.primary)
+                    .accessibilityAddTraits(.isHeader)
                 
-                // Main content
-                if useVerticalLayout {
-                    VStack(spacing: deviceLayout.adaptiveSpacing) {
-                        scoreContent
-                    }
-                    .frame(maxWidth: .infinity)
-                } else {
-                    HStack(spacing: deviceLayout.adaptiveSpacing * 2) {
-                        scoreContent
-                    }
-                    .frame(maxWidth: .infinity)
+                if isGamePaused {
+                    Text("⏸️ Game Paused")
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 16)
+                        .background(Color(.systemGray6))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
                 
-                // Buttons
-                VStack(spacing: deviceLayout.adaptiveSpacing) {
-                    Button(action: onNewGame) {
-                        Text("Single Player")
-                            .font(.system(size: deviceLayout.subtitleSize * 0.8, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                LinearGradient(
-                                    colors: [.blue, Color(red: 0.4, green: 0.8, blue: 1.0)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
+                // Score Block
+                HStack(spacing: 16) {
+                    scoreBlock(symbol: "X", score: playerXScore, color: .blue)
                     
-                    Button(action: {
-                        if isPvPUnlocked {
-                            onPlayVsPlayer()
-                        } else {
-                            onShowPurchase()
-                        }
-                    }) {
-                        Text("Multiplayer")
-                            .font(.system(size: deviceLayout.subtitleSize * 0.8, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                LinearGradient(
-                                    colors: isPvPUnlocked ? 
-                                        [Color(red: 0.3, green: 0.7, blue: 0.3), Color(red: 0.4, green: 0.8, blue: 0.4)] :
-                                        [Color(red: 0.7, green: 0.3, blue: 0.3), Color(red: 0.8, green: 0.4, blue: 0.4)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
+                    Text("vs")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                    
+                    scoreBlock(symbol: "O", score: playerOScore, color: .red)
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Game Statistics")
+
+                // Draw info
+                if draws > 0 {
+                    Text("\(draws) Draw\(draws == 1 ? "" : "s")")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer(minLength: 20)
+                
+                // Buttons
+                VStack(spacing: 14) {
+                    ActionButton(
+                        title: "Single Player",
+                        icon: "cpu",
+                        color: .blue,
+                        action: onNewGame
+                    )
+                    
+                    ActionButton(
+                        title: isPvPUnlocked ? "Multiplayer" : "Multiplayer (Locked)",
+                        icon: "person.2",
+                        color: isPvPUnlocked ? .green : .gray,
+                        action: isPvPUnlocked ? onPlayVsPlayer : onShowPurchase
+                    )
                     
                     Button(action: onClose) {
                         Text("Close")
-                            .font(.system(size: deviceLayout.subtitleSize * 0.8, weight: .semibold))
+                            .font(.headline)
                             .foregroundColor(.blue)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color(.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(
-                                        LinearGradient(
-                                            colors: [.blue.opacity(0.5), Color(red: 0.4, green: 0.8, blue: 1.0).opacity(0.5)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                        lineWidth: 2
-                                    )
-                            )
+                            .background(Color(.systemGray6))
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                 }
-                .padding(.top, deviceLayout.adaptiveSpacing)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Game Options")
             }
-            .padding(deviceLayout.gridPadding)
-            .background(Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .padding(30)
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
-            .frame(
-                width: min(geometry.size.width * 0.8, 400),
-                height: min(geometry.size.height * 0.7, 500)
-            )
+            .frame(maxWidth: 400)
+            .padding(.horizontal, deviceLayout.gridPadding)
             .position(
                 x: geometry.size.width / 2,
                 y: geometry.size.height / 2
             )
+            .transition(.scale.combined(with: .opacity))
+            .animation(.spring(), value: playerXScore + playerOScore + draws)
+            .accessibilityElement(children: .contain)
         }
     }
     
-    private var scoreContent: some View {
-        Group {
-            scoreCard(title: "Player X", score: playerXScore, color: .blue)
-            scoreCard(title: "Player O", score: playerOScore, color: .red)
-            scoreCard(title: "Draws", score: draws, color: .gray)
-        }
-    }
-    
-    private func scoreCard(title: String, score: Int, color: Color) -> some View {
-        VStack(spacing: deviceLayout.adaptiveSpacing / 2) {
-            Text(title)
-                .font(.system(size: deviceLayout.subtitleSize * 0.8, weight: .medium))
-                .foregroundColor(.primary)
+    // MARK: - Score Block
+    private func scoreBlock(symbol: String, score: Int, color: Color) -> some View {
+        VStack(spacing: 6) {
+            Text(symbol)
+                .font(.system(size: 40, weight: .bold, design: .rounded))
+                .foregroundColor(color)
             
             Text("\(score)")
-                .font(.system(size: deviceLayout.titleSize * 0.8, weight: .bold))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [color, color.opacity(0.7)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .font(.title.bold())
+                .foregroundColor(.primary)
         }
-        .frame(maxWidth: .infinity)
-        .padding(deviceLayout.gridPadding)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(
-            color: color.opacity(0.1),
-            radius: 10,
-            x: 0,
-            y: 5
-        )
+        .frame(minWidth: 80)
+        .padding()
+        .background(Color(.systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(symbol): \(score)")
     }
+}
+
+#Preview {
+    ResultView(
+        playerXScore: 5,
+        playerOScore: 3,
+        draws: 1,
+        onNewGame: {},
+        onClose: {},
+        isPvPUnlocked: false,
+        onShowPurchase: {},
+        onPlayVsPlayer: {},
+        isGamePaused: true
+    )
 } 

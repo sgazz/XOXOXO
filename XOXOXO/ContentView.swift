@@ -118,6 +118,7 @@ struct GameView: View {
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 showResults = false
+                                startTimer()
                             }
                         }
                     
@@ -130,27 +131,35 @@ struct GameView: View {
                                 showResults = false
                                 gameLogic.changeGameMode(to: .aiOpponent)
                                 resetGame()
+                                startTimer()
                             }
                         },
                         onClose: {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 showResults = false
+                                startTimer()
                             }
                         },
                         isPvPUnlocked: isPvPUnlocked,
                         onShowPurchase: {
                             showResults = false
                             showPurchaseView = true
+                            startTimer()
                         },
                         onPlayVsPlayer: {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 showResults = false
                                 gameLogic.changeGameMode(to: .playerVsPlayer)
                                 resetGame()
+                                startTimer()
                             }
-                        }
+                        },
+                        isGamePaused: true
                     )
                     .transition(.scale(scale: 0.9).combined(with: .opacity))
+                    .onAppear {
+                        stopTimer()
+                    }
                 }
                 
                 // Game Over overlay
