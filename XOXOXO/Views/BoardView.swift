@@ -4,18 +4,15 @@ struct BoardView: View {
     @Binding var board: [String]
     var isActive: Bool
     var onTap: (Int) -> Void
+    var winningIndexes: [Int]
     
-    @State private var cellAnimations: [Bool] = Array(repeating: false, count: 9)
-    @State private var isWinning = false
-    @State private var winningCombination: [Int] = []
+    @State private var cellAnimations: [Bool] = Array(repeating: false, count: Int(BoardConstants.gridSize * BoardConstants.gridSize))
     
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     
     private let symbols = ["", "X", "O"]
-    private let gridSize: CGFloat = 3
-    private let spacing: CGFloat = 4  // Смањен размак између ћелија
     
     private var deviceLayout: DeviceLayout {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
@@ -24,42 +21,48 @@ struct BoardView: View {
     var body: some View {
         GeometryReader { geometry in
             let cellSize = calculateCellSize(for: geometry.size)
-            let totalWidth = cellSize * 3 + spacing * 2
+            let totalWidth = cellSize * BoardConstants.gridSize + BoardConstants.cellSpacing * (BoardConstants.gridSize - 1)
             
-            VStack(spacing: spacing) {
-                ForEach(0..<3) { row in
-                    HStack(spacing: spacing) {
-                        ForEach(0..<3) { column in
-                            let index = row * 3 + column
+            VStack(spacing: BoardConstants.cellSpacing) {
+                ForEach(0..<Int(BoardConstants.gridSize), id: \.self) { row in
+                    HStack(spacing: BoardConstants.cellSpacing) {
+                        ForEach(0..<Int(BoardConstants.gridSize), id: \.self) { column in
+                            let index = row * Int(BoardConstants.gridSize) + column
                             CellView(
                                 symbol: board[index],
                                 isActive: isActive && board[index].isEmpty,
                                 isAnimating: cellAnimations[index],
-                                isWinningCell: winningCombination.contains(index),
+                                isWinningCell: winningIndexes.contains(index),
                                 deviceLayout: deviceLayout
                             )
-                            .frame(width: cellSize, height: cellSize)
+                            .aspectRatio(1, contentMode: .fit)
+                            .drawingGroup()
                             .onTapGesture {
                                 handleCellTap(at: index)
                             }
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel(cellAccessibilityLabel(for: index, symbol: board[index]))
+                            .accessibilityHint(cellAccessibilityHint(for: index, isActive: isActive && board[index].isEmpty))
+                            .accessibilityAddTraits(cellAccessibilityTraits(for: index, symbol: board[index], isActive: isActive && board[index].isEmpty))
                         }
                     }
                 }
             }
             .frame(width: totalWidth, height: totalWidth)
             .scaleEffect(isActive ? 1.02 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isActive)
+            .animation(.spring(response: BoardConstants.springResponse, dampingFraction: BoardConstants.springDampingFraction), value: isActive)
             .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+            .drawingGroup()
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("Tic Tac Toe Board")
+            .accessibilityHint(isActive ? "Your turn to play" : "Waiting for opponent")
         }
         .aspectRatio(1, contentMode: .fit)
-        .onChange(of: board) { oldValue, newValue in
-            checkWinningCombination(in: newValue)
-        }
     }
     
     private func calculateCellSize(for size: CGSize) -> CGFloat {
         let minDimension = min(size.width, size.height)
-        return (minDimension - spacing * 2) / gridSize
+        return (minDimension - BoardConstants.cellSpacing * (BoardConstants.gridSize - 1)) / BoardConstants.gridSize
     }
     
     private func handleCellTap(at index: Int) {
@@ -67,14 +70,22 @@ struct BoardView: View {
             SoundManager.shared.playSound(.tap)
             SoundManager.shared.playLightHaptic()
             
-            withAnimation(.interpolatingSpring(mass: 0.5, stiffness: 200, damping: 10)) {
+            withAnimation(.interpolatingSpring(
+                mass: BoardConstants.cellAnimationMass,
+                stiffness: BoardConstants.cellAnimationStiffness,
+                damping: BoardConstants.cellAnimationDamping
+            )) {
                 cellAnimations[index] = true
             }
             
             onTap(index)
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                withAnimation(.interpolatingSpring(mass: 0.5, stiffness: 200, damping: 10)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + BoardConstants.cellAnimationDuration) {
+                withAnimation(.interpolatingSpring(
+                    mass: BoardConstants.cellAnimationMass,
+                    stiffness: BoardConstants.cellAnimationStiffness,
+                    damping: BoardConstants.cellAnimationDamping
+                )) {
                     cellAnimations[index] = false
                 }
             }
@@ -83,42 +94,44 @@ struct BoardView: View {
         }
     }
     
-    private func checkWinningCombination(in board: [String]) {
-        // Провери хоризонталне комбинације
-        for row in 0..<3 {
-            let start = row * 3
-            if board[start] != "" && board[start] == board[start + 1] && board[start] == board[start + 2] {
-                winningCombination = [start, start + 1, start + 2]
-                isWinning = true
-                return
-            }
+    // Accessibility helpers
+    private func cellAccessibilityLabel(for index: Int, symbol: String) -> String {
+        let row = index / Int(BoardConstants.gridSize) + 1
+        let col = index % Int(BoardConstants.gridSize) + 1
+        
+        if symbol.isEmpty {
+            return "Empty cell at row \(row), column \(col)"
+        } else {
+            return "\(symbol) at row \(row), column \(col)"
+        }
+    }
+    
+    private func cellAccessibilityHint(for index: Int, isActive: Bool) -> String {
+        if isActive {
+            return "Double tap to place your symbol"
+        } else if !board[index].isEmpty {
+            return "This cell is already taken"
+        } else {
+            return "This cell is not active yet"
+        }
+    }
+    
+    private func cellAccessibilityTraits(for index: Int, symbol: String, isActive: Bool) -> AccessibilityTraits {
+        var traits: AccessibilityTraits = []
+        
+        if isActive {
+            traits.insert(.isButton)
         }
         
-        // Провери вертикалне комбинације
-        for col in 0..<3 {
-            if board[col] != "" && board[col] == board[col + 3] && board[col] == board[col + 6] {
-                winningCombination = [col, col + 3, col + 6]
-                isWinning = true
-                return
-            }
+        if !symbol.isEmpty {
+            traits.insert(.isSelected)
         }
         
-        // Провери дијагонале
-        if board[0] != "" && board[0] == board[4] && board[0] == board[8] {
-            winningCombination = [0, 4, 8]
-            isWinning = true
-            return
+        if winningIndexes.contains(index) {
+            traits.insert(.isSelected)
         }
         
-        if board[2] != "" && board[2] == board[4] && board[2] == board[6] {
-            winningCombination = [2, 4, 6]
-            isWinning = true
-            return
-        }
-        
-        // Ако нема победника, ресетуј стање
-        winningCombination = []
-        isWinning = false
+        return traits
     }
 }
 
@@ -137,7 +150,7 @@ struct CellView: View {
     
     private var cellBackground: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 6)
+            RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
                 .fill(
                     LinearGradient(
                         colors: [
@@ -150,12 +163,12 @@ struct CellView: View {
                 )
             
             if isActive {
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.blue.opacity(0.3),
-                                Color.blue.opacity(0.15)
+                                Color.blue.opacity(BoardConstants.activeCellGradientStartOpacity),
+                                Color.blue.opacity(BoardConstants.activeCellGradientEndOpacity)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -166,21 +179,22 @@ struct CellView: View {
     }
     
     private var cellBorder: some View {
-        RoundedRectangle(cornerRadius: 6)
+        RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
             .stroke(
                 LinearGradient(
                     colors: isActive ? 
                         [Color.blue.opacity(1), Color.blue.opacity(0.6)] :
-                        [Color.white.opacity(isDark ? 0.3 : 0.2), Color.white.opacity(isDark ? 0.1 : 0.05)],
+                        [Color.white.opacity(isDark ? BoardConstants.inactiveCellGradientStartOpacity : BoardConstants.inactiveCellGradientEndOpacity),
+                         Color.white.opacity(isDark ? BoardConstants.inactiveCellGradientEndOpacity : BoardConstants.inactiveCellGradientEndOpacity)],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 ),
-                lineWidth: 1.5
+                lineWidth: BoardConstants.cellBorderWidth
             )
     }
     
     private var symbolSize: CGFloat {
-        deviceLayout.gridPadding * 1.5
+        deviceLayout.gridPadding * BoardConstants.symbolSizeMultiplier
     }
     
     var body: some View {
@@ -188,62 +202,81 @@ struct CellView: View {
             cellBackground
             cellBorder
             
+            if !symbol.isEmpty {
+                SymbolView(
+                    symbol: symbol,
+                    isWinning: isWinningCell,
+                    isAnimating: isAnimating,
+                    size: symbolSize
+                )
+            }
+        }
+        .compositingGroup()
+        .shadow(
+            color: Color.black.opacity(isDark ? BoardConstants.darkShadowOpacity : BoardConstants.lightShadowOpacity),
+            radius: BoardConstants.cellShadowRadius,
+            x: 0,
+            y: BoardConstants.cellShadowYOffset
+        )
+        .scaleEffect(isWinningCell ? BoardConstants.symbolScaleMultiplier : 1.0)
+        .animation(.spring(response: BoardConstants.winningAnimationResponse, dampingFraction: BoardConstants.springDampingFraction), value: isWinningCell)
+    }
+}
+
+struct SymbolView: View {
+    let symbol: String
+    let isWinning: Bool
+    let isAnimating: Bool
+    let size: CGFloat
+    
+    var body: some View {
+        Group {
             if symbol == "X" {
                 XView()
                     .stroke(
                         LinearGradient(
-                            colors: isWinningCell ? 
+                            colors: isWinning ? 
                                 [Color.green, Color.green.opacity(0.7)] :
                                 [Color.blue, Color(red: 0.4, green: 0.8, blue: 1.0)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
                         style: StrokeStyle(
-                            lineWidth: deviceLayout.gridPadding * 0.25,
+                            lineWidth: size * BoardConstants.symbolLineWidthMultiplier,
                             lineCap: .round,
                             lineJoin: .round
                         )
                     )
-                    .frame(width: symbolSize, height: symbolSize)
-                    .shadow(
-                        color: (isWinningCell ? Color.green : Color.blue).opacity(0.3),
-                        radius: isWinningCell ? 6 : 3
-                    )
-                    .scaleEffect(isAnimating ? 1.1 : 1.0)
-                    .animation(.interpolatingSpring(mass: 0.5, stiffness: 200, damping: 10), value: isAnimating)
             } else if symbol == "O" {
                 OView()
                     .stroke(
                         LinearGradient(
-                            colors: isWinningCell ? 
+                            colors: isWinning ? 
                                 [Color.green, Color.green.opacity(0.7)] :
                                 [Color.red, Color(red: 1.0, green: 0.4, blue: 0.4)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
                         style: StrokeStyle(
-                            lineWidth: deviceLayout.gridPadding * 0.25,
+                            lineWidth: size * BoardConstants.symbolLineWidthMultiplier,
                             lineCap: .round,
                             lineJoin: .round
                         )
                     )
-                    .frame(width: symbolSize, height: symbolSize)
-                    .shadow(
-                        color: (isWinningCell ? Color.green : Color.red).opacity(0.3),
-                        radius: isWinningCell ? 6 : 3
-                    )
-                    .scaleEffect(isAnimating ? 1.1 : 1.0)
-                    .animation(.interpolatingSpring(mass: 0.5, stiffness: 200, damping: 10), value: isAnimating)
             }
         }
+        .frame(width: size, height: size)
+        .compositingGroup()
         .shadow(
-            color: Color.black.opacity(isDark ? 0.2 : 0.08),
-            radius: 4,
-            x: 0,
-            y: 2
+            color: (isWinning ? Color.green : (symbol == "X" ? Color.blue : Color.red)).opacity(BoardConstants.shadowOpacity),
+            radius: isWinning ? 6 : 3
         )
-        .scaleEffect(isWinningCell ? 1.1 : 1.0)
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isWinningCell)
+        .scaleEffect(isAnimating ? BoardConstants.symbolScaleMultiplier : 1.0)
+        .animation(.interpolatingSpring(
+            mass: BoardConstants.cellAnimationMass,
+            stiffness: BoardConstants.cellAnimationStiffness,
+            damping: BoardConstants.cellAnimationDamping
+        ), value: isAnimating)
     }
 }
 
@@ -280,11 +313,65 @@ struct OView: Shape {
     }
 }
 
-#Preview {
+#Preview("Standard") {
     BoardView(
         board: .constant(Array(repeating: "", count: 9)),
         isActive: true,
-        onTap: { _ in }
+        onTap: { _ in },
+        winningIndexes: []
     )
     .padding()
+}
+
+#Preview("Small Screen") {
+    BoardView(
+        board: .constant(Array(repeating: "", count: 9)),
+        isActive: true,
+        onTap: { _ in },
+        winningIndexes: []
+    )
+    .frame(width: 200, height: 200)
+    .padding()
+}
+
+#Preview("Landscape") {
+    BoardView(
+        board: .constant(Array(repeating: "", count: 9)),
+        isActive: true,
+        onTap: { _ in },
+        winningIndexes: []
+    )
+    .frame(width: 400, height: 200)
+    .padding()
+}
+
+#Preview("iPad Split View") {
+    HStack {
+        BoardView(
+            board: .constant(Array(repeating: "", count: 9)),
+            isActive: true,
+            onTap: { _ in },
+            winningIndexes: []
+        )
+        .padding()
+        
+        BoardView(
+            board: .constant(Array(repeating: "X", count: 9)),
+            isActive: false,
+            onTap: { _ in },
+            winningIndexes: [0, 1, 2]
+        )
+        .padding()
+    }
+}
+
+#Preview("Dark Mode") {
+    BoardView(
+        board: .constant(Array(repeating: "", count: 9)),
+        isActive: true,
+        onTap: { _ in },
+        winningIndexes: []
+    )
+    .padding()
+    .preferredColorScheme(.dark)
 } 
