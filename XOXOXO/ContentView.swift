@@ -11,6 +11,8 @@ struct GameView: View {
     @State private var showGameOver = false
     @State private var timeoutPlayer: String? = nil
     @State private var showResults = false
+    @State private var selectedGameMode: GameMode = .aiOpponent
+    @State private var startGameTransition = false
     
     // Нове променљиве за бонус време
     @State private var showXBonus = false
@@ -140,19 +142,14 @@ struct GameView: View {
                                 startTimer()
                             }
                         },
-                        isPvPUnlocked: isPvPUnlocked,
                         onShowPurchase: {
                             showResults = false
                             showPurchaseView = true
-                            startTimer()
                         },
                         onPlayVsPlayer: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showResults = false
-                                gameLogic.changeGameMode(to: .playerVsPlayer)
-                                resetGame()
-                                startTimer()
-                            }
+                            showResults = false
+                            selectedGameMode = .playerVsPlayer
+                            startGameTransition = true
                         },
                         isGamePaused: true
                     )
