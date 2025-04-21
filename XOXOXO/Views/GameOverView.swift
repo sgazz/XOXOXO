@@ -13,6 +13,17 @@ struct GameOverView: View {
     let onPlayVsPlayer: () -> Void
     let onShowPurchase: () -> Void
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    
+    private var deviceLayout: DeviceLayout {
+        DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
+    }
+    
+    private var isLandscape: Bool {
+        horizontalSizeClass == .regular || (horizontalSizeClass == .compact && verticalSizeClass == .compact)
+    }
+    
     var body: some View {
         ZStack {
             // Замагљена позадина са градијентом
@@ -21,23 +32,60 @@ struct GameOverView: View {
                 .opacity(0.98)
                 .ignoresSafeArea()
             
-            // Portrait layout
-            VStack(spacing: 25) {
-                GameOverIcon(timeoutPlayer: timeoutPlayer)
-                GameOverTitle(timeoutPlayer: timeoutPlayer)
-                GameStats(
-                    playerXTime: playerXTime,
-                    playerOTime: playerOTime,
-                    score: score
-                )
-                GameModeButtons(
-                    isPvPUnlocked: isPvPUnlocked,
-                    onPlayVsAI: onPlayVsAI,
-                    onPlayVsPlayer: onPlayVsPlayer,
-                    onShowPurchase: onShowPurchase
-                )
+            GeometryReader { geometry in
+                let spacing = deviceLayout.adaptiveSpacing
+                
+                if isLandscape {
+                    // Landscape layout
+                    HStack(spacing: spacing) {
+                        // Лева страна - икона и наслов
+                        VStack(spacing: spacing) {
+                            GameOverIcon(timeoutPlayer: timeoutPlayer)
+                                .frame(width: min(geometry.size.width * 0.3, 150))
+                            GameOverTitle(timeoutPlayer: timeoutPlayer)
+                        }
+                        .frame(width: geometry.size.width * 0.4)
+                        
+                        // Десна страна - статистика и дугмад
+                        VStack(spacing: spacing) {
+                            GameStats(
+                                playerXTime: playerXTime,
+                                playerOTime: playerOTime,
+                                score: score
+                            )
+                            GameModeButtons(
+                                isPvPUnlocked: isPvPUnlocked,
+                                onPlayVsAI: onPlayVsAI,
+                                onPlayVsPlayer: onPlayVsPlayer,
+                                onShowPurchase: onShowPurchase
+                            )
+                        }
+                        .frame(width: geometry.size.width * 0.6)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(spacing)
+                } else {
+                    // Portrait layout
+                    VStack(spacing: spacing) {
+                        GameOverIcon(timeoutPlayer: timeoutPlayer)
+                            .frame(width: min(geometry.size.width * 0.4, 150))
+                        GameOverTitle(timeoutPlayer: timeoutPlayer)
+                        GameStats(
+                            playerXTime: playerXTime,
+                            playerOTime: playerOTime,
+                            score: score
+                        )
+                        GameModeButtons(
+                            isPvPUnlocked: isPvPUnlocked,
+                            onPlayVsAI: onPlayVsAI,
+                            onPlayVsPlayer: onPlayVsPlayer,
+                            onShowPurchase: onShowPurchase
+                        )
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(spacing)
+                }
             }
-            .offset(y: -20)
         }
         .transition(.asymmetric(
             insertion: .scale(scale: 0.8).combined(with: .opacity),
@@ -74,7 +122,6 @@ private struct GameOverIcon: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 ))
-                .frame(width: 100, height: 100)
                 .shadow(color: (timeoutPlayer == nil ? Color.green : Color.red).opacity(0.5), radius: 15)
             
             Image(systemName: timeoutPlayer == nil ? "trophy.fill" : "timer")
@@ -117,15 +164,21 @@ private struct GameStats: View {
     let playerOTime: TimeInterval
     let score: (x: Int, o: Int)
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    private var isCompact: Bool {
+        horizontalSizeClass == .compact
+    }
+    
     var body: some View {
-        HStack(spacing: 30) {
+        HStack(spacing: isCompact ? 20 : 30) {
             // Време плавог играча
             VStack {
                 Text("Blue Time")
                     .font(.caption)
                     .foregroundColor(.white.opacity(0.8))
                 Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
-                    .font(.title2.bold())
+                    .font(isCompact ? .title2.bold() : .title.bold())
                     .foregroundColor(.blue)
             }
             
@@ -135,7 +188,7 @@ private struct GameStats: View {
                     .font(.caption)
                     .foregroundColor(.white.opacity(0.8))
                 Text("\(score.x):\(score.o)")
-                    .font(.title.bold())
+                    .font(isCompact ? .title.bold() : .largeTitle.bold())
                     .foregroundColor(.white)
             }
             
@@ -145,12 +198,12 @@ private struct GameStats: View {
                     .font(.caption)
                     .foregroundColor(.white.opacity(0.8))
                 Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
-                    .font(.title2.bold())
+                    .font(isCompact ? .title2.bold() : .title.bold())
                     .foregroundColor(.red)
             }
         }
-        .padding(.vertical, 15)
-        .padding(.horizontal, 25)
+        .padding(.vertical, isCompact ? 10 : 15)
+        .padding(.horizontal, isCompact ? 15 : 25)
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(.ultraThinMaterial)
@@ -165,18 +218,24 @@ private struct GameModeButtons: View {
     let onPlayVsPlayer: () -> Void
     let onShowPurchase: () -> Void
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    private var isCompact: Bool {
+        horizontalSizeClass == .compact
+    }
+    
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: isCompact ? 8 : 12) {
             // PvAI дугме
             Button(action: onPlayVsAI) {
                 HStack {
                     Image(systemName: "cpu")
-                        .font(.title2)
+                        .font(isCompact ? .title2 : .title)
                     Text("Single Player")
-                        .font(.title2.bold())
+                        .font(isCompact ? .title2.bold() : .title.bold())
                 }
                 .foregroundColor(.white)
-                .frame(width: 200, height: 45)
+                .frame(width: isCompact ? 200 : 250, height: isCompact ? 45 : 55)
                 .background(
                     Capsule()
                         .fill(
@@ -203,12 +262,12 @@ private struct GameModeButtons: View {
             }) {
                 HStack {
                     Image(systemName: "person.2.fill")
-                        .font(.title2)
+                        .font(isCompact ? .title2 : .title)
                     Text("Multiplayer")
-                        .font(.title2.bold())
+                        .font(isCompact ? .title2.bold() : .title.bold())
                 }
                 .foregroundColor(.white)
-                .frame(width: 200, height: 45)
+                .frame(width: isCompact ? 200 : 250, height: isCompact ? 45 : 55)
                 .background(
                     Capsule()
                         .fill(
@@ -233,7 +292,7 @@ private struct GameModeButtons: View {
                                 .foregroundColor(.white)
                                 .padding(6)
                                 .background(Circle().fill(Color.black.opacity(0.3)))
-                                .offset(x: 85, y: -15)
+                                .offset(x: isCompact ? 85 : 110, y: -15)
                         }
                     }
                 )
