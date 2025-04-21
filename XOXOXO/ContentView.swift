@@ -262,13 +262,16 @@ struct GameView: View {
     }
     
     private func boardView(for index: Int, geometry: GeometryProxy) -> some View {
-        BoardView(
+        let boardWidth = calculateBoardWidth(for: geometry)
+
+        return BoardView(
             board: $gameLogic.boards[index],
             isActive: gameLogic.currentBoard == index && !gameLogic.gameOver,
             onTap: { cellIndex in
                 handleMove(boardIndex: index, cellIndex: cellIndex)
             }
         )
+        .frame(width: boardWidth, height: boardWidth)
     }
     
     private func calculateBoardWidth(for geometry: GeometryProxy) -> CGFloat {
