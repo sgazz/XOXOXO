@@ -131,9 +131,7 @@ struct GameView: View {
                         onNewGame: {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 showResults = false
-                                gameLogic.changeGameMode(to: .aiOpponent)
-                                resetGame()
-                                startTimer()
+                                handleGameModeChange(to: .aiOpponent)
                             }
                         },
                         onClose: {
@@ -148,8 +146,7 @@ struct GameView: View {
                         },
                         onPlayVsPlayer: {
                             showResults = false
-                            selectedGameMode = .playerVsPlayer
-                            startGameTransition = true
+                            handleGameModeChange(to: .playerVsPlayer)
                         },
                         isGamePaused: true
                     )
@@ -264,14 +261,12 @@ struct GameView: View {
     private func boardView(for index: Int, geometry: GeometryProxy) -> some View {
         let maxWidth = calculateBoardWidth(for: geometry)
         return BoardView(
-            board: .init(
-                get: { gameLogic.boards[index] },
-                set: { gameLogic.boards[index] = $0 }
-            ),
+            board: $gameLogic.boards[index],
             isActive: gameLogic.currentBoard == index && !gameLogic.gameOver,
             onTap: { position in
                 handleBoardTap(boardIndex: index, position: position)
-            }
+            },
+            winningIndexes: gameLogic.winningIndexes
         )
         .frame(width: maxWidth, height: maxWidth)
     }
@@ -433,8 +428,17 @@ struct GameView: View {
     private func resetGame() {
         showGameOver = false
         timeoutPlayer = nil
+        stopTimer()
         resetTimers()
         gameLogic.resetGame()
+        startTimer()
+    }
+    
+    private func handleGameModeChange(to newMode: GameMode) {
+        stopTimer()
+        gameLogic.resetGame()
+        gameLogic.changeGameMode(to: newMode)
+        resetTimers()
         startTimer()
     }
     

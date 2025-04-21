@@ -16,6 +16,7 @@ class GameLogic: ObservableObject {
     @Published var boardScores: [(x: Int, o: Int)]
     @Published var totalScore: (x: Int, o: Int)
     @Published var gameMode: GameMode = .aiOpponent
+    @Published var winningIndexes: [Int] = []
     
     // Додајемо променљиву за праћење последњег победника
     private var lastWinner: String?
@@ -38,6 +39,7 @@ class GameLogic: ObservableObject {
         self.boardScores = Array(repeating: (x: 0, o: 0), count: Self.BOARD_COUNT)
         self.totalScore = (x: 0, o: 0)
         self.gameMode = gameMode
+        self.winningIndexes = []
     }
 
     func makeMove(at position: Int, in boardIndex: Int) {
@@ -45,6 +47,7 @@ class GameLogic: ObservableObject {
         lastWinner = nil
         lastWinningBoard = nil
         lastDrawBoard = nil
+        winningIndexes = []
         
         boards[boardIndex][position] = currentPlayer
 
@@ -89,9 +92,11 @@ class GameLogic: ObservableObject {
             if boards[boardIndex][combination[0]] != "" &&
                boards[boardIndex][combination[0]] == boards[boardIndex][combination[1]] &&
                boards[boardIndex][combination[1]] == boards[boardIndex][combination[2]] {
+                winningIndexes = combination
                 return boards[boardIndex][combination[0]]
             }
         }
+        winningIndexes = []
         return nil
     }
 
@@ -112,6 +117,7 @@ class GameLogic: ObservableObject {
     }
 
     func resetGame() {
+        // Resetuj sve table
         boards = Array(repeating: Array(repeating: "", count: 9), count: Self.BOARD_COUNT)
         boardScores = Array(repeating: (x: 0, o: 0), count: Self.BOARD_COUNT)
         totalScore = (x: 0, o: 0)
@@ -119,6 +125,12 @@ class GameLogic: ObservableObject {
         currentPlayer = "X"
         gameOver = false
         isThinking = false
+        winningIndexes = []
+        
+        // Resetuj praćenje
+        lastWinner = nil
+        lastWinningBoard = nil
+        lastDrawBoard = nil
     }
 
     func setGameMode(_ mode: GameMode) {
@@ -131,18 +143,8 @@ class GameLogic: ObservableObject {
         // Не мењај мод ако је исти као тренутни
         guard gameMode != newMode else { return }
         
-        // Ако је игра у току, питај да ли желиш да ресетујеш игру
-        let shouldReset = gameOver == false && (boards.flatMap { $0 }.contains { $0 != "" })
-        
         gameMode = newMode
-        
-        if shouldReset {
-            // Ресетуј игру јер се мод променио
-            resetGame()
-        } else if !gameOver && currentPlayer == "O" && newMode == .aiOpponent {
-            // Ако је тренутни играч О, а пребацујемо на AI мод, одмах направи AI потез
-            makeAIMove(in: currentBoard) { }
-        }
+        resetGame()
         
         // Обавести UI да се мод променио
         objectWillChange.send()
