@@ -26,10 +26,11 @@ struct ResultView: View {
     let draws: Int
     let onNewGame: () -> Void
     let onClose: () -> Void
-    let isPvPUnlocked: Bool
     let onShowPurchase: () -> Void
     let onPlayVsPlayer: () -> Void
     let isGamePaused: Bool
+    
+    @StateObject private var purchaseManager = PurchaseManager.shared
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -89,10 +90,10 @@ struct ResultView: View {
                     )
                     
                     ActionButton(
-                        title: isPvPUnlocked ? "Multiplayer" : "Multiplayer (Locked)",
+                        title: purchaseManager.isPvPUnlocked ? "Multiplayer" : "Multiplayer (Locked)",
                         icon: "person.2",
-                        color: isPvPUnlocked ? .green : .gray,
-                        action: isPvPUnlocked ? onPlayVsPlayer : onShowPurchase
+                        color: purchaseManager.isPvPUnlocked ? .green : .gray,
+                        action: purchaseManager.isPvPUnlocked ? onPlayVsPlayer : onShowPurchase
                     )
                     
                     Button(action: onClose) {
@@ -151,7 +152,6 @@ struct ResultView: View {
         draws: 1,
         onNewGame: {},
         onClose: {},
-        isPvPUnlocked: false,
         onShowPurchase: {},
         onPlayVsPlayer: {},
         isGamePaused: true
