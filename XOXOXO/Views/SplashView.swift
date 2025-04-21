@@ -1,6 +1,5 @@
 import SwiftUI
 
-// Уклоњена дупла дефиниција FloatingSymbol структуре која је сада у засебном фајлу
 
 struct SplashView: View {
     @State private var isActive = false
@@ -17,6 +16,9 @@ struct SplashView: View {
     @State private var selectedGameMode: GameMode = .aiOpponent
     @State private var isPvPUnlocked: Bool = false
     @State private var showPurchaseView = false
+    @StateObject private var purchaseManager = PurchaseManager.shared
+    @State private var showPurchase = false
+    @State private var showGame = false
     
     var body: some View {
         ZStack {
@@ -242,6 +244,14 @@ struct SplashView: View {
                     }
                 }
             }
+            
+            if showGame {
+                GameView(isPvPUnlocked: purchaseManager.isPvPUnlocked)
+            }
+            
+            if showPurchase {
+                PurchaseView(isPvPUnlocked: $purchaseManager.isPvPUnlocked)
+            }
         }
     }
     
@@ -441,6 +451,14 @@ struct SplashView: View {
                 .foregroundColor(.orange)
                 .shadow(color: .orange.opacity(0.4), radius: isIPad ? 12 : 8, x: 0, y: 0)
         }
+    }
+    
+    private func handlePurchase() {
+        showPurchase = true
+    }
+    
+    private func handlePlay() {
+        showGame = true
     }
 }
 

@@ -4,7 +4,6 @@ struct BoardView: View {
     @Binding var board: [String]
     var isActive: Bool
     var onTap: (Int) -> Void
-    var winningIndexes: [Int]
     
     @State private var cellAnimations: [Bool] = Array(repeating: false, count: Int(BoardConstants.gridSize * BoardConstants.gridSize))
     
@@ -32,7 +31,6 @@ struct BoardView: View {
                                 symbol: board[index],
                                 isActive: isActive && board[index].isEmpty,
                                 isAnimating: cellAnimations[index],
-                                isWinningCell: winningIndexes.contains(index),
                                 deviceLayout: deviceLayout
                             )
                             .aspectRatio(1, contentMode: .fit)
@@ -120,15 +118,11 @@ struct BoardView: View {
         var traits: AccessibilityTraits = []
         
         if isActive {
-            traits.insert(.isButton)
+            traits = traits.union(.isButton)
         }
         
         if !symbol.isEmpty {
-            traits.insert(.isSelected)
-        }
-        
-        if winningIndexes.contains(index) {
-            traits.insert(.isSelected)
+            traits = traits.union(.isSelected)
         }
         
         return traits
@@ -139,7 +133,6 @@ struct CellView: View {
     let symbol: String
     let isActive: Bool
     let isAnimating: Bool
-    let isWinningCell: Bool
     let deviceLayout: DeviceLayout
     
     @Environment(\.colorScheme) private var colorScheme
@@ -205,7 +198,6 @@ struct CellView: View {
             if !symbol.isEmpty {
                 SymbolView(
                     symbol: symbol,
-                    isWinning: isWinningCell,
                     isAnimating: isAnimating,
                     size: symbolSize
                 )
@@ -218,14 +210,11 @@ struct CellView: View {
             x: 0,
             y: BoardConstants.cellShadowYOffset
         )
-        .scaleEffect(isWinningCell ? BoardConstants.symbolScaleMultiplier : 1.0)
-        .animation(.spring(response: BoardConstants.winningAnimationResponse, dampingFraction: BoardConstants.springDampingFraction), value: isWinningCell)
     }
 }
 
 struct SymbolView: View {
     let symbol: String
-    let isWinning: Bool
     let isAnimating: Bool
     let size: CGFloat
     
@@ -235,9 +224,7 @@ struct SymbolView: View {
                 XView()
                     .stroke(
                         LinearGradient(
-                            colors: isWinning ? 
-                                [Color.green, Color.green.opacity(0.7)] :
-                                [Color.blue, Color(red: 0.4, green: 0.8, blue: 1.0)],
+                            colors: [Color.blue, Color(red: 0.4, green: 0.8, blue: 1.0)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
@@ -251,9 +238,7 @@ struct SymbolView: View {
                 OView()
                     .stroke(
                         LinearGradient(
-                            colors: isWinning ? 
-                                [Color.green, Color.green.opacity(0.7)] :
-                                [Color.red, Color(red: 1.0, green: 0.4, blue: 0.4)],
+                            colors: [Color.red, Color(red: 1.0, green: 0.4, blue: 0.4)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
@@ -268,8 +253,8 @@ struct SymbolView: View {
         .frame(width: size, height: size)
         .compositingGroup()
         .shadow(
-            color: (isWinning ? Color.green : (symbol == "X" ? Color.blue : Color.red)).opacity(BoardConstants.shadowOpacity),
-            radius: isWinning ? 6 : 3
+            color: (symbol == "X" ? Color.blue : Color.red).opacity(BoardConstants.shadowOpacity),
+            radius: 3
         )
         .scaleEffect(isAnimating ? BoardConstants.symbolScaleMultiplier : 1.0)
         .animation(.interpolatingSpring(
@@ -317,8 +302,7 @@ struct OView: Shape {
     BoardView(
         board: .constant(Array(repeating: "", count: 9)),
         isActive: true,
-        onTap: { _ in },
-        winningIndexes: []
+        onTap: { _ in }
     )
     .padding()
 }
@@ -327,8 +311,7 @@ struct OView: Shape {
     BoardView(
         board: .constant(Array(repeating: "", count: 9)),
         isActive: true,
-        onTap: { _ in },
-        winningIndexes: []
+        onTap: { _ in }
     )
     .frame(width: 200, height: 200)
     .padding()
@@ -338,8 +321,7 @@ struct OView: Shape {
     BoardView(
         board: .constant(Array(repeating: "", count: 9)),
         isActive: true,
-        onTap: { _ in },
-        winningIndexes: []
+        onTap: { _ in }
     )
     .frame(width: 400, height: 200)
     .padding()
@@ -350,16 +332,14 @@ struct OView: Shape {
         BoardView(
             board: .constant(Array(repeating: "", count: 9)),
             isActive: true,
-            onTap: { _ in },
-            winningIndexes: []
+            onTap: { _ in }
         )
         .padding()
         
         BoardView(
             board: .constant(Array(repeating: "X", count: 9)),
             isActive: false,
-            onTap: { _ in },
-            winningIndexes: [0, 1, 2]
+            onTap: { _ in }
         )
         .padding()
     }
@@ -369,8 +349,7 @@ struct OView: Shape {
     BoardView(
         board: .constant(Array(repeating: "", count: 9)),
         isActive: true,
-        onTap: { _ in },
-        winningIndexes: []
+        onTap: { _ in }
     )
     .padding()
     .preferredColorScheme(.dark)

@@ -95,7 +95,7 @@ struct TutorialView: View {
             color: .blue,
             title: "🎯 Welcome to the XO Arena",
             subtitle: "🧠 Classic Rules, Epic Twist",
-            description: "🎮 It's Tic-Tac-Toe like you've never seen before.\nPlay across 8 boards at once.\nPlan smart. Play fast.\nWin the tournament.",
+            description: "🎮 It's Tic-Tac-Toe like you've never seen before.\nPlay across 8 boards at once.\nPlan smart. Play fast.\nWin the Arena.",
             subtitleColor: Color(red: 0.3, green: 0.7, blue: 1.0)
         ),
         TutorialScreen(
@@ -118,7 +118,7 @@ struct TutorialView: View {
             icon: "flag.checkered",
             color: .green,
             title: "🏁 Ready to Compete?",
-            subtitle: "🔥 5 Minutes. 8 Boards. 1 Champion.",
+            subtitle: "🔥 5 Minutes. 8 Boards in loop. 1 Champion.",
             description: "⚡ Think fast.\n🎯 Play bold.\n👑 Master the multi-board arena and become the XO legend.",
             subtitleColor: Color(red: 0.3, green: 0.9, blue: 0.4)
         )

@@ -259,16 +259,13 @@ struct GameView: View {
     }
     
     private func boardView(for index: Int, geometry: GeometryProxy) -> some View {
-        let maxWidth = calculateBoardWidth(for: geometry)
-        return BoardView(
+        BoardView(
             board: $gameLogic.boards[index],
             isActive: gameLogic.currentBoard == index && !gameLogic.gameOver,
-            onTap: { position in
-                handleBoardTap(boardIndex: index, position: position)
-            },
-            winningIndexes: gameLogic.winningIndexes
+            onTap: { cellIndex in
+                handleMove(boardIndex: index, cellIndex: cellIndex)
+            }
         )
-        .frame(width: maxWidth, height: maxWidth)
     }
     
     private func calculateBoardWidth(for geometry: GeometryProxy) -> CGFloat {
@@ -310,9 +307,9 @@ struct GameView: View {
         stopTimer()
     }
 
-    private func handleBoardTap(boardIndex: Int, position: Int) {
+    private func handleMove(boardIndex: Int, cellIndex: Int) {
         // Check if valid move
-        if gameLogic.boards[boardIndex][position].isEmpty &&
+        if gameLogic.boards[boardIndex][cellIndex].isEmpty &&
            !gameLogic.isThinking &&
            gameLogic.currentBoard == boardIndex &&
            (!gameLogic.gameOver) &&
@@ -326,7 +323,7 @@ struct GameView: View {
             SoundManager.shared.playHaptic()
 
             // Направи потез
-            gameLogic.makeMove(at: position, in: boardIndex)
+            gameLogic.makeMove(at: cellIndex, in: boardIndex)
             
             // Провери резултат
             if let winner = gameLogic.getLastWinner(for: boardIndex) {
