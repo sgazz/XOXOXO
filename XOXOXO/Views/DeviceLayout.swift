@@ -50,6 +50,11 @@ enum DeviceLayout {
     private var baseSubtitleScale: CGFloat { 0.055 }
     private var baseDescriptionScale: CGFloat { 0.04 }
     
+    // Додајемо базне величине за Score View
+    private var baseScoreIndicatorSize: CGFloat { 14 }  // Смањено са 18 на 14 за +/- индикаторе
+    private var baseScoreTimerSize: CGFloat { 22 }      // За тајмере
+    private var baseScoreResultSize: CGFloat { 26 }     // За резултат
+    
     private var layoutMultiplier: CGFloat {
         switch self {
         case .iphone: return 1.0
@@ -148,5 +153,18 @@ enum DeviceLayout {
     
     var descriptionScale: CGFloat {
         baseDescriptionScale * layoutMultiplier
+    }
+    
+    // Додајемо computed properties за Score View
+    var scoreIndicatorSize: CGFloat {
+        baseScoreIndicatorSize * layoutMultiplier
+    }
+    
+    var scoreTimerSize: CGFloat {
+        baseScoreTimerSize * layoutMultiplier
+    }
+    
+    var scoreResultSize: CGFloat {
+        baseScoreResultSize * layoutMultiplier
     }
 } 

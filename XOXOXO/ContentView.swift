@@ -91,10 +91,9 @@ struct GameView: View {
                 // Portrait layout
                 VStack(spacing: 0) {
                     Spacer()
-                        .frame(height: deviceLayout.boardSpacing * 3)
                     
                     scoreView
-                        .padding(.top, deviceLayout.isIphone ? 30 : 50)
+                        .padding(.top, deviceLayout.isIphone ? 50 : 30)
                         .onTapGesture {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 showResults = true
@@ -105,12 +104,16 @@ struct GameView: View {
                         .frame(height: deviceLayout.boardSpacing)
                     
                     gameBoardsGrid(geometry: geometry)
+                        .padding(.bottom, deviceLayout.isIphone ? 20 : 30)
                     
-                    Spacer(minLength: deviceLayout.boardSpacing * 2)
+                    Spacer()
                 }
                 .frame(
                     maxHeight: geometry.size.height - (geometry.safeAreaInsets.top + geometry.safeAreaInsets.bottom)
                 )
+                .safeAreaInset(edge: .bottom) {
+                    Color.clear.frame(height: deviceLayout.bottomSafeArea)
+                }
                 
                 // Results overlay
                 if showResults {
@@ -203,31 +206,31 @@ struct GameView: View {
                 // Индикатор за X
                 Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "+/-")))
                     .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : (showXDrawPenalty ? .orange : .gray)))
-                    .font(.system(size: geometry.size.width * (isIPad ? 0.04 : 0.07), weight: .medium))
+                    .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
                     .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : (showXDrawPenalty ? xDrawPenaltyScale : 1.0)))
                 
                 // Тајмер за X
                 Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
                     .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
-                    .font(.system(size: geometry.size.width * (isIPad ? 0.05 : 0.09), weight: .bold))
+                    .font(.system(size: deviceLayout.scoreTimerSize, weight: .bold))
                     .minimumScaleFactor(0.5)
                 
                 // Резултат
                 Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
                     .foregroundColor(.white)
-                    .font(.system(size: geometry.size.width * (isIPad ? 0.06 : 0.11), weight: .heavy))
+                    .font(.system(size: deviceLayout.scoreResultSize, weight: .heavy))
                     .minimumScaleFactor(0.5)
                 
                 // Тајмер за O
                 Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
                     .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
-                    .font(.system(size: geometry.size.width * (isIPad ? 0.05 : 0.09), weight: .bold))
+                    .font(.system(size: deviceLayout.scoreTimerSize, weight: .bold))
                     .minimumScaleFactor(0.5)
                 
                 // Индикатор за O
                 Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "+/-")))
                     .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
-                    .font(.system(size: geometry.size.width * (isIPad ? 0.04 : 0.07), weight: .medium))
+                    .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
                     .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
             }
             .padding(.vertical, deviceLayout.adaptiveSpacing / 2)
