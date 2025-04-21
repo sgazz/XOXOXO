@@ -153,7 +153,7 @@ struct SplashView: View {
                         VStack {
                             Spacer()
                             
-                            Text("XO Tournament")
+                            Text("XO Arena")
                                 .font(.system(size: titleSize, weight: .heavy, design: .rounded))
                                 .foregroundColor(.white)
                                 .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)

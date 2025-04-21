@@ -65,23 +65,23 @@ struct GameOverView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(spacing)
                 } else {
-                    // Portrait layout
+            // Portrait layout
                     VStack(spacing: spacing) {
-                        GameOverIcon(timeoutPlayer: timeoutPlayer)
+                GameOverIcon(timeoutPlayer: timeoutPlayer)
                             .frame(width: min(geometry.size.width * 0.4, 150))
-                        GameOverTitle(timeoutPlayer: timeoutPlayer)
-                        GameStats(
-                            playerXTime: playerXTime,
-                            playerOTime: playerOTime,
-                            score: score
-                        )
-                        GameModeButtons(
-                            isPvPUnlocked: isPvPUnlocked,
-                            onPlayVsAI: onPlayVsAI,
-                            onPlayVsPlayer: onPlayVsPlayer,
-                            onShowPurchase: onShowPurchase
-                        )
-                    }
+                GameOverTitle(timeoutPlayer: timeoutPlayer)
+                GameStats(
+                    playerXTime: playerXTime,
+                    playerOTime: playerOTime,
+                    score: score
+                )
+                GameModeButtons(
+                    isPvPUnlocked: isPvPUnlocked,
+                    onPlayVsAI: onPlayVsAI,
+                    onPlayVsPlayer: onPlayVsPlayer,
+                    onShowPurchase: onShowPurchase
+                )
+            }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(spacing)
                 }

@@ -16,8 +16,8 @@ public struct FloatingSymbol: View {
         )
         _offset = State(initialValue: randomOffset)
         _rotation = State(initialValue: Double.random(in: -15...15))
-        // Успорена анимација
-        self.animationDuration = Double.random(in: 20...30) // Повећано трајање анимације
+        // Ubrzana animacija
+        self.animationDuration = Double.random(in: 10...15) // Smanjeno trajanje animacije
     }
     
     public var body: some View {
@@ -29,14 +29,18 @@ public struct FloatingSymbol: View {
             .blur(radius: 5)
             .onAppear {
                 withAnimation(
-                    .easeInOut(duration: animationDuration)
+                    .spring(
+                        response: animationDuration * 0.6,
+                        dampingFraction: 0.6,
+                        blendDuration: 0.3
+                    )
                     .repeatForever(autoreverses: true)
                 ) {
                     offset = CGSize(
-                        width: -offset.width * 0.5,
-                        height: -offset.height * 0.5
+                        width: offset.width + CGFloat.random(in: -10...10),
+                        height: offset.height + CGFloat.random(in: -10...10)
                     )
-                    rotation = -rotation * 0.5
+                    rotation = rotation + Double.random(in: -5...5)
                 }
             }
     }

@@ -32,7 +32,7 @@ enum BoardConstants {
     static let lightShadowOpacity: Double = 0.08
     
     // Animation timing constants
-    static let springResponse: Double = 0.3
-    static let springDampingFraction: Double = 0.7
+    static let springResponse: Double = 0.5
+    static let springDampingFraction: Double = 0.8
     static let winningAnimationResponse: Double = 0.4
 } 

@@ -47,10 +47,12 @@ struct BoardView: View {
                 }
             }
             .frame(width: totalWidth, height: totalWidth)
-            .scaleEffect(isActive ? 1.02 : 1.0)
+            .padding(4)
+            .clipShape(Rectangle())
+            .drawingGroup()
+            .scaleEffect(isActive ? 1.015 : 1.0)
             .animation(.spring(response: BoardConstants.springResponse, dampingFraction: BoardConstants.springDampingFraction), value: isActive)
             .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
-            .drawingGroup()
             .accessibilityElement(children: .contain)
             .accessibilityLabel("Tic Tac Toe Board")
             .accessibilityHint(isActive ? "Your turn to play" : "Waiting for opponent")

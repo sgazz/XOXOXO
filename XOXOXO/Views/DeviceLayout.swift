@@ -1,23 +1,48 @@
 import SwiftUI
 
+// Базне вредности груписане у структуру
+private struct BaseValues {
+    // Фактори скалирања
+    static let ipadScale: CGFloat = 1.2
+    static let landscapeScale: CGFloat = 0.95
+    
+    // Распоред екрана
+    static let screenUsagePortrait: CGFloat = 0.85
+    static let screenUsageLandscape: CGFloat = 0.75
+    static let verticalSpacing: CGFloat = 0.05
+    static let contentSpacing: CGFloat = 16
+    static let stackSpacing: CGFloat = 20
+    
+    // Размаци и падинг
+    static let topPadding: CGFloat = 20
+    static let bottomSafeArea: CGFloat = 40
+    static let scoreSpacing: CGFloat = 30
+    static let gridPadding: CGFloat = 24
+    static let boardSpacing: CGFloat = 40
+    
+    // Величине текста
+    static let titleSize: CGFloat = 56
+    static let subtitleSize: CGFloat = 28
+    static let descriptionSize: CGFloat = 22
+    
+    // Скале текста
+    static let titleScale: CGFloat = 0.12
+    static let subtitleScale: CGFloat = 0.055
+    static let descriptionScale: CGFloat = 0.04
+    
+    // Score View величине
+    static let scoreIndicator: CGFloat = 14
+    static let scoreTimer: CGFloat = 22
+    static let scoreResult: CGFloat = 26
+    
+    // Анимације
+    static let transitionDuration: CGFloat = 0.3
+    static let boardScaleEffect: CGFloat = 1.015
+    static let boardPadding: CGFloat = 4
+}
+
 enum DeviceLayout {
-    // Константе за израчунавање
-    private static let ipadScaleFactor: CGFloat = 1.2 // Смањен фактор за iPad
-    private static let landscapeScaleFactor: CGFloat = 0.95 // Повећан фактор за landscape
-    
-    // Нове константе за израчунавање величине табле
-    private static let screenUsagePortrait: CGFloat = 0.85 // Користимо 85% ширине екрана у портрет моду
-    private static let screenUsageLandscape: CGFloat = 0.75 // Користимо 75% висине у пејзажном моду
-    private static let verticalSpacingFactor: CGFloat = 0.05 // 5% висине екрана за вертикални размак
-    
-    // Нове константе за флексибилне распореде
-    private static let contentSpacing: CGFloat = 16
-    private static let stackSpacing: CGFloat = 20
-    
-    case iphone
-    case iphoneLandscape
-    case ipad
-    case ipadLandscape
+    case iphone, iphoneLandscape, ipad, ipadLandscape
     
     static func current(horizontalSizeClass: UserInterfaceSizeClass?, verticalSizeClass: UserInterfaceSizeClass?) -> DeviceLayout {
         switch (horizontalSizeClass, verticalSizeClass) {
@@ -37,67 +62,54 @@ enum DeviceLayout {
         self == .iphone || self == .iphoneLandscape
     }
     
-    // Повећане базне вредности
-    private var baseTopPadding: CGFloat { 20 }
-    private var baseBottomSafeArea: CGFloat { 40 }
-    private var baseScoreSpacing: CGFloat { 30 }
-    private var baseGridPadding: CGFloat { 24 }
-    private var baseBoardSpacing: CGFloat { 40 }
-    private var baseTitleSize: CGFloat { 56 }
-    private var baseSubtitleSize: CGFloat { 28 }
-    private var baseDescriptionSize: CGFloat { 22 }
-    private var baseTitleScale: CGFloat { 0.12 }
-    private var baseSubtitleScale: CGFloat { 0.055 }
-    private var baseDescriptionScale: CGFloat { 0.04 }
-    
-    // Додајемо базне величине за Score View
-    private var baseScoreIndicatorSize: CGFloat { 14 }  // Смањено са 18 на 14 за +/- индикаторе
-    private var baseScoreTimerSize: CGFloat { 22 }      // За тајмере
-    private var baseScoreResultSize: CGFloat { 26 }     // За резултат
-    
     private var layoutMultiplier: CGFloat {
         switch self {
         case .iphone: return 1.0
-        case .iphoneLandscape: return Self.landscapeScaleFactor
-        case .ipad: return Self.ipadScaleFactor
-        case .ipadLandscape: return Self.ipadScaleFactor * Self.landscapeScaleFactor
+        case .iphoneLandscape: return BaseValues.landscapeScale
+        case .ipad: return BaseValues.ipadScale
+        case .ipadLandscape: return BaseValues.ipadScale * BaseValues.landscapeScale
         }
     }
     
-    var topPadding: CGFloat {
-        baseTopPadding * layoutMultiplier
-    }
+    // Размаци и падинг
+    var topPadding: CGFloat { BaseValues.topPadding * layoutMultiplier }
+    var bottomSafeArea: CGFloat { BaseValues.bottomSafeArea * layoutMultiplier }
+    var scoreSpacing: CGFloat { BaseValues.scoreSpacing * layoutMultiplier }
+    var gridPadding: CGFloat { BaseValues.gridPadding * layoutMultiplier }
+    var boardSpacing: CGFloat { BaseValues.boardSpacing * layoutMultiplier }
     
-    var bottomSafeArea: CGFloat {
-        baseBottomSafeArea * layoutMultiplier
-    }
+    // Величине текста
+    var titleSize: CGFloat { BaseValues.titleSize * layoutMultiplier }
+    var subtitleSize: CGFloat { BaseValues.subtitleSize * layoutMultiplier }
+    var descriptionSize: CGFloat { BaseValues.descriptionSize * layoutMultiplier }
     
-    var scoreSpacing: CGFloat {
-        baseScoreSpacing * layoutMultiplier
-    }
+    // Скале текста
+    var titleScale: CGFloat { BaseValues.titleScale * layoutMultiplier }
+    var subtitleScale: CGFloat { BaseValues.subtitleScale * layoutMultiplier }
+    var descriptionScale: CGFloat { BaseValues.descriptionScale * layoutMultiplier }
     
-    var gridPadding: CGFloat {
-        baseGridPadding * layoutMultiplier
-    }
+    // Score View величине
+    var scoreIndicatorSize: CGFloat { BaseValues.scoreIndicator * layoutMultiplier }
+    var scoreTimerSize: CGFloat { BaseValues.scoreTimer * layoutMultiplier }
+    var scoreResultSize: CGFloat { BaseValues.scoreResult * layoutMultiplier }
     
-    var boardSpacing: CGFloat {
-        baseBoardSpacing * layoutMultiplier
+    // Анимације
+    var transitionDuration: CGFloat { BaseValues.transitionDuration }
+    var boardScaleEffect: CGFloat { BaseValues.boardScaleEffect }
+    var boardPadding: CGFloat { BaseValues.boardPadding }
+    
+    // Нова функција за размак између елемената
+    var adaptiveSpacing: CGFloat {
+        BaseValues.stackSpacing * layoutMultiplier
     }
     
     // Нова функција за оптимални распоред
     func optimalStackOrientation(for geometry: GeometryProxy) -> Bool {
         if isLandscape {
-            // У пејзажном моду, користимо HStack ако имамо довољно простора
             return geometry.size.width > geometry.size.height * 1.5
         } else {
-            // У портрет моду, користимо VStack осим ако је екран јако широк
             return geometry.size.width < geometry.size.height * 0.8
         }
-    }
-    
-    // Нова функција за размак између елемената
-    var adaptiveSpacing: CGFloat {
-        Self.stackSpacing * layoutMultiplier
     }
     
     // Побољшана функција за израчунавање величине табле
@@ -106,13 +118,11 @@ enum DeviceLayout {
         let availableHeight = geometry.size.height
         let useVerticalLayout = optimalStackOrientation(for: geometry)
         
-        // Резервишемо простор за горњи део (тајмер и резултат)
         let topReservedSpace: CGFloat = isIphone ? 100.0 : 140.0
         let usableHeight = availableHeight - topReservedSpace - adaptiveSpacing * 2
         
         if useVerticalLayout {
-            // Вертикални распоред
-            let maxWidth = availableWidth * Self.screenUsagePortrait
+            let maxWidth = availableWidth * BaseValues.screenUsagePortrait
             let boardWidth = maxWidth / 2.0
             let totalHeight = boardWidth * 4.0 + adaptiveSpacing * 3.0
             
@@ -121,50 +131,12 @@ enum DeviceLayout {
             }
             return boardWidth
         } else {
-            // Хоризонтални распоред
-            let maxHeight = usableHeight * Self.screenUsageLandscape
+            let maxHeight = usableHeight * BaseValues.screenUsageLandscape
             let boardSize = min(
                 maxHeight / 2.0,
                 (availableWidth * 0.9 - adaptiveSpacing) / 4.0
             )
             return boardSize
         }
-    }
-    
-    var titleSize: CGFloat {
-        baseTitleSize * layoutMultiplier
-    }
-    
-    var titleScale: CGFloat {
-        baseTitleScale * layoutMultiplier
-    }
-    
-    var subtitleSize: CGFloat {
-        baseSubtitleSize * layoutMultiplier
-    }
-    
-    var subtitleScale: CGFloat {
-        baseSubtitleScale * layoutMultiplier
-    }
-    
-    var descriptionSize: CGFloat {
-        baseDescriptionSize * layoutMultiplier
-    }
-    
-    var descriptionScale: CGFloat {
-        baseDescriptionScale * layoutMultiplier
-    }
-    
-    // Додајемо computed properties за Score View
-    var scoreIndicatorSize: CGFloat {
-        baseScoreIndicatorSize * layoutMultiplier
-    }
-    
-    var scoreTimerSize: CGFloat {
-        baseScoreTimerSize * layoutMultiplier
-    }
-    
-    var scoreResultSize: CGFloat {
-        baseScoreResultSize * layoutMultiplier
     }
 } 

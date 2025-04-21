@@ -67,7 +67,7 @@ struct ResultView: View {
                         .foregroundColor(.secondary)
                     
                     scoreBlock(symbol: "O", score: playerOScore, color: .red)
-                }
+                    }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Game Statistics")
 

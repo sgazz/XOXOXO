@@ -144,7 +144,7 @@ class GameLogic: ObservableObject {
         guard gameMode != newMode else { return }
         
         gameMode = newMode
-        resetGame()
+            resetGame()
         
         // Обавести UI да се мод променио
         objectWillChange.send()

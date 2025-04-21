@@ -3,18 +3,20 @@ import SwiftUI
 struct FloatingBoard: View {
     let size: CGFloat
     let animationDuration: Double
+    let slowMotion: Bool
     @State private var offset: CGSize
     @State private var rotation: Double
     
     init(size: CGFloat, startX: CGFloat, startY: CGFloat, slowMotion: Bool = false) {
         self.size = size
+        self.slowMotion = slowMotion
         let randomOffset = CGSize(
             width: startX + CGFloat.random(in: -20...20),
             height: startY + CGFloat.random(in: -20...20)
         )
         _offset = State(initialValue: randomOffset)
         _rotation = State(initialValue: Double.random(in: -10...10))
-        self.animationDuration = Double.random(in: 20...30)
+        self.animationDuration = slowMotion ? Double.random(in: 35...45) : Double.random(in: 20...30)
     }
     
     var body: some View {
@@ -28,13 +30,14 @@ struct FloatingBoard: View {
             .onAppear {
                 withAnimation(
                     .easeInOut(duration: animationDuration)
+                    .speed(slowMotion ? 0.7 : 1.0)
                     .repeatForever(autoreverses: true)
                 ) {
                     offset = CGSize(
-                        width: -offset.width * 0.5,
-                        height: -offset.height * 0.5
+                        width: -offset.width * (slowMotion ? 0.3 : 0.5),
+                        height: -offset.height * (slowMotion ? 0.3 : 0.5)
                     )
-                    rotation = -rotation * 0.5
+                    rotation = -rotation * (slowMotion ? 0.3 : 0.5)
                 }
             }
     }
