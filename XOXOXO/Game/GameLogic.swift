@@ -18,6 +18,8 @@ class GameLogic: ObservableObject {
     @Published var gameMode: GameMode = .aiOpponent
     @Published var winningIndexes: [Int] = []
     
+    private let playerSettings = PlayerSettings.shared
+    
     // Додајемо променљиву за праћење последњег победника
     private var lastWinner: String?
     private var lastWinningBoard: Int?
@@ -33,13 +35,18 @@ class GameLogic: ObservableObject {
     init(gameMode: GameMode = .aiOpponent) {
         self.boards = Array(repeating: Array(repeating: "", count: 9), count: Self.BOARD_COUNT)
         self.currentBoard = 0
-        self.currentPlayer = "X"
+        self.currentPlayer = "X" // Почињемо увек са X
         self.gameOver = false
         self.isThinking = false
         self.boardScores = Array(repeating: (x: 0, o: 0), count: Self.BOARD_COUNT)
         self.totalScore = (x: 0, o: 0)
         self.gameMode = gameMode
         self.winningIndexes = []
+        
+        // Ако је играч изабрао O, AI треба да игра први
+        if gameMode == .aiOpponent && !playerSettings.isPlayerX {
+            makeAIMove(in: currentBoard, thinkingTime: 0.1) {}
+        }
     }
 
     func makeMove(at position: Int, in boardIndex: Int) {
@@ -122,7 +129,7 @@ class GameLogic: ObservableObject {
         boardScores = Array(repeating: (x: 0, o: 0), count: Self.BOARD_COUNT)
         totalScore = (x: 0, o: 0)
         currentBoard = 0
-        currentPlayer = "X"
+        currentPlayer = "X" // Почињемо увек са X
         gameOver = false
         isThinking = false
         winningIndexes = []
@@ -131,6 +138,11 @@ class GameLogic: ObservableObject {
         lastWinner = nil
         lastWinningBoard = nil
         lastDrawBoard = nil
+        
+        // Ако је играч изабрао O, AI треба да игра први
+        if gameMode == .aiOpponent && !playerSettings.isPlayerX {
+            makeAIMove(in: currentBoard, thinkingTime: 0.1) {}
+        }
     }
 
     func setGameMode(_ mode: GameMode) {
@@ -144,7 +156,7 @@ class GameLogic: ObservableObject {
         guard gameMode != newMode else { return }
         
         gameMode = newMode
-            resetGame()
+        resetGame()
         
         // Обавести UI да се мод променио
         objectWillChange.send()
@@ -178,5 +190,21 @@ class GameLogic: ObservableObject {
     // Нова функција за проверу нерешеног резултата
     func wasLastMoveDraw(in boardIndex: Int) -> Bool {
         return lastDrawBoard == boardIndex
+    }
+    
+    // Нова функција за проверу да ли је AI на потезу
+    var isAITurn: Bool {
+        if gameMode == .aiOpponent {
+            return currentPlayer == playerSettings.aiSymbol
+        }
+        return false
+    }
+    
+    // Нова функција за проверу да ли је играч на потезу
+    var isPlayerTurn: Bool {
+        if gameMode == .aiOpponent {
+            return currentPlayer == playerSettings.playerSymbol
+        }
+        return true
     }
 }

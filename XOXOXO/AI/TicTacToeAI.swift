@@ -2,17 +2,21 @@ import Foundation
 
 class TicTacToeAI {
     static let shared = TicTacToeAI()
+    private let playerSettings = PlayerSettings.shared
     
     private init() {}
     
     func makeMove(in board: [String]) -> Int? {
+        let aiSymbol = playerSettings.aiSymbol
+        let playerSymbol = playerSettings.playerSymbol
+        
         // First, check if AI can win in the next move
-        if let winningMove = findWinningMove(for: "O", in: board) {
+        if let winningMove = findWinningMove(for: aiSymbol, in: board) {
             return winningMove
         }
         
         // Then check if we need to block player's winning move
-        if let blockingMove = findWinningMove(for: "X", in: board) {
+        if let blockingMove = findWinningMove(for: playerSymbol, in: board) {
             return blockingMove
         }
         
