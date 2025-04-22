@@ -467,7 +467,7 @@ struct GameView: View {
         }
         
         // Пусти звук за нерешено
-        SoundManager.shared.playSound(.move)
+        SoundManager.shared.playSound(.draw)
         
         // Ресетуј приказ након 1.5 секунде
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {

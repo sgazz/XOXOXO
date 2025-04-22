@@ -29,16 +29,12 @@ struct GameModeModalView: View {
             // Модални прозор
             VStack(spacing: isIPad ? 20 : 15) {
                 // Наслов
-                Text("Choose Game Mode")
+                Text("Choose Symbol and Time")
                     .font(.system(size: isIPad ? 32 : 24, weight: .bold))
                     .foregroundColor(.white)
                 
                 // Избор првог играча
                 VStack(spacing: isIPad ? 10 : 8) {
-                    Text("Choose Your Symbol")
-                        .font(.system(size: isIPad ? 24 : 20, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.9))
-                    
                     HStack(spacing: isIPad ? 20 : 15) {
                         // X дугме
                         Button(action: { 
@@ -82,13 +78,6 @@ struct GameModeModalView: View {
                 
                 // Дугмад
                 VStack(spacing: isIPad ? 15 : 10) {
-                    // Single Player режим
-                    Text("Single Player")
-                        .font(.system(size: isIPad ? 24 : 20, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.9))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, isIPad ? 20 : 15)
-                    
                     // 1 минут дугме
                     Button(action: {
                         SoundManager.shared.playSound(.tap)
@@ -134,14 +123,6 @@ struct GameModeModalView: View {
                                 .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8 : 5)
                         )
                     }
-                    
-                    // Multiplayer режим
-                    Text("Multiplayer")
-                        .font(.system(size: isIPad ? 24 : 20, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.9))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, isIPad ? 20 : 15)
-                        .padding(.top, isIPad ? 20 : 15)
                     
                     // 5 минута дугме
                     Button(action: {
