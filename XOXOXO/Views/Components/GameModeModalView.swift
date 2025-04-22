@@ -9,7 +9,8 @@ struct GameModeModalView: View {
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
-    @State private var selectedPlayer: String = "X"
+    @StateObject private var playerSettings = PlayerSettings.shared
+    @StateObject private var timerSettings = GameTimerSettings.shared
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
@@ -33,44 +34,52 @@ struct GameModeModalView: View {
                 
                 // Избор првог играча
                 VStack(spacing: isIPad ? 10 : 8) {
-                    Text("Choose First Player")
+                    Text("Choose Your Symbol")
                         .font(.system(size: isIPad ? 24 : 20, weight: .semibold))
                         .foregroundColor(.white.opacity(0.9))
                     
                     HStack(spacing: isIPad ? 20 : 15) {
                         // X дугме
-                        Button(action: { selectedPlayer = "X" }) {
+                        Button(action: { playerSettings.playerSymbol = "X" }) {
                             Text("X")
                                 .font(.system(size: isIPad ? 32 : 28, weight: .bold))
                                 .foregroundColor(.white)
                                 .frame(width: isIPad ? 80 : 60, height: isIPad ? 80 : 60)
                                 .background(
                                     Circle()
-                                        .fill(selectedPlayer == "X" ? Color.blue : Color.gray.opacity(0.3))
+                                        .fill(playerSettings.isPlayerX ? Color.blue : Color.gray.opacity(0.3))
                                         .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
                                 )
                         }
                         
                         // O дугме
-                        Button(action: { selectedPlayer = "O" }) {
+                        Button(action: { playerSettings.playerSymbol = "O" }) {
                             Text("O")
                                 .font(.system(size: isIPad ? 32 : 28, weight: .bold))
                                 .foregroundColor(.white)
                                 .frame(width: isIPad ? 80 : 60, height: isIPad ? 80 : 60)
                                 .background(
                                     Circle()
-                                        .fill(selectedPlayer == "O" ? Color.red : Color.gray.opacity(0.3))
+                                        .fill(playerSettings.isPlayerO ? Color.red : Color.gray.opacity(0.3))
                                         .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
                                 )
                         }
                     }
+                    
+                    Text(playerSettings.isPlayerX ? "You play first (X)" : "AI plays first (X)")
+                        .font(.system(size: isIPad ? 18 : 16))
+                        .foregroundColor(.white.opacity(0.8))
+                        .padding(.top, 5)
                 }
                 .padding(.vertical, isIPad ? 15 : 10)
                 
                 // Дугмад
                 VStack(spacing: isIPad ? 15 : 10) {
                     // 1 минут дугме
-                    Button(action: onPlayVsAI) {
+                    Button(action: {
+                        timerSettings.gameDuration = .oneMinute
+                        onPlayVsAI()
+                    }) {
                         HStack(spacing: isIPad ? 20 : 15) {
                             Image(systemName: "timer")
                                 .font(.system(size: isIPad ? 32 : 24))
@@ -88,7 +97,10 @@ struct GameModeModalView: View {
                     }
                     
                     // 3 минута дугме
-                    Button(action: onPlayVsAI) {
+                    Button(action: {
+                        timerSettings.gameDuration = .threeMinutes
+                        onPlayVsAI()
+                    }) {
                         HStack(spacing: isIPad ? 20 : 15) {
                             Image(systemName: "timer")
                                 .font(.system(size: isIPad ? 32 : 24))
@@ -107,6 +119,7 @@ struct GameModeModalView: View {
                     
                     // 5 минута дугме
                     Button(action: {
+                        timerSettings.gameDuration = .fiveMinutes
                         if isPvPUnlocked {
                             onPlayVsPlayer()
                         } else {

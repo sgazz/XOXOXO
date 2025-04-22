@@ -2,10 +2,11 @@ import SwiftUI
 
 struct GameView: View {
     @StateObject private var gameLogic: GameLogic
+    @StateObject private var timerSettings = GameTimerSettings.shared
     @State private var showPurchaseView = false
     @State private var isPvPUnlocked: Bool = false
-    @State private var playerXTime: TimeInterval = 300 // 5 minutes in seconds
-    @State private var playerOTime: TimeInterval = 300 // 5 minutes in seconds
+    @State private var playerXTime: TimeInterval
+    @State private var playerOTime: TimeInterval
     @State private var timer: Timer? = nil
     @State private var isTimerRunning = false
     @State private var showGameOver = false
@@ -32,7 +33,6 @@ struct GameView: View {
     @State private var xDrawPenaltyScale: CGFloat = 1.0
     @State private var oDrawPenaltyScale: CGFloat = 1.0
     
-    private let defaultTime: TimeInterval = 300 // 5 minutes in seconds
     private let bonusTime: TimeInterval = 15 // 15 seconds bonus
     private let penaltyTime: TimeInterval = 10 // 10 seconds penalty
     private let drawPenaltyTime: TimeInterval = 5 // 5 seconds penalty for draw
@@ -46,6 +46,11 @@ struct GameView: View {
     init(gameMode: GameMode = .aiOpponent, isPvPUnlocked: Bool = false) {
         _gameLogic = StateObject(wrappedValue: GameLogic(gameMode: gameMode))
         self.isPvPUnlocked = isPvPUnlocked
+        
+        // Иницијализација времена на основу изабраног режима
+        let initialTime = TimeInterval(GameTimerSettings.shared.gameDuration.rawValue)
+        _playerXTime = State(initialValue: initialTime)
+        _playerOTime = State(initialValue: initialTime)
     }
 
     // Helper computed properties to simplify expressions
@@ -308,8 +313,9 @@ struct GameView: View {
     }
     
     private func resetTimers() {
-        playerXTime = defaultTime
-        playerOTime = defaultTime
+        let gameTime = TimeInterval(timerSettings.gameDuration.rawValue)
+        playerXTime = gameTime
+        playerOTime = gameTime
         stopTimer()
     }
 
