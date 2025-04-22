@@ -15,6 +15,7 @@ struct GameOverView: View {
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @StateObject private var purchaseManager = PurchaseManager.shared
     
     private var deviceLayout: DeviceLayout {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
@@ -37,51 +38,53 @@ struct GameOverView: View {
                 
                 if isLandscape {
                     // Landscape layout
-                    HStack(spacing: spacing) {
-                        // Лева страна - икона и наслов
-                        VStack(spacing: spacing) {
-                            GameOverIcon(timeoutPlayer: timeoutPlayer)
-                                .frame(width: min(geometry.size.width * 0.3, 150))
-                            GameOverTitle(timeoutPlayer: timeoutPlayer)
-                        }
-                        .frame(width: geometry.size.width * 0.4)
+                    VStack(spacing: spacing) {
+                        Spacer()
                         
-                        // Десна страна - статистика и дугмад
-                        VStack(spacing: spacing) {
-                            GameStats(
-                                playerXTime: playerXTime,
-                                playerOTime: playerOTime,
-                                score: score
-                            )
-                            GameModeButtons(
-                                isPvPUnlocked: isPvPUnlocked,
-                                onPlayVsAI: onPlayVsAI,
-                                onPlayVsPlayer: onPlayVsPlayer,
-                                onShowPurchase: onShowPurchase
-                            )
-                        }
-                        .frame(width: geometry.size.width * 0.6)
+                        // Икона и наслов
+                        GameOverIcon(timeoutPlayer: timeoutPlayer)
+                            .frame(width: min(geometry.size.width * 0.2, 150))
+                        GameOverTitle(timeoutPlayer: timeoutPlayer, score: score)
+                        
+                        // Статистика и дугмад
+                        GameStats(
+                            playerXTime: playerXTime,
+                            playerOTime: playerOTime,
+                            score: score
+                        )
+                        GameModeButtons(
+                            isPvPUnlocked: purchaseManager.isPvPUnlocked,
+                            onPlayVsAI: onPlayVsAI,
+                            onPlayVsPlayer: onPlayVsPlayer,
+                            onShowPurchase: onShowPurchase
+                        )
+                        
+                        Spacer()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(spacing)
                 } else {
-            // Portrait layout
+                    // Portrait layout
                     VStack(spacing: spacing) {
-                GameOverIcon(timeoutPlayer: timeoutPlayer)
+                        Spacer()
+                        
+                        GameOverIcon(timeoutPlayer: timeoutPlayer)
                             .frame(width: min(geometry.size.width * 0.4, 150))
-                GameOverTitle(timeoutPlayer: timeoutPlayer)
-                GameStats(
-                    playerXTime: playerXTime,
-                    playerOTime: playerOTime,
-                    score: score
-                )
-                GameModeButtons(
-                    isPvPUnlocked: isPvPUnlocked,
-                    onPlayVsAI: onPlayVsAI,
-                    onPlayVsPlayer: onPlayVsPlayer,
-                    onShowPurchase: onShowPurchase
-                )
-            }
+                        GameOverTitle(timeoutPlayer: timeoutPlayer, score: score)
+                        GameStats(
+                            playerXTime: playerXTime,
+                            playerOTime: playerOTime,
+                            score: score
+                        )
+                        GameModeButtons(
+                            isPvPUnlocked: purchaseManager.isPvPUnlocked,
+                            onPlayVsAI: onPlayVsAI,
+                            onPlayVsPlayer: onPlayVsPlayer,
+                            onShowPurchase: onShowPurchase
+                        )
+                        
+                        Spacer()
+                    }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(spacing)
                 }
@@ -141,19 +144,20 @@ private struct GameOverIcon: View {
 
 private struct GameOverTitle: View {
     let timeoutPlayer: String?
+    let score: (x: Int, o: Int)
     
     var body: some View {
         VStack(spacing: 8) {
-            Text("Game Over")
-                .font(.system(size: 38, weight: .heavy))
-                .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.2), radius: 2)
-            
             if let player = timeoutPlayer {
-                Text("\(player == "X" ? "Blue" : "Red") player ran out of time!")
-                    .font(.title3)
-                    .foregroundColor(.white.opacity(0.9))
-                    .multilineTextAlignment(.center)
+                Text("\(player == "X" ? "Player O" : "Player X") Wins!")
+                    .font(.system(size: 38, weight: .heavy))
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.2), radius: 2)
+            } else {
+                Text(score.x > score.o ? "Player X Wins!" : "Player O Wins!")
+                    .font(.system(size: 38, weight: .heavy))
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.2), radius: 2)
             }
         }
     }
@@ -219,40 +223,20 @@ private struct GameModeButtons: View {
     let onShowPurchase: () -> Void
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     
-    private var isCompact: Bool {
-        horizontalSizeClass == .compact
+    private var isIPad: Bool {
+        horizontalSizeClass == .regular
     }
     
     var body: some View {
-        VStack(spacing: isCompact ? 8 : 12) {
-            // PvAI дугме
+        VStack(spacing: isIPad ? 15 : 10) {
+            // Single Player mode button
             Button(action: onPlayVsAI) {
-                HStack {
-                    Image(systemName: "cpu")
-                        .font(isCompact ? .title2 : .title)
-                    Text("Single Player")
-                        .font(isCompact ? .title2.bold() : .title.bold())
-                }
-                .foregroundColor(.white)
-                .frame(width: isCompact ? 200 : 250, height: isCompact ? 45 : 55)
-                .background(
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color(red: 0.3, green: 0.4, blue: 0.9),
-                                    Color(red: 0.2, green: 0.3, blue: 0.7)
-                                ]),
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                )
-                .shadow(color: Color(red: 0.2, green: 0.3, blue: 0.7).opacity(0.5), radius: 10, x: 0, y: 5)
+                aiButtonContent(isIPad: isIPad)
             }
-    
-            // PvP дугме
+            
+            // Multiplayer mode button
             Button(action: {
                 if isPvPUnlocked {
                     onPlayVsPlayer()
@@ -260,45 +244,67 @@ private struct GameModeButtons: View {
                     onShowPurchase()
                 }
             }) {
-                HStack {
-                    Image(systemName: "person.2.fill")
-                        .font(isCompact ? .title2 : .title)
-                    Text("Multiplayer")
-                        .font(isCompact ? .title2.bold() : .title.bold())
-                }
-                .foregroundColor(.white)
-                .frame(width: isCompact ? 200 : 250, height: isCompact ? 45 : 55)
-                .background(
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: isPvPUnlocked ? [
-                                    Color(red: 0.2, green: 0.6, blue: 0.3),
-                                    Color(red: 0.1, green: 0.5, blue: 0.2)
-                                ] : [
-                                    Color.gray.opacity(0.6),
-                                    Color.gray.opacity(0.4)
-                                ]),
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                )
-                .overlay(
-                    Group {
-                        if !isPvPUnlocked {
-                            Image(systemName: "lock.fill")
-                                .font(.caption)
-                                .foregroundColor(.white)
-                                .padding(6)
-                                .background(Circle().fill(Color.black.opacity(0.3)))
-                                .offset(x: isCompact ? 85 : 110, y: -15)
-                        }
-                    }
-                )
-                .shadow(color: (isPvPUnlocked ? Color(red: 0.1, green: 0.5, blue: 0.2) : Color.gray).opacity(0.5), radius: 10, x: 0, y: 5)
+                pvpButtonContent(isIPad: isIPad)
             }
         }
+        .frame(maxWidth: .infinity)
+    }
+    
+    private func aiButtonContent(isIPad: Bool) -> some View {
+        let fontSize = isIPad ? 32.0 : 22.0
+        
+        return HStack(spacing: isIPad ? 20.0 : 15.0) {
+            Image(systemName: "cpu")
+                .font(.system(size: fontSize))
+                .layoutPriority(1)
+            Text("Single Player")
+                .font(.system(size: fontSize, weight: .bold))
+                .layoutPriority(2)
+                .minimumScaleFactor(0.5)
+        }
+        .foregroundColor(.white)
+        .frame(maxWidth: isIPad ? 500.0 : 400.0)
+        .padding(.horizontal, isIPad ? 20.0 : 15.0)
+        .padding(.vertical, isIPad ? 15.0 : 10.0)
+        .background(
+            Capsule()
+                .fill(Color.blue.opacity(0.7))
+                .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8.0 : 5.0)
+        )
+    }
+    
+    private func pvpButtonContent(isIPad: Bool) -> some View {
+        let fontSize = isIPad ? 32.0 : 22.0
+        
+        let isUnlocked = isPvPUnlocked
+        let backgroundColor = isUnlocked ? Color.purple.opacity(0.3) : Color.white.opacity(0.15)
+        let shadowColor = isUnlocked ? Color.purple.opacity(0.3) : Color.black.opacity(0.1)
+        
+        return HStack(spacing: isIPad ? 20.0 : 15.0) {
+            Image(systemName: "person.2")
+                .font(.system(size: fontSize))
+                .layoutPriority(1)
+            Text("Multiplayer")
+                .font(.system(size: fontSize, weight: .bold))
+                .layoutPriority(2)
+                .minimumScaleFactor(0.5)
+            
+            if !isUnlocked {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: fontSize * 0.8))
+                    .foregroundColor(.yellow)
+                    .layoutPriority(1)
+            }
+        }
+        .foregroundColor(.white.opacity(0.8))
+        .frame(maxWidth: isIPad ? 500.0 : 400.0)
+        .padding(.horizontal, isIPad ? 20.0 : 15.0)
+        .padding(.vertical, isIPad ? 15.0 : 10.0)
+        .background(
+            Capsule()
+                .fill(backgroundColor)
+                .shadow(color: shadowColor, radius: isIPad ? 8.0 : 5.0)
+        )
     }
 }
 
