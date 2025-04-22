@@ -40,7 +40,10 @@ struct GameModeModalView: View {
                     
                     HStack(spacing: isIPad ? 20 : 15) {
                         // X дугме
-                        Button(action: { playerSettings.playerSymbol = "X" }) {
+                        Button(action: { 
+                            SoundManager.shared.playSound(.tap)
+                            playerSettings.playerSymbol = "X" 
+                        }) {
                             Text("X")
                                 .font(.system(size: isIPad ? 32 : 28, weight: .bold))
                                 .foregroundColor(.white)
@@ -53,7 +56,10 @@ struct GameModeModalView: View {
                         }
                         
                         // O дугме
-                        Button(action: { playerSettings.playerSymbol = "O" }) {
+                        Button(action: { 
+                            SoundManager.shared.playSound(.tap)
+                            playerSettings.playerSymbol = "O" 
+                        }) {
                             Text("O")
                                 .font(.system(size: isIPad ? 32 : 28, weight: .bold))
                                 .foregroundColor(.white)
@@ -84,6 +90,7 @@ struct GameModeModalView: View {
                     
                     // 1 минут дугме
                     Button(action: {
+                        SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .oneMinute
                         if isPvPUnlocked {
                             onPlayVsPlayer()
@@ -109,6 +116,7 @@ struct GameModeModalView: View {
                     
                     // 3 минута дугме
                     Button(action: {
+                        SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .threeMinutes
                         if isPvPUnlocked {
                             onPlayVsPlayer()
@@ -142,6 +150,7 @@ struct GameModeModalView: View {
                     
                     // 5 минута дугме
                     Button(action: {
+                        SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .fiveMinutes
                         if isPvPUnlocked {
                             onPlayVsPlayer()

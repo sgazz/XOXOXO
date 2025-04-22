@@ -19,6 +19,7 @@ struct SplashView: View {
     @StateObject private var purchaseManager = PurchaseManager.shared
     @State private var showPurchase = false
     @State private var showGame = false
+    @State private var showGameModeModal = false
     
     var body: some View {
         ZStack {
@@ -181,10 +182,7 @@ struct SplashView: View {
                                     Button(action: {
                                         SoundManager.shared.playSound(.tap)
                                         SoundManager.shared.playHaptic()
-                                        selectedGameMode = .aiOpponent
-                                        withAnimation(.easeInOut(duration: 0.5)) {
-                                            startGameTransition = true
-                                        }
+                                        showGameModeModal = true
                                     }) {
                                         aiButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth)
                                             .frame(height: CGFloat(isIPad ? 100 : 80))
@@ -193,12 +191,8 @@ struct SplashView: View {
                                     Button(action: {
                                         SoundManager.shared.playSound(.tap)
                                         SoundManager.shared.playHaptic()
-                                        
-                                        if isPvPUnlocked {
-                                            selectedGameMode = .playerVsPlayer
-                                            withAnimation(.easeInOut(duration: 0.5)) {
-                                                startGameTransition = true
-                                            }
+                                        if purchaseManager.isPvPUnlocked {
+                                            showGameModeModal = true
                                         } else {
                                             showPurchaseView = true
                                         }
@@ -241,6 +235,33 @@ struct SplashView: View {
                     }
                     .sheet(isPresented: $showPurchaseView) {
                         PurchaseView(isPvPUnlocked: $isPvPUnlocked)
+                    }
+                    
+                    if showGameModeModal {
+                        GameModeModalView(
+                            isPvPUnlocked: purchaseManager.isPvPUnlocked,
+                            onPlayVsAI: {
+                                showGameModeModal = false
+                                selectedGameMode = .aiOpponent
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    startGameTransition = true
+                                }
+                            },
+                            onPlayVsPlayer: {
+                                showGameModeModal = false
+                                selectedGameMode = .playerVsPlayer
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    startGameTransition = true
+                                }
+                            },
+                            onShowPurchase: {
+                                showGameModeModal = false
+                                showPurchaseView = true
+                            },
+                            onClose: {
+                                showGameModeModal = false
+                            }
+                        )
                     }
                 }
             }
@@ -439,15 +460,12 @@ struct SplashView: View {
     // MARK: - UI Components
     
     private func tutorialButton(geometry: GeometryProxy, isIPad: Bool) -> some View {
-        let buttonSize = isIPad ? 
-            min(geometry.size.width * 0.06, 56) : 
-            min(geometry.size.width * 0.08, 36)
-        
-        return Button(action: {
+        Button(action: {
+            SoundManager.shared.playSound(.tap)
             showTutorial = true
         }) {
             Image(systemName: "questionmark.circle.fill")
-                .font(.system(size: buttonSize))
+                .font(.system(size: isIPad ? 56 : 36))
                 .foregroundColor(.orange)
                 .shadow(color: .orange.opacity(0.4), radius: isIPad ? 12 : 8, x: 0, y: 0)
         }

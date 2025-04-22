@@ -67,7 +67,6 @@ struct BoardView: View {
     
     private func handleCellTap(at index: Int) {
         if isActive && board[index].isEmpty {
-            SoundManager.shared.playSound(.tap)
             SoundManager.shared.playLightHaptic()
             
             withAnimation(.interpolatingSpring(

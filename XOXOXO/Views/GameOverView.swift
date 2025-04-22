@@ -16,6 +16,7 @@ struct GameOverView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @StateObject private var purchaseManager = PurchaseManager.shared
+    @State private var showGameModeModal = false
     
     private var deviceLayout: DeviceLayout {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
@@ -54,8 +55,8 @@ struct GameOverView: View {
                         )
                         GameModeButtons(
                             isPvPUnlocked: purchaseManager.isPvPUnlocked,
-                            onPlayVsAI: onPlayVsAI,
-                            onPlayVsPlayer: onPlayVsPlayer,
+                            onPlayVsAI: { showGameModeModal = true },
+                            onPlayVsPlayer: { showGameModeModal = true },
                             onShowPurchase: onShowPurchase
                         )
                         
@@ -78,8 +79,8 @@ struct GameOverView: View {
                         )
                         GameModeButtons(
                             isPvPUnlocked: purchaseManager.isPvPUnlocked,
-                            onPlayVsAI: onPlayVsAI,
-                            onPlayVsPlayer: onPlayVsPlayer,
+                            onPlayVsAI: { showGameModeModal = true },
+                            onPlayVsPlayer: { showGameModeModal = true },
                             onShowPurchase: onShowPurchase
                         )
                         
@@ -88,6 +89,27 @@ struct GameOverView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(spacing)
                 }
+            }
+            
+            if showGameModeModal {
+                GameModeModalView(
+                    isPvPUnlocked: purchaseManager.isPvPUnlocked,
+                    onPlayVsAI: {
+                        showGameModeModal = false
+                        onPlayVsAI()
+                    },
+                    onPlayVsPlayer: {
+                        showGameModeModal = false
+                        onPlayVsPlayer()
+                    },
+                    onShowPurchase: {
+                        showGameModeModal = false
+                        onShowPurchase()
+                    },
+                    onClose: {
+                        showGameModeModal = false
+                    }
+                )
             }
         }
         .transition(.asymmetric(
@@ -232,12 +254,16 @@ private struct GameModeButtons: View {
     var body: some View {
         VStack(spacing: isIPad ? 15 : 10) {
             // Single Player mode button
-            Button(action: onPlayVsAI) {
+            Button(action: {
+                SoundManager.shared.playSound(.tap)
+                onPlayVsAI()
+            }) {
                 aiButtonContent(isIPad: isIPad)
             }
             
             // Multiplayer mode button
             Button(action: {
+                SoundManager.shared.playSound(.tap)
                 if isPvPUnlocked {
                     onPlayVsPlayer()
                 } else {

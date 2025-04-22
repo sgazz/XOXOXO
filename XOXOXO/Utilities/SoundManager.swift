@@ -22,13 +22,23 @@ class SoundManager {
     
     // Учитавање звука из бандла по имену
     private func getAudioPlayer(for soundName: String, withExtension ext: String = "mp3") -> AVAudioPlayer? {
-        guard let url = Bundle.main.url(forResource: soundName, withExtension: ext) else {
-            print("Unable to find sound file: \(soundName).\(ext)")
-            
-            // Креирамо програмски генерисан звук 
-            return generateProgrammaticSound(for: soundName)
+        // Прво покушавамо са .wav
+        if let url = Bundle.main.url(forResource: soundName, withExtension: "wav") {
+            return createAudioPlayer(from: url)
         }
         
+        // Затим покушавамо са .mp3
+        if let url = Bundle.main.url(forResource: soundName, withExtension: "mp3") {
+            return createAudioPlayer(from: url)
+        }
+        
+        print("Unable to find sound file: \(soundName).wav or \(soundName).mp3")
+        
+        // Креирамо програмски генерисан звук 
+        return generateProgrammaticSound(for: soundName)
+    }
+    
+    private func createAudioPlayer(from url: URL) -> AVAudioPlayer? {
         // Проверавамо да ли већ имамо учитан плејер за овај звук
         if let player = audioPlayers[url] {
             return player
@@ -42,7 +52,7 @@ class SoundManager {
             return player
         } catch {
             print("Error loading audio: \(error.localizedDescription)")
-            return generateProgrammaticSound(for: soundName)
+            return generateProgrammaticSound(for: url.deletingPathExtension().lastPathComponent)
         }
     }
     

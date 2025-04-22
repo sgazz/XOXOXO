@@ -8,7 +8,10 @@ struct ActionButton: View {
     let action: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            SoundManager.shared.playSound(.tap)
+            action()
+        }) {
             Label(title, systemImage: icon)
                 .font(.headline)
                 .foregroundColor(.white)
@@ -31,6 +34,7 @@ struct ResultView: View {
     let isGamePaused: Bool
     
     @StateObject private var purchaseManager = PurchaseManager.shared
+    @State private var showGameModeModal = false
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -67,7 +71,7 @@ struct ResultView: View {
                         .foregroundColor(.secondary)
                     
                     scoreBlock(symbol: "O", score: playerOScore, color: .red)
-                    }
+                }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Game Statistics")
 
@@ -86,17 +90,30 @@ struct ResultView: View {
                         title: "Single Player",
                         icon: "cpu",
                         color: .blue,
-                        action: onNewGame
+                        action: { 
+                            SoundManager.shared.playSound(.tap)
+                            showGameModeModal = true 
+                        }
                     )
                     
                     ActionButton(
                         title: purchaseManager.isPvPUnlocked ? "Multiplayer" : "Multiplayer (Locked)",
                         icon: "person.2",
                         color: purchaseManager.isPvPUnlocked ? .green : .gray,
-                        action: purchaseManager.isPvPUnlocked ? onPlayVsPlayer : onShowPurchase
+                        action: {
+                            SoundManager.shared.playSound(.tap)
+                            if purchaseManager.isPvPUnlocked {
+                                showGameModeModal = true
+                            } else {
+                                onShowPurchase()
+                            }
+                        }
                     )
                     
-                    Button(action: onClose) {
+                    Button(action: {
+                        SoundManager.shared.playSound(.tap)
+                        onClose()
+                    }) {
                         Text("Close")
                             .font(.headline)
                             .foregroundColor(.blue)
@@ -122,6 +139,27 @@ struct ResultView: View {
             .transition(.scale.combined(with: .opacity))
             .animation(.spring(), value: playerXScore + playerOScore + draws)
             .accessibilityElement(children: .contain)
+            
+            if showGameModeModal {
+                GameModeModalView(
+                    isPvPUnlocked: purchaseManager.isPvPUnlocked,
+                    onPlayVsAI: {
+                        showGameModeModal = false
+                        onNewGame()
+                    },
+                    onPlayVsPlayer: {
+                        showGameModeModal = false
+                        onPlayVsPlayer()
+                    },
+                    onShowPurchase: {
+                        showGameModeModal = false
+                        onShowPurchase()
+                    },
+                    onClose: {
+                        showGameModeModal = false
+                    }
+                )
+            }
         }
     }
     

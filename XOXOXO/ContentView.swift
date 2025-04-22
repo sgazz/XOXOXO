@@ -100,6 +100,7 @@ struct GameView: View {
                     scoreView
                         .padding(.top, deviceLayout.isIphone ? 50 : 30)
                         .onTapGesture {
+                            SoundManager.shared.playSound(.tap)
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 showResults = true
                             }
