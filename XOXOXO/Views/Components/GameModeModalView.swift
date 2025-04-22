@@ -11,6 +11,7 @@ struct GameModeModalView: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @StateObject private var playerSettings = PlayerSettings.shared
     @StateObject private var timerSettings = GameTimerSettings.shared
+    @State private var selectedMode: GameMode = .aiOpponent
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
@@ -92,11 +93,8 @@ struct GameModeModalView: View {
                     Button(action: {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .oneMinute
-                        if isPvPUnlocked {
-                            onPlayVsPlayer()
-                        } else {
-                            onPlayVsAI()
-                        }
+                        selectedMode = .aiOpponent
+                        onPlayVsAI()
                     }) {
                         HStack(spacing: isIPad ? 20 : 15) {
                             Image(systemName: "timer")
@@ -118,11 +116,8 @@ struct GameModeModalView: View {
                     Button(action: {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .threeMinutes
-                        if isPvPUnlocked {
-                            onPlayVsPlayer()
-                        } else {
-                            onPlayVsAI()
-                        }
+                        selectedMode = .aiOpponent
+                        onPlayVsAI()
                     }) {
                         HStack(spacing: isIPad ? 20 : 15) {
                             Image(systemName: "timer")
@@ -153,9 +148,10 @@ struct GameModeModalView: View {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .fiveMinutes
                         if isPvPUnlocked {
+                            selectedMode = .playerVsPlayer
                             onPlayVsPlayer()
                         } else {
-                            onPlayVsAI()
+                            onShowPurchase()
                         }
                     }) {
                         HStack(spacing: isIPad ? 20 : 15) {
