@@ -17,6 +17,7 @@ struct GameOverView: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @StateObject private var purchaseManager = PurchaseManager.shared
     @State private var showGameModeModal = false
+    @State private var selectedGameMode: GameMode = .aiOpponent
     
     private var deviceLayout: DeviceLayout {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
@@ -55,8 +56,14 @@ struct GameOverView: View {
                         )
                         GameModeButtons(
                             isPvPUnlocked: purchaseManager.isPvPUnlocked,
-                            onPlayVsAI: { showGameModeModal = true },
-                            onPlayVsPlayer: { showGameModeModal = true },
+                            onPlayVsAI: { 
+                                selectedGameMode = .aiOpponent
+                                showGameModeModal = true 
+                            },
+                            onPlayVsPlayer: { 
+                                selectedGameMode = .playerVsPlayer
+                                showGameModeModal = true 
+                            },
                             onShowPurchase: onShowPurchase
                         )
                         
@@ -79,8 +86,14 @@ struct GameOverView: View {
                         )
                         GameModeButtons(
                             isPvPUnlocked: purchaseManager.isPvPUnlocked,
-                            onPlayVsAI: { showGameModeModal = true },
-                            onPlayVsPlayer: { showGameModeModal = true },
+                            onPlayVsAI: { 
+                                selectedGameMode = .aiOpponent
+                                showGameModeModal = true 
+                            },
+                            onPlayVsPlayer: { 
+                                selectedGameMode = .playerVsPlayer
+                                showGameModeModal = true 
+                            },
                             onShowPurchase: onShowPurchase
                         )
                         
@@ -94,6 +107,7 @@ struct GameOverView: View {
             if showGameModeModal {
                 GameModeModalView(
                     isPvPUnlocked: purchaseManager.isPvPUnlocked,
+                    gameMode: selectedGameMode,
                     onPlayVsAI: {
                         showGameModeModal = false
                         onPlayVsAI()

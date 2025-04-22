@@ -35,6 +35,7 @@ struct ResultView: View {
     
     @StateObject private var purchaseManager = PurchaseManager.shared
     @State private var showGameModeModal = false
+    @State private var selectedGameMode: GameMode = .aiOpponent
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -92,6 +93,7 @@ struct ResultView: View {
                         color: .blue,
                         action: { 
                             SoundManager.shared.playSound(.tap)
+                            selectedGameMode = .aiOpponent
                             showGameModeModal = true 
                         }
                     )
@@ -103,6 +105,7 @@ struct ResultView: View {
                         action: {
                             SoundManager.shared.playSound(.tap)
                             if purchaseManager.isPvPUnlocked {
+                                selectedGameMode = .playerVsPlayer
                                 showGameModeModal = true
                             } else {
                                 onShowPurchase()
@@ -143,6 +146,7 @@ struct ResultView: View {
             if showGameModeModal {
                 GameModeModalView(
                     isPvPUnlocked: purchaseManager.isPvPUnlocked,
+                    gameMode: selectedGameMode,
                     onPlayVsAI: {
                         showGameModeModal = false
                         onNewGame()
