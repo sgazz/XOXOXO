@@ -75,10 +75,21 @@ struct GameModeModalView: View {
                 
                 // Дугмад
                 VStack(spacing: isIPad ? 15 : 10) {
+                    // Single Player режим
+                    Text("Single Player")
+                        .font(.system(size: isIPad ? 24 : 20, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.9))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, isIPad ? 20 : 15)
+                    
                     // 1 минут дугме
                     Button(action: {
                         timerSettings.gameDuration = .oneMinute
-                        onPlayVsAI()
+                        if isPvPUnlocked {
+                            onPlayVsPlayer()
+                        } else {
+                            onPlayVsAI()
+                        }
                     }) {
                         HStack(spacing: isIPad ? 20 : 15) {
                             Image(systemName: "timer")
@@ -92,14 +103,18 @@ struct GameModeModalView: View {
                         .background(
                             Capsule()
                                 .fill(Color.blue.opacity(0.7))
-                                .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
+                                .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8 : 5)
                         )
                     }
                     
                     // 3 минута дугме
                     Button(action: {
                         timerSettings.gameDuration = .threeMinutes
-                        onPlayVsAI()
+                        if isPvPUnlocked {
+                            onPlayVsPlayer()
+                        } else {
+                            onPlayVsAI()
+                        }
                     }) {
                         HStack(spacing: isIPad ? 20 : 15) {
                             Image(systemName: "timer")
@@ -113,9 +128,17 @@ struct GameModeModalView: View {
                         .background(
                             Capsule()
                                 .fill(Color.green.opacity(0.7))
-                                .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
+                                .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8 : 5)
                         )
                     }
+                    
+                    // Multiplayer режим
+                    Text("Multiplayer")
+                        .font(.system(size: isIPad ? 24 : 20, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.9))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, isIPad ? 20 : 15)
+                        .padding(.top, isIPad ? 20 : 15)
                     
                     // 5 минута дугме
                     Button(action: {
@@ -123,7 +146,7 @@ struct GameModeModalView: View {
                         if isPvPUnlocked {
                             onPlayVsPlayer()
                         } else {
-                            onShowPurchase()
+                            onPlayVsAI()
                         }
                     }) {
                         HStack(spacing: isIPad ? 20 : 15) {
@@ -131,20 +154,14 @@ struct GameModeModalView: View {
                                 .font(.system(size: isIPad ? 32 : 24))
                             Text("5 Minutes")
                                 .font(.system(size: isIPad ? 32 : 24, weight: .bold))
-                            
-                            if !isPvPUnlocked {
-                                Image(systemName: "lock.fill")
-                                    .font(.system(size: isIPad ? 24 : 18))
-                                    .foregroundColor(.yellow)
-                            }
                         }
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(.white)
                         .frame(maxWidth: isIPad ? 500 : 400)
                         .padding(.vertical, isIPad ? 20 : 15)
                         .background(
                             Capsule()
-                                .fill(isPvPUnlocked ? Color.purple.opacity(0.7) : Color.white.opacity(0.15))
-                                .shadow(color: isPvPUnlocked ? Color.purple.opacity(0.3) : Color.black.opacity(0.1), radius: isIPad ? 8 : 5)
+                                .fill(Color.orange.opacity(0.7))
+                                .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8 : 5)
                         )
                     }
                 }
