@@ -184,20 +184,7 @@ struct SplashView: View {
                                         SoundManager.shared.playHaptic()
                                         showGameModeModal = true
                                     }) {
-                                        aiButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth)
-                                            .frame(height: CGFloat(isIPad ? 100 : 80))
-                                    }
-                                    
-                                    Button(action: {
-                                        SoundManager.shared.playSound(.tap)
-                                        SoundManager.shared.playHaptic()
-                                        if purchaseManager.isPvPUnlocked {
-                                            showGameModeModal = true
-                                        } else {
-                                            showPurchaseView = true
-                                        }
-                                    }) {
-                                        pvpButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth)
+                                        startButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth)
                                             .frame(height: CGFloat(isIPad ? 100 : 80))
                                     }
                                 }
@@ -240,6 +227,7 @@ struct SplashView: View {
                     if showGameModeModal {
                         GameModeModalView(
                             isPvPUnlocked: purchaseManager.isPvPUnlocked,
+                            gameMode: selectedGameMode,
                             onPlayVsAI: {
                                 showGameModeModal = false
                                 selectedGameMode = .aiOpponent
@@ -260,6 +248,9 @@ struct SplashView: View {
                             },
                             onClose: {
                                 showGameModeModal = false
+                            },
+                            onGameModeChange: { newMode in
+                                selectedGameMode = newMode
                             }
                         )
                     }
@@ -469,6 +460,31 @@ struct SplashView: View {
                 .foregroundColor(.orange)
                 .shadow(color: .orange.opacity(0.4), radius: isIPad ? 12 : 8, x: 0, y: 0)
         }
+    }
+    
+    private func startButtonContent(geometry: GeometryProxy, isIPad: Bool, buttonWidth: CGFloat) -> some View {
+        let fontSize = isIPad ? 
+            min(geometry.size.width * 0.036, 32) : 
+            min(geometry.size.width * 0.054, 22)
+        
+        return HStack(spacing: isIPad ? 20 : 15) {
+            Image(systemName: "play.fill")
+                .font(.system(size: fontSize))
+                .layoutPriority(1)
+            Text("Start")
+                .font(.system(size: fontSize, weight: .bold))
+                .layoutPriority(2)
+                .minimumScaleFactor(0.5)
+        }
+        .foregroundColor(.white)
+        .frame(width: buttonWidth)
+        .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : 0.06))
+        .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : 0.03))
+        .background(
+            Capsule()
+                .fill(Color.blue.opacity(0.7))
+                .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8 : 5)
+        )
     }
     
     private func handlePurchase() {

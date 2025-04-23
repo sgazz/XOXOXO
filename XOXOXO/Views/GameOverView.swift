@@ -122,6 +122,9 @@ struct GameOverView: View {
                     },
                     onClose: {
                         showGameModeModal = false
+                    },
+                    onGameModeChange: { newMode in
+                        selectedGameMode = newMode
                     }
                 )
             }

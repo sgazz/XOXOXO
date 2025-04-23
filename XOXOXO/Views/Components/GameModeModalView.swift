@@ -2,16 +2,17 @@ import SwiftUI
 
 struct GameModeModalView: View {
     let isPvPUnlocked: Bool
+    let gameMode: GameMode
     let onPlayVsAI: () -> Void
     let onPlayVsPlayer: () -> Void
     let onShowPurchase: () -> Void
     let onClose: () -> Void
+    let onGameModeChange: (GameMode) -> Void
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @StateObject private var playerSettings = PlayerSettings.shared
     @StateObject private var timerSettings = GameTimerSettings.shared
-    @State private var selectedMode: GameMode = .aiOpponent
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
@@ -32,6 +33,44 @@ struct GameModeModalView: View {
                 Text("Choose Symbol and Time")
                     .font(.system(size: isIPad ? 32 : 24, weight: .bold))
                     .foregroundColor(.white)
+                
+                // Game mode buttons
+                HStack(spacing: isIPad ? 20 : 15) {
+                    // Single Player button
+                    Button(action: {
+                        SoundManager.shared.playSound(.tap)
+                        onGameModeChange(.aiOpponent)
+                    }) {
+                        Text("Single Player")
+                            .font(.system(size: isIPad ? 24 : 20, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, isIPad ? 15 : 12)
+                            .background(
+                                Capsule()
+                                    .fill(gameMode == .aiOpponent ? Color.blue : Color.gray.opacity(0.3))
+                                    .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
+                            )
+                    }
+                    
+                    // Multiplayer button
+                    Button(action: {
+                        SoundManager.shared.playSound(.tap)
+                        onGameModeChange(.playerVsPlayer)
+                    }) {
+                        Text("Multiplayer")
+                            .font(.system(size: isIPad ? 24 : 20, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, isIPad ? 15 : 12)
+                            .background(
+                                Capsule()
+                                    .fill(gameMode == .playerVsPlayer ? Color.blue : Color.gray.opacity(0.3))
+                                    .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
+                            )
+                    }
+                }
+                .padding(.bottom, isIPad ? 15 : 10)
                 
                 // Избор првог играча
                 VStack(spacing: isIPad ? 10 : 8) {
@@ -82,8 +121,15 @@ struct GameModeModalView: View {
                     Button(action: {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .oneMinute
-                        selectedMode = .aiOpponent
-                        onPlayVsAI()
+                        if gameMode == .playerVsPlayer {
+                            if isPvPUnlocked {
+                                onPlayVsPlayer()
+                            } else {
+                                onShowPurchase()
+                            }
+                        } else {
+                            onPlayVsAI()
+                        }
                     }) {
                         HStack(spacing: isIPad ? 20 : 15) {
                             Image(systemName: "timer")
@@ -105,8 +151,15 @@ struct GameModeModalView: View {
                     Button(action: {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .threeMinutes
-                        selectedMode = .aiOpponent
-                        onPlayVsAI()
+                        if gameMode == .playerVsPlayer {
+                            if isPvPUnlocked {
+                                onPlayVsPlayer()
+                            } else {
+                                onShowPurchase()
+                            }
+                        } else {
+                            onPlayVsAI()
+                        }
                     }) {
                         HStack(spacing: isIPad ? 20 : 15) {
                             Image(systemName: "timer")
@@ -128,11 +181,14 @@ struct GameModeModalView: View {
                     Button(action: {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .fiveMinutes
-                        if isPvPUnlocked {
-                            selectedMode = .playerVsPlayer
-                            onPlayVsPlayer()
+                        if gameMode == .playerVsPlayer {
+                            if isPvPUnlocked {
+                                onPlayVsPlayer()
+                            } else {
+                                onShowPurchase()
+                            }
                         } else {
-                            onShowPurchase()
+                            onPlayVsAI()
                         }
                     }) {
                         HStack(spacing: isIPad ? 20 : 15) {
@@ -168,9 +224,11 @@ struct GameModeModalView: View {
 #Preview {
     GameModeModalView(
         isPvPUnlocked: false,
+        gameMode: .aiOpponent,
         onPlayVsAI: {},
         onPlayVsPlayer: {},
         onShowPurchase: {},
-        onClose: {}
+        onClose: {},
+        onGameModeChange: { _ in }
     )
 } 
