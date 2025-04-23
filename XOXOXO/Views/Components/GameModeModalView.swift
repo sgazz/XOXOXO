@@ -30,7 +30,7 @@ struct GameModeModalView: View {
             // Модални прозор
             VStack(spacing: isIPad ? 20 : 15) {
                 // Наслов
-                Text("Choose Symbol and Time")
+                Text("Choose Mode, Symbol and Time")
                     .font(.system(size: isIPad ? 32 : 24, weight: .bold))
                     .foregroundColor(.white)
                 
@@ -56,18 +56,29 @@ struct GameModeModalView: View {
                     // Multiplayer button
                     Button(action: {
                         SoundManager.shared.playSound(.tap)
-                        onGameModeChange(.playerVsPlayer)
+                        if isPvPUnlocked {
+                            onGameModeChange(.playerVsPlayer)
+                        } else {
+                            onShowPurchase()
+                        }
                     }) {
-                        Text("Multiplayer")
-                            .font(.system(size: isIPad ? 24 : 20, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, isIPad ? 15 : 12)
-                            .background(
-                                Capsule()
-                                    .fill(gameMode == .playerVsPlayer ? Color.blue : Color.gray.opacity(0.3))
-                                    .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
-                            )
+                        HStack {
+                            Text("Multiplayer")
+                                .font(.system(size: isIPad ? 24 : 20, weight: .bold))
+                            
+                            if !isPvPUnlocked {
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: isIPad ? 20 : 16))
+                            }
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, isIPad ? 15 : 12)
+                        .background(
+                            Capsule()
+                                .fill(gameMode == .playerVsPlayer ? Color.blue : Color.gray.opacity(0.3))
+                                .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
+                        )
                     }
                 }
                 .padding(.bottom, isIPad ? 15 : 10)
