@@ -3,8 +3,6 @@ import SwiftUI
 struct GameView: View {
     @StateObject private var gameLogic: GameLogic
     @StateObject private var timerSettings = GameTimerSettings.shared
-    @State private var showPurchaseView = false
-    @State private var isPvPUnlocked: Bool = false
     @State private var playerXTime: TimeInterval
     @State private var playerOTime: TimeInterval
     @State private var timer: Timer? = nil
@@ -43,9 +41,8 @@ struct GameView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     // Initializer that accepts a game mode
-    init(gameMode: GameMode = .aiOpponent, isPvPUnlocked: Bool = false) {
+    init(gameMode: GameMode = .aiOpponent) {
         _gameLogic = StateObject(wrappedValue: GameLogic(gameMode: gameMode))
-        self.isPvPUnlocked = isPvPUnlocked
         
         // Иницијализација времена на основу изабраног режима
         let initialTime = TimeInterval(GameTimerSettings.shared.gameDuration.rawValue)
@@ -133,14 +130,18 @@ struct GameView: View {
                             }
                         }
                     
-                    ResultView(
-                        playerXScore: gameLogic.totalScore.x,
-                        playerOScore: gameLogic.totalScore.o,
-                        draws: gameLogic.totalScore.x + gameLogic.totalScore.o,
-                        onNewGame: {
+                    GameModeModalView(
+                        gameMode: selectedGameMode,
+                        onPlayVsAI: {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 showResults = false
                                 handleGameModeChange(to: .aiOpponent)
+                            }
+                        },
+                        onPlayVsPlayer: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showResults = false
+                                handleGameModeChange(to: .playerVsPlayer)
                             }
                         },
                         onClose: {
@@ -149,15 +150,9 @@ struct GameView: View {
                                 startTimer()
                             }
                         },
-                        onShowPurchase: {
-                            showResults = false
-                            showPurchaseView = true
-                        },
-                        onPlayVsPlayer: {
-                            showResults = false
-                            handleGameModeChange(to: .playerVsPlayer)
-                        },
-                        isGamePaused: true
+                        onGameModeChange: { newMode in
+                            handleGameModeChange(to: newMode)
+                        }
                     )
                     .transition(.scale(scale: 0.9).combined(with: .opacity))
                     .onAppear {
@@ -172,7 +167,6 @@ struct GameView: View {
                         playerXTime: playerXTime,
                         playerOTime: playerOTime,
                         score: gameLogic.totalScore,
-                        isPvPUnlocked: isPvPUnlocked,
                         onPlayVsAI: {
                             gameLogic.changeGameMode(to: .aiOpponent)
                             resetGame()
@@ -180,13 +174,9 @@ struct GameView: View {
                         onPlayVsPlayer: {
                             gameLogic.changeGameMode(to: .playerVsPlayer)
                             resetGame()
-                        },
-                        onShowPurchase: { showPurchaseView = true }
+                        }
                     )
                 }
-            }
-            .sheet(isPresented: $showPurchaseView) {
-                PurchaseView(isPvPUnlocked: $isPvPUnlocked)
             }
         }
         .onAppear {
@@ -195,12 +185,6 @@ struct GameView: View {
         }
         .onDisappear {
             stopTimer()
-        }
-        .onChange(of: isPvPUnlocked) { oldValue, newValue in
-            if newValue && !oldValue {
-                gameLogic.changeGameMode(to: .playerVsPlayer)
-                SoundManager.shared.playSound(.win)
-            }
         }
     }
     
@@ -285,24 +269,27 @@ struct GameView: View {
     }
     
     private func startTimer() {
+        // Ако је тајмер већ покренут, не покрећемо га поново
+        guard !isTimerRunning else { return }
+        
         isTimerRunning = true
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             // Одузми време тренутном играчу
-            if gameLogic.currentPlayer == "X" {
-                if playerXTime > 0 {
-                    playerXTime -= 1
+            if self.gameLogic.currentPlayer == "X" {
+                if self.playerXTime > 0 {
+                    self.playerXTime -= 1
                 }
             } else {
-                if playerOTime > 0 {
-                    playerOTime -= 1
+                if self.playerOTime > 0 {
+                    self.playerOTime -= 1
                 }
             }
             
             // Провери да ли је неком истекло време
-            if playerXTime == 0 && !showGameOver {
-                handleTimeout(player: "X")
-            } else if playerOTime == 0 && !showGameOver {
-                handleTimeout(player: "O")
+            if self.playerXTime == 0 && !self.showGameOver {
+                self.handleTimeout(player: "X")
+            } else if self.playerOTime == 0 && !self.showGameOver {
+                self.handleTimeout(player: "O")
             }
         }
     }
@@ -345,15 +332,18 @@ struct GameView: View {
                 handleDrawPenalty()
             }
 
-            // Start timer for next player
-            startTimer()
-
             // For AI mode, make AI move with random thinking time
             if gameLogic.gameMode == .aiOpponent && !gameLogic.gameOver {
                 let thinkingTime = Double.random(in: 0.5...1.5)
                 let currentBoardIndex = gameLogic.currentBoard
                 
+                // Start timer for AI player
+                startTimer()
+                
                 gameLogic.makeAIMove(in: currentBoardIndex, thinkingTime: thinkingTime) {
+                    // Stop timer after AI move
+                    self.stopTimer()
+                    
                     // Sound for AI move
                     SoundManager.shared.playSound(.move)
                     
@@ -364,11 +354,12 @@ struct GameView: View {
                         self.handleDrawPenalty()
                     }
                     
-                    // Stop timer after AI move
-                    self.stopTimer()
-                    // Start timer for player
+                    // Start timer for human player
                     self.startTimer()
                 }
+            } else {
+                // Start timer for next player if not in AI mode
+                startTimer()
             }
         }
     }
