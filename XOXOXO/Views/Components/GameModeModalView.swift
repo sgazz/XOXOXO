@@ -1,11 +1,9 @@
 import SwiftUI
 
 struct GameModeModalView: View {
-    let isPvPUnlocked: Bool
     let gameMode: GameMode
     let onPlayVsAI: () -> Void
     let onPlayVsPlayer: () -> Void
-    let onShowPurchase: () -> Void
     let onClose: () -> Void
     let onGameModeChange: (GameMode) -> Void
     
@@ -13,6 +11,14 @@ struct GameModeModalView: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @StateObject private var playerSettings = PlayerSettings.shared
     @StateObject private var timerSettings = GameTimerSettings.shared
+    
+    private var deviceLayout: DeviceLayout {
+        DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
+    }
+    
+    private var isLandscape: Bool {
+        horizontalSizeClass == .regular || (horizontalSizeClass == .compact && verticalSizeClass == .compact)
+    }
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
@@ -56,20 +62,11 @@ struct GameModeModalView: View {
                     // Multiplayer button
                     Button(action: {
                         SoundManager.shared.playSound(.tap)
-                        if isPvPUnlocked {
-                            onGameModeChange(.playerVsPlayer)
-                        } else {
-                            onShowPurchase()
-                        }
+                        onGameModeChange(.playerVsPlayer)
                     }) {
                         HStack {
                             Text("Multiplayer")
                                 .font(.system(size: isIPad ? 24 : 20, weight: .bold))
-                            
-                            if !isPvPUnlocked {
-                                Image(systemName: "lock.fill")
-                                    .font(.system(size: isIPad ? 20 : 16))
-                            }
                         }
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -133,11 +130,7 @@ struct GameModeModalView: View {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .oneMinute
                         if gameMode == .playerVsPlayer {
-                            if isPvPUnlocked {
-                                onPlayVsPlayer()
-                            } else {
-                                onShowPurchase()
-                            }
+                            onPlayVsPlayer()
                         } else {
                             onPlayVsAI()
                         }
@@ -163,11 +156,7 @@ struct GameModeModalView: View {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .threeMinutes
                         if gameMode == .playerVsPlayer {
-                            if isPvPUnlocked {
-                                onPlayVsPlayer()
-                            } else {
-                                onShowPurchase()
-                            }
+                            onPlayVsPlayer()
                         } else {
                             onPlayVsAI()
                         }
@@ -193,11 +182,7 @@ struct GameModeModalView: View {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .fiveMinutes
                         if gameMode == .playerVsPlayer {
-                            if isPvPUnlocked {
-                                onPlayVsPlayer()
-                            } else {
-                                onShowPurchase()
-                            }
+                            onPlayVsPlayer()
                         } else {
                             onPlayVsAI()
                         }
@@ -234,11 +219,9 @@ struct GameModeModalView: View {
 
 #Preview {
     GameModeModalView(
-        isPvPUnlocked: false,
         gameMode: .aiOpponent,
         onPlayVsAI: {},
         onPlayVsPlayer: {},
-        onShowPurchase: {},
         onClose: {},
         onGameModeChange: { _ in }
     )

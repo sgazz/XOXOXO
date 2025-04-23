@@ -6,18 +6,16 @@ struct GameOverView: View {
     let playerXTime: TimeInterval
     let playerOTime: TimeInterval
     let score: (x: Int, o: Int)
-    let isPvPUnlocked: Bool
     
     // Акције
     let onPlayVsAI: () -> Void
     let onPlayVsPlayer: () -> Void
-    let onShowPurchase: () -> Void
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
-    @StateObject private var purchaseManager = PurchaseManager.shared
     @State private var showGameModeModal = false
     @State private var selectedGameMode: GameMode = .aiOpponent
+    @State private var showGameView = false
     
     private var deviceLayout: DeviceLayout {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
@@ -25,6 +23,10 @@ struct GameOverView: View {
     
     private var isLandscape: Bool {
         horizontalSizeClass == .regular || (horizontalSizeClass == .compact && verticalSizeClass == .compact)
+    }
+    
+    private var isIPad: Bool {
+        horizontalSizeClass == .regular
     }
     
     var body: some View {
@@ -55,7 +57,6 @@ struct GameOverView: View {
                             score: score
                         )
                         GameModeButtons(
-                            isPvPUnlocked: purchaseManager.isPvPUnlocked,
                             onPlayVsAI: { 
                                 selectedGameMode = .aiOpponent
                                 showGameModeModal = true 
@@ -63,8 +64,7 @@ struct GameOverView: View {
                             onPlayVsPlayer: { 
                                 selectedGameMode = .playerVsPlayer
                                 showGameModeModal = true 
-                            },
-                            onShowPurchase: onShowPurchase
+                            }
                         )
                         
                         Spacer()
@@ -85,7 +85,6 @@ struct GameOverView: View {
                             score: score
                         )
                         GameModeButtons(
-                            isPvPUnlocked: purchaseManager.isPvPUnlocked,
                             onPlayVsAI: { 
                                 selectedGameMode = .aiOpponent
                                 showGameModeModal = true 
@@ -93,8 +92,7 @@ struct GameOverView: View {
                             onPlayVsPlayer: { 
                                 selectedGameMode = .playerVsPlayer
                                 showGameModeModal = true 
-                            },
-                            onShowPurchase: onShowPurchase
+                            }
                         )
                         
                         Spacer()
@@ -106,7 +104,6 @@ struct GameOverView: View {
             
             if showGameModeModal {
                 GameModeModalView(
-                    isPvPUnlocked: $purchaseManager.isPvPUnlocked,
                     gameMode: selectedGameMode,
                     onPlayVsAI: {
                         showGameModeModal = false
@@ -115,10 +112,6 @@ struct GameOverView: View {
                     onPlayVsPlayer: {
                         showGameModeModal = false
                         onPlayVsPlayer()
-                    },
-                    onShowPurchase: {
-                        showGameModeModal = false
-                        onShowPurchase()
                     },
                     onClose: {
                         showGameModeModal = false
@@ -256,10 +249,8 @@ private struct GameStats: View {
 }
 
 private struct GameModeButtons: View {
-    let isPvPUnlocked: Bool
     let onPlayVsAI: () -> Void
     let onPlayVsPlayer: () -> Void
-    let onShowPurchase: () -> Void
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -281,11 +272,7 @@ private struct GameModeButtons: View {
             // Multiplayer mode button
             Button(action: {
                 SoundManager.shared.playSound(.tap)
-                if isPvPUnlocked {
-                    onPlayVsPlayer()
-                } else {
-                    onShowPurchase()
-                }
+                onPlayVsPlayer()
             }) {
                 pvpButtonContent(isIPad: isIPad)
             }
@@ -319,10 +306,6 @@ private struct GameModeButtons: View {
     private func pvpButtonContent(isIPad: Bool) -> some View {
         let fontSize = isIPad ? 32.0 : 22.0
         
-        let isUnlocked = isPvPUnlocked
-        let backgroundColor = isUnlocked ? Color.purple.opacity(0.3) : Color.white.opacity(0.15)
-        let shadowColor = isUnlocked ? Color.purple.opacity(0.3) : Color.black.opacity(0.1)
-        
         return HStack(spacing: isIPad ? 20.0 : 15.0) {
             Image(systemName: "person.2")
                 .font(.system(size: fontSize))
@@ -331,22 +314,15 @@ private struct GameModeButtons: View {
                 .font(.system(size: fontSize, weight: .bold))
                 .layoutPriority(2)
                 .minimumScaleFactor(0.5)
-            
-            if !isUnlocked {
-                Image(systemName: "lock.fill")
-                    .font(.system(size: fontSize * 0.8))
-                    .foregroundColor(.yellow)
-                    .layoutPriority(1)
-            }
         }
-        .foregroundColor(.white.opacity(0.8))
+        .foregroundColor(.white)
         .frame(maxWidth: isIPad ? 500.0 : 400.0)
         .padding(.horizontal, isIPad ? 20.0 : 15.0)
         .padding(.vertical, isIPad ? 15.0 : 10.0)
         .background(
             Capsule()
-                .fill(backgroundColor)
-                .shadow(color: shadowColor, radius: isIPad ? 8.0 : 5.0)
+                .fill(Color.purple.opacity(0.3))
+                .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8.0 : 5.0)
         )
     }
 }
@@ -357,9 +333,7 @@ private struct GameModeButtons: View {
         playerXTime: 0,
         playerOTime: 180,
         score: (x: 3, o: 5),
-        isPvPUnlocked: false,
         onPlayVsAI: {},
-        onPlayVsPlayer: {},
-        onShowPurchase: {}
+        onPlayVsPlayer: {}
     )
 } 

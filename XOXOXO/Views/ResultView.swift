@@ -24,24 +24,31 @@ struct ActionButton: View {
 }
 
 struct ResultView: View {
-    let playerXScore: Int
-    let playerOScore: Int
-    let draws: Int
-    let onNewGame: () -> Void
-    let onClose: () -> Void
-    let onShowPurchase: () -> Void
-    let onPlayVsPlayer: () -> Void
-    let isGamePaused: Bool
+    // Подаци
+    let score: (x: Int, o: Int)
+    let playerXTime: TimeInterval
+    let playerOTime: TimeInterval
     
-    @StateObject private var purchaseManager = PurchaseManager.shared
-    @State private var showGameModeModal = false
-    @State private var selectedGameMode: GameMode = .aiOpponent
+    // Акције
+    let onPlayVsAI: () -> Void
+    let onPlayVsPlayer: () -> Void
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @State private var showGameModeModal = false
+    @State private var selectedGameMode: GameMode = .aiOpponent
+    @State private var showGameView = false
     
     private var deviceLayout: DeviceLayout {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
+    }
+    
+    private var isLandscape: Bool {
+        horizontalSizeClass == .regular || (horizontalSizeClass == .compact && verticalSizeClass == .compact)
+    }
+    
+    private var isIPad: Bool {
+        horizontalSizeClass == .regular
     }
     
     var body: some View {
@@ -53,36 +60,19 @@ struct ResultView: View {
                     .foregroundColor(.primary)
                     .accessibilityAddTraits(.isHeader)
                 
-                if isGamePaused {
-                    Text("⏸️ Game Paused")
-                        .font(.title3)
-                        .foregroundColor(.secondary)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 16)
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                }
-                
                 // Score Block
                 HStack(spacing: 16) {
-                    scoreBlock(symbol: "X", score: playerXScore, color: .blue)
+                    scoreBlock(symbol: "X", score: score.x, color: .blue)
                     
                     Text("vs")
                         .font(.title2)
                         .foregroundColor(.secondary)
                     
-                    scoreBlock(symbol: "O", score: playerOScore, color: .red)
+                    scoreBlock(symbol: "O", score: score.o, color: .red)
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Game Statistics")
 
-                // Draw info
-                if draws > 0 {
-                    Text("\(draws) Draw\(draws == 1 ? "" : "s")")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                
                 Spacer(minLength: 20)
                 
                 // Buttons
@@ -99,23 +89,19 @@ struct ResultView: View {
                     )
                     
                     ActionButton(
-                        title: purchaseManager.isPvPUnlocked ? "Multiplayer" : "Multiplayer (Locked)",
+                        title: "Multiplayer",
                         icon: "person.2",
-                        color: purchaseManager.isPvPUnlocked ? .green : .gray,
+                        color: .green,
                         action: {
                             SoundManager.shared.playSound(.tap)
-                            if purchaseManager.isPvPUnlocked {
-                                selectedGameMode = .playerVsPlayer
-                                showGameModeModal = true
-                            } else {
-                                onShowPurchase()
-                            }
+                            selectedGameMode = .playerVsPlayer
+                            showGameModeModal = true
                         }
                     )
                     
                     Button(action: {
                         SoundManager.shared.playSound(.tap)
-                        onClose()
+                        onPlayVsAI()
                     }) {
                         Text("Close")
                             .font(.headline)
@@ -140,25 +126,22 @@ struct ResultView: View {
                 y: geometry.size.height / 2
             )
             .transition(.scale.combined(with: .opacity))
-            .animation(.spring(), value: playerXScore + playerOScore + draws)
+            .animation(.spring(), value: score.x + score.o)
             .accessibilityElement(children: .contain)
             
             if showGameModeModal {
                 GameModeModalView(
-                    isPvPUnlocked: $purchaseManager.isPvPUnlocked,
+                    isPvPUnlocked: .constant(true),
                     gameMode: selectedGameMode,
                     onPlayVsAI: {
                         showGameModeModal = false
-                        onNewGame()
+                        onPlayVsAI()
                     },
                     onPlayVsPlayer: {
                         showGameModeModal = false
                         onPlayVsPlayer()
                     },
-                    onShowPurchase: {
-                        showGameModeModal = false
-                        onShowPurchase()
-                    },
+                    onShowPurchase: {},
                     onClose: {
                         showGameModeModal = false
                     },
@@ -192,13 +175,10 @@ struct ResultView: View {
 
 #Preview {
     ResultView(
-        playerXScore: 5,
-        playerOScore: 3,
-        draws: 1,
-        onNewGame: {},
-        onClose: {},
-        onShowPurchase: {},
-        onPlayVsPlayer: {},
-        isGamePaused: true
+        score: (5, 3),
+        playerXTime: 0,
+        playerOTime: 0,
+        onPlayVsAI: {},
+        onPlayVsPlayer: {}
     )
 } 

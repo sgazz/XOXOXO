@@ -6,25 +6,30 @@ struct SplashView: View {
     @State private var backgroundOpacity = 0.0
     @State private var showTapPrompt = false
     @State private var showTutorial = false
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    @Environment(\.verticalSizeClass) var verticalSizeClass
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     
     // Анимација прелаза
     @State private var startGameTransition = false
     
     // Режим игре и статус откључавања
-    @State private var selectedGameMode: GameMode = .aiOpponent
-    @State private var isPvPUnlocked: Bool = false
-    @State private var showPurchaseView = false
-    @StateObject private var purchaseManager = PurchaseManager.shared
-    @State private var showPurchase = false
-    @State private var showGame = false
     @State private var showGameModeModal = false
+    @State private var selectedGameMode: GameMode = .aiOpponent
+    @State private var showGameView = false
+    @State private var showResults = false
+    
+    private var deviceLayout: DeviceLayout {
+        DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
+    }
+    
+    private var isLandscape: Bool {
+        horizontalSizeClass == .regular || (horizontalSizeClass == .compact && verticalSizeClass == .compact)
+    }
     
     var body: some View {
         ZStack {
             if startGameTransition {
-                GameView(gameMode: selectedGameMode, isPvPUnlocked: isPvPUnlocked)
+                GameView(gameMode: selectedGameMode, isPvPUnlocked: false)
                     .transition(.asymmetric(
                         insertion: .opacity.combined(with: .scale),
                         removal: .opacity
@@ -202,9 +207,6 @@ struct SplashView: View {
                         .frame(width: containerWidth)
                     }
                     .onAppear {
-                        // Провера да ли је PvP мод откључан
-                        self.isPvPUnlocked = UserDefaults.standard.bool(forKey: "isPvPUnlocked")
-                        
                         // Background animation
                         withAnimation(.easeOut(duration: 0.8)) {
                             backgroundOpacity = 1.0
@@ -220,13 +222,10 @@ struct SplashView: View {
                     .sheet(isPresented: $showTutorial) {
                         TutorialView(startGame: $startGameTransition)
                     }
-                    .sheet(isPresented: $showPurchaseView) {
-                        PurchaseView(isPvPUnlocked: $isPvPUnlocked)
-                    }
                     
                     if showGameModeModal {
                         GameModeModalView(
-                            isPvPUnlocked: purchaseManager.isPvPUnlocked,
+                            isPvPUnlocked: false,
                             gameMode: selectedGameMode,
                             onPlayVsAI: {
                                 showGameModeModal = false
@@ -244,7 +243,6 @@ struct SplashView: View {
                             },
                             onShowPurchase: {
                                 showGameModeModal = false
-                                showPurchaseView = true
                             },
                             onClose: {
                                 showGameModeModal = false
@@ -257,12 +255,8 @@ struct SplashView: View {
                 }
             }
             
-            if showGame {
-                GameView(isPvPUnlocked: purchaseManager.isPvPUnlocked)
-            }
-            
-            if showPurchase {
-                PurchaseView(isPvPUnlocked: $purchaseManager.isPvPUnlocked)
+            if showGameView {
+                GameView(gameMode: selectedGameMode, isPvPUnlocked: false)
             }
         }
     }
@@ -294,13 +288,9 @@ struct SplashView: View {
                             SoundManager.shared.playSound(.tap)
                             SoundManager.shared.playHaptic()
                             
-                            if isPvPUnlocked {
-                                selectedGameMode = .playerVsPlayer
-                                withAnimation(.easeInOut(duration: 0.5)) {
-                                    startGameTransition = true
-                                }
-                            } else {
-                                showPurchaseView = true
+                            selectedGameMode = .playerVsPlayer
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                startGameTransition = true
                             }
                         }) {
                             pvpButtonContent(geometry: geometry, isIPad: false, buttonWidth: 200)
@@ -329,13 +319,9 @@ struct SplashView: View {
                             SoundManager.shared.playSound(.tap)
                             SoundManager.shared.playHaptic()
                             
-                            if isPvPUnlocked {
-                                selectedGameMode = .playerVsPlayer
-                                withAnimation(.easeInOut(duration: 0.5)) {
-                                    startGameTransition = true
-                                }
-                            } else {
-                                showPurchaseView = true
+                            selectedGameMode = .playerVsPlayer
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                startGameTransition = true
                             }
                         }) {
                             pvpButtonContent(geometry: geometry, isIPad: false, buttonWidth: 400)
@@ -386,10 +372,9 @@ struct SplashView: View {
             min(geometry.size.width * 0.054, 22)
         
         let isSelected = selectedGameMode == .playerVsPlayer
-        let isUnlocked = isPvPUnlocked
         let foregroundColor = isSelected ? Color.white : Color.white.opacity(0.8)
-        let backgroundColor = isSelected ? Color.purple.opacity(0.7) : (isUnlocked ? Color.purple.opacity(0.3) : Color.white.opacity(0.15))
-        let shadowColor = isSelected ? Color.black.opacity(0.3) : (isUnlocked ? Color.purple.opacity(0.3) : Color.black.opacity(0.1))
+        let backgroundColor = isSelected ? Color.purple.opacity(0.7) : Color.white.opacity(0.15)
+        let shadowColor = isSelected ? Color.black.opacity(0.3) : Color.black.opacity(0.1)
         
         return HStack(spacing: isIPad ? 20 : 15) {
             Image(systemName: "person.2")
@@ -399,50 +384,15 @@ struct SplashView: View {
                 .font(.system(size: fontSize, weight: .bold))
                 .layoutPriority(2)
                 .minimumScaleFactor(0.5)
-            
-            if !isUnlocked {
-                Image(systemName: "lock.fill")
-                    .font(.system(size: fontSize * 0.8))
-                    .foregroundColor(.yellow)
-                    .layoutPriority(1)
-            }
         }
         .foregroundColor(foregroundColor)
         .frame(width: buttonWidth)
         .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : 0.06))
         .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : 0.03))
         .background(
-            ZStack {
-                if isSelected {
-                    Capsule()
-                        .fill(backgroundColor)
-                } else if isUnlocked {
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.purple.opacity(0.4), Color.purple.opacity(0.2)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                } else {
-                    Capsule()
-                        .fill(backgroundColor)
-                }
-                
-                if isUnlocked && !isSelected {
-                    Capsule()
-                        .stroke(
-                            LinearGradient(
-                                colors: [Color.purple.opacity(0.8), Color.purple.opacity(0.5)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: isIPad ? 2 : 1.5
-                        )
-                }
-            }
-            .shadow(color: shadowColor, radius: isIPad ? 8 : 5)
+            Capsule()
+                .fill(backgroundColor)
+                .shadow(color: shadowColor, radius: isIPad ? 8 : 5)
         )
         .scaleEffect(isSelected ? 1.05 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isSelected)
@@ -485,14 +435,6 @@ struct SplashView: View {
                 .fill(Color.blue.opacity(0.7))
                 .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8 : 5)
         )
-    }
-    
-    private func handlePurchase() {
-        showPurchase = true
-    }
-    
-    private func handlePlay() {
-        showGame = true
     }
 }
 
