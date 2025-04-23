@@ -29,7 +29,7 @@ struct SplashView: View {
     var body: some View {
         ZStack {
             if startGameTransition {
-                GameView(gameMode: selectedGameMode, isPvPUnlocked: false)
+                GameView(gameMode: selectedGameMode)
                     .transition(.asymmetric(
                         insertion: .opacity.combined(with: .scale),
                         removal: .opacity
@@ -225,7 +225,6 @@ struct SplashView: View {
                     
                     if showGameModeModal {
                         GameModeModalView(
-                            isPvPUnlocked: false,
                             gameMode: selectedGameMode,
                             onPlayVsAI: {
                                 showGameModeModal = false
@@ -241,9 +240,6 @@ struct SplashView: View {
                                     startGameTransition = true
                                 }
                             },
-                            onShowPurchase: {
-                                showGameModeModal = false
-                            },
                             onClose: {
                                 showGameModeModal = false
                             },
@@ -256,7 +252,7 @@ struct SplashView: View {
             }
             
             if showGameView {
-                GameView(gameMode: selectedGameMode, isPvPUnlocked: false)
+                GameView(gameMode: selectedGameMode)
             }
         }
     }

@@ -131,7 +131,6 @@ struct ResultView: View {
             
             if showGameModeModal {
                 GameModeModalView(
-                    isPvPUnlocked: .constant(true),
                     gameMode: selectedGameMode,
                     onPlayVsAI: {
                         showGameModeModal = false
@@ -141,7 +140,6 @@ struct ResultView: View {
                         showGameModeModal = false
                         onPlayVsPlayer()
                     },
-                    onShowPurchase: {},
                     onClose: {
                         showGameModeModal = false
                     },
