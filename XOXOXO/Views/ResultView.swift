@@ -145,7 +145,7 @@ struct ResultView: View {
             
             if showGameModeModal {
                 GameModeModalView(
-                    isPvPUnlocked: purchaseManager.isPvPUnlocked,
+                    isPvPUnlocked: $purchaseManager.isPvPUnlocked,
                     gameMode: selectedGameMode,
                     onPlayVsAI: {
                         showGameModeModal = false

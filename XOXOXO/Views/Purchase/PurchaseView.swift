@@ -5,6 +5,7 @@ struct PurchaseView: View {
     @Binding var isPvPUnlocked: Bool
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @StateObject private var purchaseManager = PurchaseManager.shared
     @State private var isProcessing = false
     @State private var appearAnimation = false
     
@@ -77,11 +78,9 @@ struct PurchaseView: View {
                 // Here you would have real StoreKit code for purchase
                 // Simulating a successful purchase after a short delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    purchaseManager.unlockPvP()
                     isPvPUnlocked = true
                     isProcessing = false
-                    
-                    // Save the state
-                    UserDefaults.standard.set(true, forKey: "isPvPUnlocked")
                     
                     // Sound effect for successful purchase
                     SoundManager.shared.playSound(.win)
