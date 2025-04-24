@@ -95,7 +95,6 @@ struct GameView: View {
                     Spacer()
                     
                     scoreView
-                        .padding(.top, deviceLayout.isIphone ? 50 : 30)
                         .onTapGesture {
                             SoundManager.shared.playSound(.tap)
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -193,47 +192,135 @@ struct GameView: View {
     private var scoreView: some View {
         GeometryReader { geometry in
             HStack(spacing: deviceLayout.adaptiveSpacing / 3) {
-                // Индикатор за X
-                Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "+/-")))
-                    .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : (showXDrawPenalty ? .orange : .gray)))
-                    .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
-                    .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : (showXDrawPenalty ? xDrawPenaltyScale : 1.0)))
-                
-                // Тајмер за X
-                Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
-                    .foregroundColor(gameLogic.currentPlayer == "X" ? .blue : .white.opacity(0.7))
-                    .font(.system(size: deviceLayout.scoreTimerSize, weight: .bold))
-                    .minimumScaleFactor(0.5)
+                // Контејнер за X индикатор и тајмер
+                VStack(spacing: 4) {
+                    Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "+/-")))
+                        .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : (showXDrawPenalty ? .orange : .gray)))
+                        .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
+                        .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : (showXDrawPenalty ? xDrawPenaltyScale : 1.0)))
+                    
+                    Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
+                        .foregroundColor(gameLogic.currentPlayer == "X" ? Theme.Colors.primaryBlue : .white.opacity(0.7))
+                        .font(.system(size: deviceLayout.scoreTimerSize, weight: .bold))
+                        .minimumScaleFactor(0.5)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.black.opacity(0.3))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Theme.Colors.primaryBlue.opacity(0.3),
+                                    Theme.Colors.primaryBlue.opacity(0.1),
+                                    Theme.Colors.primaryBlue.opacity(0.3)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(color: Theme.Colors.primaryBlue.opacity(0.3), radius: 10)
                 
                 // Резултат
                 Text("\(gameLogic.totalScore.x):\(gameLogic.totalScore.o)")
                     .foregroundColor(.white)
                     .font(.system(size: deviceLayout.scoreResultSize, weight: .heavy))
                     .minimumScaleFactor(0.5)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.black.opacity(0.3))
+                            .overlay(
+                                ZStack {
+                                    // Горње светло
+                                    Circle()
+                                        .fill(Theme.Colors.primaryGold)
+                                        .frame(width: 60, height: 60)
+                                        .offset(y: -30)
+                                        .blur(radius: 30)
+                                        .opacity(0.1)
+                                    
+                                    // Лево светло
+                                    Circle()
+                                        .fill(Theme.Colors.primaryBlue)
+                                        .frame(width: 40, height: 40)
+                                        .offset(x: -20)
+                                        .blur(radius: 20)
+                                        .opacity(0.08)
+                                    
+                                    // Десно светло
+                                    Circle()
+                                        .fill(Theme.Colors.primaryOrange)
+                                        .frame(width: 40, height: 40)
+                                        .offset(x: 20)
+                                        .blur(radius: 20)
+                                        .opacity(0.08)
+                                }
+                            )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Theme.Colors.primaryGold.opacity(0.5),
+                                        Theme.Colors.primaryGold.opacity(0.2),
+                                        Theme.Colors.primaryGold.opacity(0.5)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
+                    )
+                    .shadow(color: Theme.Colors.primaryGold.opacity(0.3), radius: 15)
                 
-                // Тајмер за O
-                Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
-                    .foregroundColor(gameLogic.currentPlayer == "O" ? .red : .white.opacity(0.7))
-                    .font(.system(size: deviceLayout.scoreTimerSize, weight: .bold))
-                    .minimumScaleFactor(0.5)
-                
-                // Индикатор за O
-                Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "+/-")))
-                    .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
-                    .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
-                    .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
+                // Контејнер за O индикатор и тајмер
+                VStack(spacing: 4) {
+                    Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "+/-")))
+                        .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
+                        .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
+                        .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
+                    
+                    Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
+                        .foregroundColor(gameLogic.currentPlayer == "O" ? Theme.Colors.primaryOrange : .white.opacity(0.7))
+                        .font(.system(size: deviceLayout.scoreTimerSize, weight: .bold))
+                        .minimumScaleFactor(0.5)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.black.opacity(0.3))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Theme.Colors.primaryOrange.opacity(0.3),
+                                    Theme.Colors.primaryOrange.opacity(0.1),
+                                    Theme.Colors.primaryOrange.opacity(0.3)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(color: Theme.Colors.primaryOrange.opacity(0.3), radius: 10)
             }
-            .padding(.vertical, deviceLayout.adaptiveSpacing / 2)
-            .padding(.horizontal, deviceLayout.adaptiveSpacing / 2)
-            .background(
-                RoundedRectangle(cornerRadius: 15)
-                    .fill(Color.white.opacity(0.05))
-                    .shadow(color: Color.black.opacity(0.1), radius: 5)
-            )
-            .frame(width: geometry.size.width * 0.85)
-            .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+            .padding(.horizontal, deviceLayout.adaptiveSpacing)
+            .position(x: geometry.size.width / 2, y: geometry.size.height / 2 + (deviceLayout.isIphone ? 20 : 30))
         }
-        .frame(height: deviceLayout.isIphone ? 70 : 80)
+        .frame(height: deviceLayout.scoreViewHeight)
     }
     
     private func gameBoardsGrid(geometry: GeometryProxy) -> some View {

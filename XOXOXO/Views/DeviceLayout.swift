@@ -34,6 +34,7 @@ private struct BaseValues {
     static let scoreIndicator: CGFloat = 14
     static let scoreTimer: CGFloat = 22
     static let scoreResult: CGFloat = 26
+    static let scoreViewHeight: CGFloat = 80
     
     // Анимације
     static let transitionDuration: CGFloat = 0.3
@@ -92,6 +93,7 @@ enum DeviceLayout {
     var scoreIndicatorSize: CGFloat { BaseValues.scoreIndicator * layoutMultiplier }
     var scoreTimerSize: CGFloat { BaseValues.scoreTimer * layoutMultiplier }
     var scoreResultSize: CGFloat { BaseValues.scoreResult * layoutMultiplier }
+    var scoreViewHeight: CGFloat { BaseValues.scoreViewHeight * layoutMultiplier }
     
     // Анимације
     var transitionDuration: CGFloat { BaseValues.transitionDuration }
