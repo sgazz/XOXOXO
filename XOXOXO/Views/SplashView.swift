@@ -284,9 +284,9 @@ struct SplashView: View {
                             SoundManager.shared.playSound(.tap)
                             SoundManager.shared.playHaptic()
                             
-                            selectedGameMode = .playerVsPlayer
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                startGameTransition = true
+                                selectedGameMode = .playerVsPlayer
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    startGameTransition = true
                             }
                         }) {
                             pvpButtonContent(geometry: geometry, isIPad: false, buttonWidth: 200)
@@ -315,9 +315,9 @@ struct SplashView: View {
                             SoundManager.shared.playSound(.tap)
                             SoundManager.shared.playHaptic()
                             
-                            selectedGameMode = .playerVsPlayer
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                startGameTransition = true
+                                selectedGameMode = .playerVsPlayer
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    startGameTransition = true
                             }
                         }) {
                             pvpButtonContent(geometry: geometry, isIPad: false, buttonWidth: 400)
@@ -386,9 +386,9 @@ struct SplashView: View {
         .padding(.horizontal, geometry.size.width * (isIPad ? 0.04 : 0.06))
         .padding(.vertical, geometry.size.height * (isIPad ? 0.02 : 0.03))
         .background(
-            Capsule()
-                .fill(backgroundColor)
-                .shadow(color: shadowColor, radius: isIPad ? 8 : 5)
+                    Capsule()
+                        .fill(backgroundColor)
+            .shadow(color: shadowColor, radius: isIPad ? 8 : 5)
         )
         .scaleEffect(isSelected ? 1.05 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isSelected)

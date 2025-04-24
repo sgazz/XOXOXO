@@ -272,7 +272,7 @@ private struct GameModeButtons: View {
             // Multiplayer mode button
             Button(action: {
                 SoundManager.shared.playSound(.tap)
-                onPlayVsPlayer()
+                    onPlayVsPlayer()
             }) {
                 pvpButtonContent(isIPad: isIPad)
             }

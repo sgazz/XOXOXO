@@ -130,7 +130,7 @@ struct GameModeModalView: View {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .oneMinute
                         if gameMode == .playerVsPlayer {
-                            onPlayVsPlayer()
+                                onPlayVsPlayer()
                         } else {
                             onPlayVsAI()
                         }
@@ -156,7 +156,7 @@ struct GameModeModalView: View {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .threeMinutes
                         if gameMode == .playerVsPlayer {
-                            onPlayVsPlayer()
+                                onPlayVsPlayer()
                         } else {
                             onPlayVsAI()
                         }
@@ -182,7 +182,7 @@ struct GameModeModalView: View {
                         SoundManager.shared.playSound(.tap)
                         timerSettings.gameDuration = .fiveMinutes
                         if gameMode == .playerVsPlayer {
-                            onPlayVsPlayer()
+                                onPlayVsPlayer()
                         } else {
                             onPlayVsAI()
                         }

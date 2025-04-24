@@ -72,7 +72,7 @@ struct ResultView: View {
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Game Statistics")
-
+                
                 Spacer(minLength: 20)
                 
                 // Buttons
@@ -94,8 +94,8 @@ struct ResultView: View {
                         color: .green,
                         action: {
                             SoundManager.shared.playSound(.tap)
-                            selectedGameMode = .playerVsPlayer
-                            showGameModeModal = true
+                                selectedGameMode = .playerVsPlayer
+                                showGameModeModal = true
                         }
                     )
                     
