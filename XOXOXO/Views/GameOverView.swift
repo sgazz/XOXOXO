@@ -31,10 +31,34 @@ struct GameOverView: View {
     
     var body: some View {
         ZStack {
-            // Замагљена позадина са градијентом
-            backgroundGradient
-                .blur(radius: 20)
-                .opacity(0.98)
+            // Metallic background with accent lights
+            Theme.Colors.darkGradient
+                .overlay(
+                    ZStack {
+                        // Victory light beam
+                        Circle()
+                            .fill(Theme.Colors.primaryGold)
+                            .frame(width: UIScreen.main.bounds.width * 1.5)
+                            .offset(y: -UIScreen.main.bounds.height * 0.8)
+                            .blur(radius: 100)
+                            .opacity(0.3)
+                        
+                        // Accent lights
+                        Circle()
+                            .fill(Theme.Colors.primaryBlue)
+                            .frame(width: UIScreen.main.bounds.width)
+                            .offset(x: -UIScreen.main.bounds.width * 0.5, y: UIScreen.main.bounds.height * 0.3)
+                            .blur(radius: 100)
+                            .opacity(0.2)
+                        
+                        Circle()
+                            .fill(Theme.Colors.primaryOrange)
+                            .frame(width: UIScreen.main.bounds.width)
+                            .offset(x: UIScreen.main.bounds.width * 0.5, y: UIScreen.main.bounds.height * 0.3)
+                            .blur(radius: 100)
+                            .opacity(0.2)
+                    }
+                )
                 .ignoresSafeArea()
             
             GeometryReader { geometry in
@@ -45,12 +69,10 @@ struct GameOverView: View {
                     VStack(spacing: spacing) {
                         Spacer()
                         
-                        // Икона и наслов
                         GameOverIcon(timeoutPlayer: timeoutPlayer)
                             .frame(width: min(geometry.size.width * 0.2, 150))
                         GameOverTitle(timeoutPlayer: timeoutPlayer, score: score)
                         
-                        // Статистика и дугмад
                         GameStats(
                             playerXTime: playerXTime,
                             playerOTime: playerOTime,
@@ -127,18 +149,6 @@ struct GameOverView: View {
             removal: .scale(scale: 1.1).combined(with: .opacity)
         ))
     }
-    
-    private var backgroundGradient: some View {
-        LinearGradient(
-            gradient: Gradient(colors: [
-                Color(red: 0.1, green: 0.2, blue: 0.45), // Deep blue
-                Color(red: 0.2, green: 0.3, blue: 0.7),  // Medium blue
-                Color(red: 0.3, green: 0.4, blue: 0.9)   // Light blue
-            ]),
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
 }
 
 // MARK: - Подкомпоненте
@@ -148,23 +158,112 @@ private struct GameOverIcon: View {
     
     var body: some View {
         ZStack {
-            Circle()
-                .fill(LinearGradient(
-                    gradient: Gradient(colors: [
-                        timeoutPlayer == nil ? Color.green : Color.red,
-                        timeoutPlayer == nil ? Color.blue : Color.orange
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ))
-                .shadow(color: (timeoutPlayer == nil ? Color.green : Color.red).opacity(0.5), radius: 15)
+            // Позадински ефекти
+            ZStack {
+                // Плави светлосни зраци
+                ForEach(0..<8) { i in
+                    Rectangle()
+                        .fill(Theme.Colors.primaryBlue)
+                        .frame(width: 100, height: 2)
+                        .blur(radius: 15)
+                        .rotationEffect(.degrees(Double(i) * 45 - 60))
+                        .offset(x: -50)
+                        .opacity(0.4)
+                }
+                
+                // Наранџасти светлосни зраци
+                ForEach(0..<8) { i in
+                    Rectangle()
+                        .fill(Theme.Colors.primaryOrange)
+                        .frame(width: 100, height: 2)
+                        .blur(radius: 15)
+                        .rotationEffect(.degrees(Double(i) * 45 + 60))
+                        .offset(x: 50)
+                        .opacity(0.4)
+                }
+            }
             
-            Image(systemName: timeoutPlayer == nil ? "trophy.fill" : "timer")
-                .font(.system(size: 40))
-                .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.2), radius: 2)
+            // Главни металик прстен
+            Circle()
+                .fill(Theme.Colors.darkGradient)
+                .overlay(
+                    ZStack {
+                        // Унутрашњи прстен са текстуром
+                        Circle()
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.gray.opacity(0.6),
+                                        Color.black.opacity(0.3),
+                                        Color.gray.opacity(0.6)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 15
+                            )
+                            .padding(25)
+                        
+                        // Квадратна "дугмад" на прстену
+                        ForEach(0..<12) { i in
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(LinearGradient(
+                                    colors: [
+                                        Theme.Colors.primaryGold,
+                                        Theme.Colors.primaryGold.opacity(0.7)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ))
+                                .frame(width: 12, height: 12)
+                                .offset(y: -85)
+                                .rotationEffect(.degrees(Double(i) * 30))
+                                .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 5)
+                        }
+                        
+                        // XO текст
+                        VStack(spacing: 5) {
+                            Text("XO")
+                                .font(.system(size: 36, weight: .heavy))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [
+                                            Theme.Colors.primaryGold,
+                                            Theme.Colors.primaryGold.opacity(0.7)
+                                        ],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                            
+                            Text("ARENA")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(Theme.Colors.metalGray)
+                        }
+                        .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 5)
+                    }
+                )
+                .overlay(
+                    // Спољашња ивица
+                    Circle()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Theme.Colors.primaryGold.opacity(0.8),
+                                    Theme.Colors.primaryGold.opacity(0.3),
+                                    Theme.Colors.primaryGold.opacity(0.8)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 2
+                        )
+                )
         }
-        .scaleEffect(1.2)
+        .shadow(
+            color: Theme.Colors.primaryGold.opacity(0.3),
+            radius: 20
+        )
         .rotation3DEffect(.degrees(isAnimating ? 360 : 0), axis: (x: 0, y: 1, z: 0))
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.6)) {
@@ -182,14 +281,14 @@ private struct GameOverTitle: View {
         VStack(spacing: 8) {
             if let player = timeoutPlayer {
                 Text("\(player == "X" ? "Player O" : "Player X") Wins!")
-                    .font(.system(size: 38, weight: .heavy))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.2), radius: 2)
+                    .font(Theme.TextStyle.title(size: 38))
+                    .foregroundColor(Theme.Colors.primaryGold)
+                    .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
             } else {
                 Text(score.x > score.o ? "Player X Wins!" : "Player O Wins!")
-                    .font(.system(size: 38, weight: .heavy))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.2), radius: 2)
+                    .font(Theme.TextStyle.title(size: 38))
+                    .foregroundColor(Theme.Colors.primaryGold)
+                    .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
             }
         }
     }
@@ -208,42 +307,49 @@ private struct GameStats: View {
     
     var body: some View {
         HStack(spacing: isCompact ? 20 : 30) {
-            // Време плавог играча
+            // Blue player time
             VStack {
                 Text("Blue Time")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.8))
+                    .font(Theme.TextStyle.body(size: 12))
+                    .foregroundColor(Theme.Colors.metalGray)
                 Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
-                    .font(isCompact ? .title2.bold() : .title.bold())
-                    .foregroundColor(.blue)
+                    .font(Theme.TextStyle.subtitle(size: isCompact ? 24 : 30))
+                    .foregroundColor(Theme.Colors.primaryBlue)
+                    .shadow(color: Theme.Colors.primaryBlue.opacity(0.5), radius: 5)
             }
             
-            // Резултат
+            // Score
             VStack {
                 Text("Score")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.8))
+                    .font(Theme.TextStyle.body(size: 12))
+                    .foregroundColor(Theme.Colors.metalGray)
                 Text("\(score.x):\(score.o)")
-                    .font(isCompact ? .title.bold() : .largeTitle.bold())
-                    .foregroundColor(.white)
+                    .font(Theme.TextStyle.title(size: isCompact ? 32 : 40))
+                    .foregroundColor(Theme.Colors.primaryGold)
+                    .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 5)
             }
             
-            // Време црвеног играча
+            // Red player time
             VStack {
                 Text("Red Time")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.8))
+                    .font(Theme.TextStyle.body(size: 12))
+                    .foregroundColor(Theme.Colors.metalGray)
                 Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
-                    .font(isCompact ? .title2.bold() : .title.bold())
-                    .foregroundColor(.red)
+                    .font(Theme.TextStyle.subtitle(size: isCompact ? 24 : 30))
+                    .foregroundColor(Theme.Colors.primaryOrange)
+                    .shadow(color: Theme.Colors.primaryOrange.opacity(0.5), radius: 5)
             }
         }
         .padding(.vertical, isCompact ? 10 : 15)
         .padding(.horizontal, isCompact ? 15 : 25)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.2), radius: 10)
+                .fill(Theme.Colors.darkGradient)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .strokeBorder(Theme.Colors.primaryGold.opacity(0.3), lineWidth: 1)
+                )
+                .shadow(color: Theme.Colors.primaryGold.opacity(0.2), radius: 20)
         )
     }
 }
@@ -253,77 +359,40 @@ private struct GameModeButtons: View {
     let onPlayVsPlayer: () -> Void
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @Environment(\.verticalSizeClass) private var verticalSizeClass
     
-    private var isIPad: Bool {
-        horizontalSizeClass == .regular
+    private var isCompact: Bool {
+        horizontalSizeClass == .compact
     }
     
     var body: some View {
-        VStack(spacing: isIPad ? 15 : 10) {
-            // Single Player mode button
-            Button(action: {
-                SoundManager.shared.playSound(.tap)
-                onPlayVsAI()
-            }) {
-                aiButtonContent(isIPad: isIPad)
+        VStack(spacing: 15) {
+            Button(action: onPlayVsAI) {
+                HStack {
+                    Image(systemName: "cpu")
+                    Text("Single Player")
+                }
+                .font(Theme.TextStyle.subtitle(size: isCompact ? 20 : 24))
+                .foregroundColor(Theme.Colors.primaryBlue)
+                .frame(width: isCompact ? 250 : 300)
+                .padding(.vertical, isCompact ? 15 : 20)
+                .glowingBorder(color: Theme.Colors.primaryBlue)
             }
+            .buttonStyle(Theme.MetallicButtonStyle())
             
-            // Multiplayer mode button
-            Button(action: {
-                SoundManager.shared.playSound(.tap)
-                    onPlayVsPlayer()
-            }) {
-                pvpButtonContent(isIPad: isIPad)
+            Button(action: onPlayVsPlayer) {
+                HStack {
+                    Image(systemName: "person.2")
+                    Text("Multiplater")
+                }
+                .font(Theme.TextStyle.subtitle(size: isCompact ? 20 : 24))
+                .foregroundColor(Theme.Colors.primaryOrange)
+                .frame(width: isCompact ? 250 : 300)
+                .padding(.vertical, isCompact ? 15 : 20)
+                .glowingBorder(color: Theme.Colors.primaryOrange)
             }
+            .buttonStyle(Theme.MetallicButtonStyle())
         }
-        .frame(maxWidth: .infinity)
-    }
-    
-    private func aiButtonContent(isIPad: Bool) -> some View {
-        let fontSize = isIPad ? 32.0 : 22.0
-        
-        return HStack(spacing: isIPad ? 20.0 : 15.0) {
-            Image(systemName: "cpu")
-                .font(.system(size: fontSize))
-                .layoutPriority(1)
-            Text("Single Player")
-                .font(.system(size: fontSize, weight: .bold))
-                .layoutPriority(2)
-                .minimumScaleFactor(0.5)
-        }
-        .foregroundColor(.white)
-        .frame(maxWidth: isIPad ? 500.0 : 400.0)
-        .padding(.horizontal, isIPad ? 20.0 : 15.0)
-        .padding(.vertical, isIPad ? 15.0 : 10.0)
-        .background(
-            Capsule()
-                .fill(Color.blue.opacity(0.7))
-                .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8.0 : 5.0)
-        )
-    }
-    
-    private func pvpButtonContent(isIPad: Bool) -> some View {
-        let fontSize = isIPad ? 32.0 : 22.0
-        
-        return HStack(spacing: isIPad ? 20.0 : 15.0) {
-            Image(systemName: "person.2")
-                .font(.system(size: fontSize))
-                .layoutPriority(1)
-            Text("Multiplayer")
-                .font(.system(size: fontSize, weight: .bold))
-                .layoutPriority(2)
-                .minimumScaleFactor(0.5)
-        }
-        .foregroundColor(.white)
-        .frame(maxWidth: isIPad ? 500.0 : 400.0)
-        .padding(.horizontal, isIPad ? 20.0 : 15.0)
-        .padding(.vertical, isIPad ? 15.0 : 10.0)
-        .background(
-            Capsule()
-                .fill(Color.purple.opacity(0.3))
-                .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8.0 : 5.0)
-        )
+        .padding(.top, isCompact ? 30 : 40)
     }
 }
 
