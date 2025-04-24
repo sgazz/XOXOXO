@@ -62,13 +62,55 @@ struct BoardView: View {
             .frame(width: totalWidth, height: totalWidth)
             .padding(4)
             .background(
-                RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
-                    .fill(Theme.Colors.darkGradient)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
-                            .strokeBorder(goldGradient, lineWidth: 2)
-                    )
-                    .shadow(color: Color(red: 1.0, green: 0.84, blue: 0.4).opacity(0.3), radius: 20)
+                ZStack {
+                    // Основна тамна позадина
+                    RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
+                        .fill(Theme.Colors.darkGradient)
+                    
+                    // Суптилна акцентна светла
+                    ZStack {
+                        // Горње светло (златно)
+                        Circle()
+                            .fill(Theme.Colors.primaryGold)
+                            .frame(width: totalWidth * 0.8)
+                            .offset(y: -totalWidth * 0.3)
+                            .blur(radius: 70)
+                            .opacity(0.1)
+                        
+                        // Лево светло (плаво)
+                        Circle()
+                            .fill(Theme.Colors.primaryBlue)
+                            .frame(width: totalWidth * 0.6)
+                            .offset(x: -totalWidth * 0.3, y: totalWidth * 0.2)
+                            .blur(radius: 60)
+                            .opacity(0.08)
+                        
+                        // Десно светло (наранџасто)
+                        Circle()
+                            .fill(Theme.Colors.primaryOrange)
+                            .frame(width: totalWidth * 0.6)
+                            .offset(x: totalWidth * 0.3, y: totalWidth * 0.2)
+                            .blur(radius: 60)
+                            .opacity(0.08)
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius))
+                    
+                    // Златна ивица
+                    RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Theme.Colors.primaryGold.opacity(0.4),
+                                    Theme.Colors.primaryGold.opacity(0.1),
+                                    Theme.Colors.primaryGold.opacity(0.4)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                }
+                .shadow(color: Theme.Colors.primaryGold.opacity(0.15), radius: 15)
             )
             .clipShape(Rectangle())
             .drawingGroup()

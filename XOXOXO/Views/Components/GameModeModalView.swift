@@ -26,8 +26,8 @@ struct GameModeModalView: View {
     
     var body: some View {
         ZStack {
-            // Замагљена позадина
-            Color.black.opacity(0.5)
+            // Замућена позадина са металик градијентом
+            Color.black.opacity(0.7)
                 .ignoresSafeArea()
                 .onTapGesture {
                     onClose()
@@ -35,10 +35,11 @@ struct GameModeModalView: View {
             
             // Модални прозор
             VStack(spacing: isIPad ? 20 : 15) {
-                // Наслов
-                Text("Choose Mode, Symbol and Time")
-                    .font(.system(size: isIPad ? 32 : 24, weight: .bold))
-                    .foregroundColor(.white)
+                // Title
+                Text("Choose Your Game Mode")
+                    .font(Theme.TextStyle.title(size: isIPad ? 32 : 24))
+                    .foregroundColor(Theme.Colors.primaryGold)
+                    .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
                 
                 // Game mode buttons
                 HStack(spacing: isIPad ? 20 : 15) {
@@ -47,17 +48,17 @@ struct GameModeModalView: View {
                         SoundManager.shared.playSound(.tap)
                         onGameModeChange(.aiOpponent)
                     }) {
-                        Text("Single Player")
-                            .font(.system(size: isIPad ? 24 : 20, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, isIPad ? 15 : 12)
-                            .background(
-                                Capsule()
-                                    .fill(gameMode == .aiOpponent ? Color.blue : Color.gray.opacity(0.3))
-                                    .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
-                            )
+                        HStack {
+                            Image(systemName: "cpu")
+                            Text("Single Player")
+                        }
+                        .font(Theme.TextStyle.subtitle(size: isIPad ? 24 : 20))
+                        .foregroundColor(gameMode == .aiOpponent ? Theme.Colors.primaryBlue : Theme.Colors.metalGray)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, isIPad ? 15 : 12)
+                        .glowingBorder(color: gameMode == .aiOpponent ? Theme.Colors.primaryBlue : Theme.Colors.metalGray.opacity(0.3))
                     }
+                    .buttonStyle(Theme.MetallicButtonStyle())
                     
                     // Multiplayer button
                     Button(action: {
@@ -65,155 +66,190 @@ struct GameModeModalView: View {
                         onGameModeChange(.playerVsPlayer)
                     }) {
                         HStack {
+                            Image(systemName: "person.2")
                             Text("Multiplayer")
-                                .font(.system(size: isIPad ? 24 : 20, weight: .bold))
                         }
-                        .foregroundColor(.white)
+                        .font(Theme.TextStyle.subtitle(size: isIPad ? 24 : 20))
+                        .foregroundColor(gameMode == .playerVsPlayer ? Theme.Colors.primaryOrange : Theme.Colors.metalGray)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, isIPad ? 15 : 12)
-                        .background(
-                            Capsule()
-                                .fill(gameMode == .playerVsPlayer ? Color.blue : Color.gray.opacity(0.3))
-                                .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
-                        )
+                        .glowingBorder(color: gameMode == .playerVsPlayer ? Theme.Colors.primaryOrange : Theme.Colors.metalGray.opacity(0.3))
                     }
+                    .buttonStyle(Theme.MetallicButtonStyle())
                 }
                 .padding(.bottom, isIPad ? 15 : 10)
                 
-                // Избор првог играча
+                // Symbol selection
                 VStack(spacing: isIPad ? 10 : 8) {
                     HStack(spacing: isIPad ? 20 : 15) {
-                        // X дугме
+                        // X button
                         Button(action: { 
                             SoundManager.shared.playSound(.tap)
                             playerSettings.playerSymbol = "X" 
                         }) {
                             Text("X")
-                                .font(.system(size: isIPad ? 32 : 28, weight: .bold))
-                                .foregroundColor(.white)
+                                .font(Theme.TextStyle.title(size: isIPad ? 32 : 28))
+                                .foregroundColor(playerSettings.isPlayerX ? Theme.Colors.primaryBlue : Theme.Colors.metalGray)
                                 .frame(width: isIPad ? 80 : 60, height: isIPad ? 80 : 60)
                                 .background(
                                     Circle()
-                                        .fill(playerSettings.isPlayerX ? Color.blue : Color.gray.opacity(0.3))
-                                        .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
+                                        .fill(Theme.Colors.darkGradient)
+                                        .overlay(
+                                            Circle()
+                                                .strokeBorder(playerSettings.isPlayerX ? Theme.Colors.primaryBlue : Theme.Colors.metalGray.opacity(0.3), lineWidth: 2)
+                                        )
+                                        .shadow(color: playerSettings.isPlayerX ? Theme.Colors.primaryBlue.opacity(0.5) : Color.clear, radius: 10)
                                 )
                         }
                         
-                        // O дугме
+                        // O button
                         Button(action: { 
                             SoundManager.shared.playSound(.tap)
                             playerSettings.playerSymbol = "O" 
                         }) {
                             Text("O")
-                                .font(.system(size: isIPad ? 32 : 28, weight: .bold))
-                                .foregroundColor(.white)
+                                .font(Theme.TextStyle.title(size: isIPad ? 32 : 28))
+                                .foregroundColor(playerSettings.isPlayerO ? Theme.Colors.primaryOrange : Theme.Colors.metalGray)
                                 .frame(width: isIPad ? 80 : 60, height: isIPad ? 80 : 60)
                                 .background(
                                     Circle()
-                                        .fill(playerSettings.isPlayerO ? Color.red : Color.gray.opacity(0.3))
-                                        .shadow(color: .black.opacity(0.3), radius: isIPad ? 8 : 5)
+                                        .fill(Theme.Colors.darkGradient)
+                                        .overlay(
+                                            Circle()
+                                                .strokeBorder(playerSettings.isPlayerO ? Theme.Colors.primaryOrange : Theme.Colors.metalGray.opacity(0.3), lineWidth: 2)
+                                        )
+                                        .shadow(color: playerSettings.isPlayerO ? Theme.Colors.primaryOrange.opacity(0.5) : Color.clear, radius: 10)
                                 )
                         }
                     }
                     
                     Text(playerSettings.isPlayerX ? "You play first (X)" : "AI plays first (X)")
-                        .font(.system(size: isIPad ? 18 : 16))
-                        .foregroundColor(.white.opacity(0.8))
+                        .font(Theme.TextStyle.body(size: isIPad ? 18 : 16))
+                        .foregroundColor(Theme.Colors.metalGray)
                         .padding(.top, 5)
                 }
                 .padding(.vertical, isIPad ? 15 : 10)
                 
-                // Дугмад
+                // Time selection buttons
                 VStack(spacing: isIPad ? 15 : 10) {
-                    // 1 минут дугме
-                    Button(action: {
-                        SoundManager.shared.playSound(.tap)
-                        timerSettings.gameDuration = .oneMinute
-                        if gameMode == .playerVsPlayer {
+                    // 1 minute button
+                    timeButton(
+                        duration: "1 Minute",
+                        color: Theme.Colors.primaryBlue,
+                        action: {
+                            SoundManager.shared.playSound(.tap)
+                            timerSettings.gameDuration = .oneMinute
+                            if gameMode == .playerVsPlayer {
                                 onPlayVsPlayer()
-                        } else {
-                            onPlayVsAI()
+                            } else {
+                                onPlayVsAI()
+                            }
                         }
-                    }) {
-                        HStack(spacing: isIPad ? 20 : 15) {
-                            Image(systemName: "timer")
-                                .font(.system(size: isIPad ? 32 : 24))
-                            Text("1 Minute")
-                                .font(.system(size: isIPad ? 32 : 24, weight: .bold))
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: isIPad ? 500 : 400)
-                        .padding(.vertical, isIPad ? 20 : 15)
-                        .background(
-                            Capsule()
-                                .fill(Color.blue.opacity(0.7))
-                                .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8 : 5)
-                        )
-                    }
+                    )
                     
-                    // 3 минута дугме
-                    Button(action: {
-                        SoundManager.shared.playSound(.tap)
-                        timerSettings.gameDuration = .threeMinutes
-                        if gameMode == .playerVsPlayer {
+                    // 3 minutes button
+                    timeButton(
+                        duration: "3 Minutes",
+                        color: Theme.Colors.primaryGold,
+                        action: {
+                            SoundManager.shared.playSound(.tap)
+                            timerSettings.gameDuration = .threeMinutes
+                            if gameMode == .playerVsPlayer {
                                 onPlayVsPlayer()
-                        } else {
-                            onPlayVsAI()
+                            } else {
+                                onPlayVsAI()
+                            }
                         }
-                    }) {
-                        HStack(spacing: isIPad ? 20 : 15) {
-                            Image(systemName: "timer")
-                                .font(.system(size: isIPad ? 32 : 24))
-                            Text("3 Minutes")
-                                .font(.system(size: isIPad ? 32 : 24, weight: .bold))
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: isIPad ? 500 : 400)
-                        .padding(.vertical, isIPad ? 20 : 15)
-                        .background(
-                            Capsule()
-                                .fill(Color.green.opacity(0.7))
-                                .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8 : 5)
-                        )
-                    }
+                    )
                     
-                    // 5 минута дугме
-                    Button(action: {
-                        SoundManager.shared.playSound(.tap)
-                        timerSettings.gameDuration = .fiveMinutes
-                        if gameMode == .playerVsPlayer {
+                    // 5 minutes button
+                    timeButton(
+                        duration: "5 Minutes",
+                        color: Theme.Colors.primaryOrange,
+                        action: {
+                            SoundManager.shared.playSound(.tap)
+                            timerSettings.gameDuration = .fiveMinutes
+                            if gameMode == .playerVsPlayer {
                                 onPlayVsPlayer()
-                        } else {
-                            onPlayVsAI()
+                            } else {
+                                onPlayVsAI()
+                            }
                         }
-                    }) {
-                        HStack(spacing: isIPad ? 20 : 15) {
-                            Image(systemName: "timer")
-                                .font(.system(size: isIPad ? 32 : 24))
-                            Text("5 Minutes")
-                                .font(.system(size: isIPad ? 32 : 24, weight: .bold))
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: isIPad ? 500 : 400)
-                        .padding(.vertical, isIPad ? 20 : 15)
-                        .background(
-                            Capsule()
-                                .fill(Color.orange.opacity(0.7))
-                                .shadow(color: Color.black.opacity(0.3), radius: isIPad ? 8 : 5)
-                        )
-                    }
+                    )
                 }
                 .padding(.top, isIPad ? 20 : 15)
             }
             .padding(isIPad ? 40 : 30)
             .background(
-                RoundedRectangle(cornerRadius: 25)
-                    .fill(Color(red: 0.1, green: 0.2, blue: 0.45))
-                    .shadow(color: .black.opacity(0.3), radius: 20)
+                ZStack {
+                    // Основна позадина
+                    RoundedRectangle(cornerRadius: 25)
+                        .fill(Theme.Colors.darkGradient)
+                    
+                    // Акцентна светла
+                    ZStack {
+                        // Главни сноп светлости
+                        Circle()
+                            .fill(Theme.Colors.primaryGold)
+                            .frame(width: 400)
+                            .offset(y: -200)
+                            .blur(radius: 100)
+                            .opacity(0.3)
+                        
+                        // Плаво светло
+                        Circle()
+                            .fill(Theme.Colors.primaryBlue)
+                            .frame(width: 300)
+                            .offset(x: -150, y: 100)
+                            .blur(radius: 100)
+                            .opacity(0.2)
+                        
+                        // Наранџасто светло
+                        Circle()
+                            .fill(Theme.Colors.primaryOrange)
+                            .frame(width: 300)
+                            .offset(x: 150, y: 100)
+                            .blur(radius: 100)
+                            .opacity(0.2)
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 25))
+                    
+                    // Ивица
+                    RoundedRectangle(cornerRadius: 25)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Theme.Colors.primaryGold.opacity(0.6),
+                                    Theme.Colors.primaryGold.opacity(0.2),
+                                    Theme.Colors.primaryGold.opacity(0.6)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 2
+                        )
+                }
+                .shadow(color: Theme.Colors.primaryGold.opacity(0.3), radius: 20)
             )
             .frame(maxWidth: isIPad ? 600 : 450)
         }
         .transition(.opacity.combined(with: .scale))
+    }
+    
+    private func timeButton(duration: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: isIPad ? 20 : 15) {
+                Image(systemName: "timer")
+                    .font(Theme.TextStyle.subtitle(size: isIPad ? 32 : 24))
+                Text(duration)
+                    .font(Theme.TextStyle.subtitle(size: isIPad ? 32 : 24))
+            }
+            .foregroundColor(color)
+            .frame(maxWidth: isIPad ? 500 : 400)
+            .padding(.vertical, isIPad ? 20 : 15)
+            .glowingBorder(color: color)
+        }
+        .buttonStyle(Theme.MetallicButtonStyle())
     }
 }
 

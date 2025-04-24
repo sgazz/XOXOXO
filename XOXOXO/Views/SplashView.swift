@@ -62,18 +62,28 @@ struct SplashView: View {
                         [100.0, 80.0, 70.0]
 
                     ZStack {
-                        // Modern gradient background
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                Color(red: 0.1, green: 0.2, blue: 0.45), // Deep blue
-                                Color(red: 0.2, green: 0.3, blue: 0.7),  // Medium blue
-                                Color(red: 0.3, green: 0.4, blue: 0.9)   // Light blue
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        .opacity(backgroundOpacity)
-                        .ignoresSafeArea()
+                        // Modern metallic background
+                        Theme.Colors.darkGradient
+                            .opacity(backgroundOpacity)
+                            .overlay(
+                                ZStack {
+                                    // Accent lights
+                                    Circle()
+                                        .fill(Theme.Colors.primaryBlue)
+                                        .frame(width: geometry.size.width * 0.8)
+                                        .offset(x: -geometry.size.width * 0.5, y: -geometry.size.height * 0.3)
+                                        .blur(radius: 100)
+                                        .opacity(0.3)
+                                    
+                                    Circle()
+                                        .fill(Theme.Colors.primaryOrange)
+                                        .frame(width: geometry.size.width * 0.8)
+                                        .offset(x: geometry.size.width * 0.5, y: geometry.size.height * 0.3)
+                                        .blur(radius: 100)
+                                        .opacity(0.3)
+                                }
+                            )
+                            .ignoresSafeArea()
                         
                         // Floating elements
                         Group {
@@ -155,27 +165,27 @@ struct SplashView: View {
                         }
                         .opacity(backgroundOpacity * 1.5)
                         
-                        // Portrait layout
+                        // Main content
                         VStack {
                             Spacer()
                             
                             Text("XO Arena")
-                                .font(.system(size: titleSize, weight: .heavy, design: .rounded))
-                                .foregroundColor(.white)
-                                .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
+                                .font(Theme.TextStyle.title(size: titleSize))
+                                .foregroundColor(Theme.Colors.primaryGold)
+                                .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
                                 .padding(.top, geometry.size.height * (isIPad ? 0.05 : 0.03))
                             
                             Text("8 Boards. 5 Minutes. 1 Champion.")
-                                .font(.system(size: subtitleSize, weight: .bold, design: .rounded))
-                                .foregroundColor(.white.opacity(0.9))
-                                .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
+                                .font(Theme.TextStyle.subtitle(size: subtitleSize))
+                                .foregroundColor(.white)
+                                .shadow(color: Theme.Colors.primaryBlue.opacity(0.8), radius: 8)
                                 .padding(.top, isIPad ? 6 : 3)
                             
                             Text("Multi-board Tic Tac Toe with\nlightning-fast rounds and tactical gameplay.")
-                                .font(.system(size: descriptionSize, weight: .medium))
-                                .foregroundColor(.white.opacity(0.8))
+                                .font(Theme.TextStyle.body(size: descriptionSize))
+                                .foregroundColor(Theme.Colors.metalGray)
                                 .multilineTextAlignment(.center)
-                                .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 1.5)
+                                .shadow(color: .black.opacity(0.3), radius: 3)
                                 .padding(.top, isIPad ? 3 : 2)
                                 .padding(.bottom, geometry.size.height * (isIPad ? 0.04 : 0.02))
                             
@@ -183,15 +193,24 @@ struct SplashView: View {
                                 VStack(spacing: isIPad ? 15 : 10) {
                                     Spacer()
                                         .frame(height: geometry.size.height * 0.3)
-                                        
+                                    
                                     Button(action: {
                                         SoundManager.shared.playSound(.tap)
                                         SoundManager.shared.playHaptic()
                                         showGameModeModal = true
                                     }) {
-                                        startButtonContent(geometry: geometry, isIPad: isIPad, buttonWidth: buttonWidth)
-                                            .frame(height: CGFloat(isIPad ? 100 : 80))
+                                        HStack {
+                                            Image(systemName: "play.fill")
+                                                .font(.system(size: isIPad ? 30 : 24))
+                                            Text("Start Game")
+                                                .font(Theme.TextStyle.subtitle(size: isIPad ? 30 : 24))
+                                        }
+                                        .foregroundColor(Theme.Colors.primaryGold)
+                                        .frame(width: buttonWidth)
+                                        .frame(height: CGFloat(isIPad ? 100 : 80))
+                                        .glowingBorder(color: Theme.Colors.primaryGold)
                                     }
+                                    .buttonStyle(Theme.MetallicButtonStyle())
                                 }
                                 .padding(.bottom, isIPad ? 15 : 8)
                                 .transition(.opacity)
@@ -199,9 +218,24 @@ struct SplashView: View {
                                 Spacer()
                                     .frame(maxHeight: geometry.size.height * 0.1)
                                 
-                                tutorialButton(geometry: geometry, isIPad: isIPad)
-                                    .padding(.bottom, isIPad ? 40 : 30)
-                                    .transition(.opacity)
+                                Button(action: {
+                                    SoundManager.shared.playSound(.tap)
+                                    showTutorial = true
+                                }) {
+                                    HStack {
+                                        Image(systemName: "questionmark.circle")
+                                            .font(.system(size: isIPad ? 24 : 20))
+                                        Text("How to Play")
+                                            .font(Theme.TextStyle.body(size: isIPad ? 24 : 20))
+                                    }
+                                    .foregroundColor(Theme.Colors.metalGray)
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 24)
+                                    .glowingBorder(color: Theme.Colors.metalGray.opacity(0.5))
+                                }
+                                .buttonStyle(Theme.MetallicButtonStyle())
+                                .padding(.bottom, isIPad ? 40 : 30)
+                                .transition(.opacity)
                             }
                         }
                         .frame(width: containerWidth)

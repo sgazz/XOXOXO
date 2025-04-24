@@ -307,49 +307,122 @@ private struct GameStats: View {
     
     var body: some View {
         HStack(spacing: isCompact ? 20 : 30) {
-            // Blue player time
-            VStack {
-                Text("Blue Time")
-                    .font(Theme.TextStyle.body(size: 12))
-                    .foregroundColor(Theme.Colors.metalGray)
-                Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
-                    .font(Theme.TextStyle.subtitle(size: isCompact ? 24 : 30))
-                    .foregroundColor(Theme.Colors.primaryBlue)
-                    .shadow(color: Theme.Colors.primaryBlue.opacity(0.5), radius: 5)
-            }
+            // Плави играч
+            StatBox(
+                title: "Blue Time",
+                value: String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60),
+                color: Theme.Colors.primaryBlue
+            )
             
-            // Score
-            VStack {
-                Text("Score")
-                    .font(Theme.TextStyle.body(size: 12))
-                    .foregroundColor(Theme.Colors.metalGray)
-                Text("\(score.x):\(score.o)")
-                    .font(Theme.TextStyle.title(size: isCompact ? 32 : 40))
-                    .foregroundColor(Theme.Colors.primaryGold)
-                    .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 5)
-            }
+            // Резултат
+            StatBox(
+                title: "Score",
+                value: "\(score.x):\(score.o)",
+                color: Theme.Colors.primaryGold,
+                isScore: true
+            )
             
-            // Red player time
-            VStack {
-                Text("Red Time")
-                    .font(Theme.TextStyle.body(size: 12))
-                    .foregroundColor(Theme.Colors.metalGray)
-                Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
-                    .font(Theme.TextStyle.subtitle(size: isCompact ? 24 : 30))
-                    .foregroundColor(Theme.Colors.primaryOrange)
-                    .shadow(color: Theme.Colors.primaryOrange.opacity(0.5), radius: 5)
-            }
+            // Црвени играч
+            StatBox(
+                title: "Red Time",
+                value: String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60),
+                color: Theme.Colors.primaryOrange
+            )
         }
         .padding(.vertical, isCompact ? 10 : 15)
         .padding(.horizontal, isCompact ? 15 : 25)
         .background(
+            ZStack {
+                // Основни градијент
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Theme.Colors.darkGradient)
+                
+                // Горње светло
+                Circle()
+                    .fill(Theme.Colors.primaryGold)
+                    .frame(width: 100, height: 100)
+                    .offset(y: -50)
+                    .blur(radius: 70)
+                    .opacity(0.1)
+                
+                // Лево светло
+                Circle()
+                    .fill(Theme.Colors.primaryBlue)
+                    .frame(width: 80, height: 80)
+                    .offset(x: -40)
+                    .blur(radius: 60)
+                    .opacity(0.08)
+                
+                // Десно светло
+                Circle()
+                    .fill(Theme.Colors.primaryOrange)
+                    .frame(width: 80, height: 80)
+                    .offset(x: 40)
+                    .blur(radius: 60)
+                    .opacity(0.08)
+            }
+        )
+        .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Theme.Colors.darkGradient)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .strokeBorder(Theme.Colors.primaryGold.opacity(0.3), lineWidth: 1)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            Theme.Colors.primaryGold.opacity(0.5),
+                            Theme.Colors.primaryGold.opacity(0.2),
+                            Theme.Colors.primaryGold.opacity(0.5)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.5
                 )
-                .shadow(color: Theme.Colors.primaryGold.opacity(0.2), radius: 20)
+        )
+        .shadow(color: Theme.Colors.primaryGold.opacity(0.15), radius: 15)
+    }
+}
+
+private struct StatBox: View {
+    let title: String
+    let value: String
+    let color: Color
+    var isScore: Bool = false
+    
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    private var isCompact: Bool {
+        horizontalSizeClass == .compact
+    }
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(title)
+                .font(Theme.TextStyle.body(size: 12))
+                .foregroundColor(Theme.Colors.metalGray)
+            Text(value)
+                .font(Theme.TextStyle.subtitle(size: isScore ? (isCompact ? 32 : 40) : (isCompact ? 24 : 30)))
+                .foregroundColor(color)
+                .shadow(color: color.opacity(0.5), radius: 5)
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.black.opacity(0.3))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            color.opacity(0.3),
+                            color.opacity(0.1),
+                            color.opacity(0.3)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
         )
     }
 }
