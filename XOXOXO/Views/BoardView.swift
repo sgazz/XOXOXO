@@ -17,6 +17,18 @@ struct BoardView: View {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
     }
     
+    private var goldGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                Color(red: 1.0, green: 0.84, blue: 0.4),
+                Color(red: 0.8, green: 0.6, blue: 0.2),
+                Color(red: 1.0, green: 0.84, blue: 0.4)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             let cellSize = calculateCellSize(for: geometry.size)
@@ -31,7 +43,8 @@ struct BoardView: View {
                                 symbol: board[index],
                                 isActive: isActive && board[index].isEmpty,
                                 isAnimating: cellAnimations[index],
-                                deviceLayout: deviceLayout
+                                deviceLayout: deviceLayout,
+                                goldGradient: goldGradient
                             )
                             .aspectRatio(1, contentMode: .fit)
                             .drawingGroup()
@@ -48,6 +61,15 @@ struct BoardView: View {
             }
             .frame(width: totalWidth, height: totalWidth)
             .padding(4)
+            .background(
+                RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
+                    .fill(Theme.Colors.darkGradient)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
+                            .strokeBorder(goldGradient, lineWidth: 2)
+                    )
+                    .shadow(color: Color(red: 1.0, green: 0.84, blue: 0.4).opacity(0.3), radius: 20)
+            )
             .clipShape(Rectangle())
             .drawingGroup()
             .scaleEffect(isActive ? 1.015 : 1.0)
@@ -135,6 +157,7 @@ struct CellView: View {
     let isActive: Bool
     let isAnimating: Bool
     let deviceLayout: DeviceLayout
+    let goldGradient: LinearGradient
     
     @Environment(\.colorScheme) private var colorScheme
     
@@ -148,12 +171,26 @@ struct CellView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            isDark ? Color(red: 0.15, green: 0.15, blue: 0.2) : Color.white,
-                            isDark ? Color(red: 0.2, green: 0.2, blue: 0.25) : Color.white
+                            Color(red: 0.25, green: 0.25, blue: 0.27),
+                            Color(red: 0.2, green: 0.2, blue: 0.22)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.15),
+                                    Color.white.opacity(0.05),
+                                    Color.white.opacity(0.15)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
                 )
             
             if isActive {
@@ -161,8 +198,8 @@ struct CellView: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.blue.opacity(BoardConstants.activeCellGradientStartOpacity),
-                                Color.blue.opacity(BoardConstants.activeCellGradientEndOpacity)
+                                Color(red: 1.0, green: 0.84, blue: 0.4).opacity(0.3),
+                                Color(red: 0.8, green: 0.6, blue: 0.2).opacity(0.1)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -175,14 +212,15 @@ struct CellView: View {
     private var cellBorder: some View {
         RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
             .stroke(
-                LinearGradient(
-                    colors: isActive ? 
-                        [Color.blue.opacity(1), Color.blue.opacity(0.6)] :
-                        [Color.white.opacity(isDark ? BoardConstants.inactiveCellGradientStartOpacity : BoardConstants.inactiveCellGradientEndOpacity),
-                         Color.white.opacity(isDark ? BoardConstants.inactiveCellGradientEndOpacity : BoardConstants.inactiveCellGradientEndOpacity)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ),
+                isActive ? goldGradient : 
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.3),
+                            Color.white.opacity(0.1)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
                 lineWidth: BoardConstants.cellBorderWidth
             )
     }
@@ -206,7 +244,9 @@ struct CellView: View {
         }
         .compositingGroup()
         .shadow(
-            color: Color.black.opacity(isDark ? BoardConstants.darkShadowOpacity : BoardConstants.lightShadowOpacity),
+            color: isActive ? 
+                Color(red: 1.0, green: 0.84, blue: 0.4).opacity(0.3) :
+                Theme.Colors.darkBackground.opacity(0.3),
             radius: BoardConstants.cellShadowRadius,
             x: 0,
             y: BoardConstants.cellShadowYOffset
@@ -225,7 +265,7 @@ struct SymbolView: View {
                 XView()
                     .stroke(
                         LinearGradient(
-                            colors: [Color.blue, Color(red: 0.4, green: 0.8, blue: 1.0)],
+                            colors: [Theme.Colors.primaryBlue, Theme.Colors.primaryBlue.opacity(0.7)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
@@ -235,11 +275,12 @@ struct SymbolView: View {
                             lineJoin: .round
                         )
                     )
+                    .shadow(color: Theme.Colors.primaryBlue.opacity(0.5), radius: 5)
             } else if symbol == "O" {
                 OView()
                     .stroke(
                         LinearGradient(
-                            colors: [Color.red, Color(red: 1.0, green: 0.4, blue: 0.4)],
+                            colors: [Theme.Colors.primaryOrange, Theme.Colors.primaryOrange.opacity(0.7)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
@@ -249,15 +290,10 @@ struct SymbolView: View {
                             lineJoin: .round
                         )
                     )
+                    .shadow(color: Theme.Colors.primaryOrange.opacity(0.5), radius: 5)
             }
         }
-        .frame(width: size, height: size)
-        .compositingGroup()
-        .shadow(
-            color: (symbol == "X" ? Color.blue : Color.red).opacity(BoardConstants.shadowOpacity),
-            radius: 3
-        )
-        .scaleEffect(isAnimating ? BoardConstants.symbolScaleMultiplier : 1.0)
+        .scaleEffect(isAnimating ? 1.2 : 1.0)
         .animation(.interpolatingSpring(
             mass: BoardConstants.cellAnimationMass,
             stiffness: BoardConstants.cellAnimationStiffness,

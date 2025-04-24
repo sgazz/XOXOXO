@@ -31,6 +31,20 @@ struct TutorialView: View {
         // Layout ratios
         static let landscapeIconWidth: CGFloat = 0.3
         static let landscapeContentWidth: CGFloat = 0.7
+        
+        // Металик боје
+        static let goldGradient = LinearGradient(
+            colors: [
+                Color(red: 1.0, green: 0.84, blue: 0.4),
+                Color(red: 0.8, green: 0.6, blue: 0.2),
+                Color(red: 1.0, green: 0.84, blue: 0.4)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        
+        static let goldBorderWidth: CGFloat = 2
+        static let cardHeight: CGFloat = UIScreen.main.bounds.height * 0.7
     }
     
     // MARK: - Tutorial Data
@@ -129,21 +143,50 @@ struct TutorialView: View {
         verticalSizeClass == .compact
     }
     
-    private var iconSize: CGFloat { isLandscape ? 45 : 70 }
-    private var circleSize: CGFloat { isLandscape ? 100 : 160 }
-    private var outerCircleSize: CGFloat { isLandscape ? 120 : 180 }
+    private var iconSize: CGFloat { isLandscape ? 60 : 85 }
+    private var circleSize: CGFloat { isLandscape ? 120 : 180 }
+    private var outerCircleSize: CGFloat { isLandscape ? 140 : 200 }
     private var verticalSpacing: CGFloat { isLandscape ? Constants.compactSpacing : Constants.defaultSpacing }
     
     // MARK: - Body
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Background
-                tutorialScreens[currentTab].color
-                    .opacity(Constants.backgroundOpacity)
-                    .background(.ultraThinMaterial.opacity(Constants.materialOpacity))
-                    .ignoresSafeArea()
-                
+                // Металик позадина
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.2, green: 0.2, blue: 0.22),
+                        Color(red: 0.15, green: 0.15, blue: 0.17),
+                        Color(red: 0.1, green: 0.1, blue: 0.12)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .overlay(
+                    // Металик текстура
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.15),
+                            Color.white.opacity(0.05),
+                            Color.white.opacity(0.15)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    // Додатни сјај на врху
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.3),
+                            Color.white.opacity(0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .center
+                    )
+                )
+                .ignoresSafeArea()
+
                 VStack(spacing: verticalSpacing) {
                     // Tutorial content
                     TabView(selection: $currentTab) {
@@ -194,16 +237,35 @@ struct TutorialView: View {
         
         var body: some View {
             Circle()
-                .fill(isSelected ? color : Color.gray.opacity(Constants.inactiveDotOpacity))
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            isSelected ? color : Color.gray.opacity(0.6),
+                            isSelected ? color.opacity(0.8) : Color.gray.opacity(0.4)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
                 .frame(width: Constants.dotSize, height: Constants.dotSize)
                 .overlay(
                     Circle()
                         .stroke(
-                            color.opacity(Constants.dotBorderOpacity),
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.5),
+                                    Color.white.opacity(0.2),
+                                    Color.white.opacity(0.5)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
                             lineWidth: isSelected ? Constants.dotBorderWidth : 0
                         )
                         .frame(width: Constants.dotBorderSize, height: Constants.dotBorderSize)
                 )
+                .shadow(color: isSelected ? color.opacity(0.3) : .clear, radius: 4)
+                .shadow(color: .white.opacity(0.2), radius: 1, x: 0, y: -1)
                 .scaleEffect(isSelected ? Constants.activeDotScale : 1.0)
                 .animation(.spring(), value: isSelected)
                 .onTapGesture {
@@ -248,75 +310,151 @@ struct TutorialView: View {
                 HStack(spacing: Constants.cardHorizontalSpacing) {
                     iconSection(screen)
                         .frame(width: geometry.size.width * Constants.landscapeIconWidth)
-                    
                     contentSection(screen)
                         .frame(width: geometry.size.width * Constants.landscapeContentWidth)
                 }
+                .frame(height: Constants.cardHeight * 0.6)
                 .padding(.horizontal)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 0.25, green: 0.25, blue: 0.27),
+                                    Color(red: 0.2, green: 0.2, blue: 0.22)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Constants.goldGradient, lineWidth: Constants.goldBorderWidth)
+                        )
+                        .shadow(color: Color.black.opacity(0.2), radius: 10)
+                        .shadow(color: .white.opacity(0.2), radius: 1, x: 0, y: -1)
+                )
             } else {
                 VStack(spacing: Constants.defaultSpacing) {
                     iconSection(screen)
                     contentSection(screen)
                 }
+                .frame(height: Constants.cardHeight)
                 .padding(.horizontal)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 0.25, green: 0.25, blue: 0.27),
+                                    Color(red: 0.2, green: 0.2, blue: 0.22)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Constants.goldGradient, lineWidth: Constants.goldBorderWidth)
+                        )
+                        .shadow(color: Color.black.opacity(0.2), radius: 10)
+                        .shadow(color: .white.opacity(0.2), radius: 1, x: 0, y: -1)
+                )
             }
         }
     }
     
     private func iconSection(_ screen: TutorialScreen) -> some View {
-        Image(systemName: screen.icon)
-            .font(.system(size: iconSize))
-            .foregroundColor(screen.color)
-            .padding(isLandscape ? Constants.defaultSpacing : Constants.defaultSpacing * 2)
-            .background(
-                ZStack {
+        ZStack {
+            // Позадински круг са металик ефектом
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            screen.color.opacity(0.8),
+                            screen.color.opacity(1.0),
+                            screen.color.opacity(0.8)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: circleSize, height: circleSize)
+                .overlay(
+                    // Унутрашњи сјај
                     Circle()
-                        .fill(screen.color.opacity(Constants.backgroundOpacity))
-                        .frame(width: circleSize, height: circleSize)
-                    
+                        .stroke(
+                            Constants.goldGradient,
+                            lineWidth: Constants.goldBorderWidth
+                        )
+                )
+                .overlay(
+                    // Додатни металик ефекат
                     Circle()
-                        .stroke(screen.color.opacity(Constants.backgroundOpacity), lineWidth: 2)
-                        .frame(width: outerCircleSize, height: outerCircleSize)
-                }
-            )
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.4),
+                                    Color.white.opacity(0.1),
+                                    Color.white.opacity(0.4)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                )
+                .shadow(color: screen.color.opacity(0.5), radius: 15)
+                .shadow(color: .white.opacity(0.3), radius: 2, x: 0, y: -2)
+            
+            // Спољашњи прстен
+            Circle()
+                .stroke(Constants.goldGradient, lineWidth: 3)
+                .frame(width: outerCircleSize, height: outerCircleSize)
+                .blur(radius: 0.5)
+            
+            // Икона
+            Image(systemName: screen.icon)
+                .font(.system(size: iconSize, weight: .bold))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            Color.white,
+                            Color.white.opacity(0.8)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .shadow(color: screen.color.opacity(0.5), radius: 8)
+                .shadow(color: .white.opacity(0.8), radius: 1, x: 0, y: -1)
+        }
     }
     
     private func contentSection(_ screen: TutorialScreen) -> some View {
         VStack(spacing: verticalSpacing) {
-            titleView(screen)
-            subtitleView(screen)
-            descriptionView(screen)
+            Text(screen.title)
+                .font(.title.bold())
+                .foregroundStyle(Constants.goldGradient)
+                .multilineTextAlignment(.center)
+                .shadow(color: .black.opacity(0.2), radius: 2)
+            
+            Text(screen.subtitle)
+                .font(.title2)
+                .foregroundColor(screen.subtitleColor)
+                .multilineTextAlignment(.center)
+                .shadow(color: screen.subtitleColor.opacity(0.3), radius: 2)
+            
+            Text(screen.description)
+                .font(.body)
+                .foregroundColor(.white.opacity(0.9))
+                .multilineTextAlignment(.center)
+                .shadow(color: .black.opacity(0.2), radius: 1)
+                .padding(.top)
         }
+        .padding()
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(screen.title), \(screen.subtitle)")
         .accessibilityValue(screen.description)
-    }
-    
-    private func titleView(_ screen: TutorialScreen) -> some View {
-        Text(screen.title)
-            .font(.title)
-            .dynamicTypeSize(isLandscape ? .large : .xxxLarge)
-            .foregroundColor(screen.color)
-            .multilineTextAlignment(.center)
-            .accessibilityAddTraits(.isHeader)
-    }
-    
-    private func subtitleView(_ screen: TutorialScreen) -> some View {
-        Text(screen.subtitle)
-            .font(.title2)
-            .dynamicTypeSize(isLandscape ? .medium : .large)
-            .foregroundColor(screen.subtitleColor)
-            .multilineTextAlignment(.center)
-            .accessibilityAddTraits(.isHeader)
-    }
-    
-    private func descriptionView(_ screen: TutorialScreen) -> some View {
-        Text(screen.description)
-            .font(.body)
-            .dynamicTypeSize(isLandscape ? .small : .medium)
-            .foregroundColor(.primary)
-            .multilineTextAlignment(.center)
-            .fixedSize(horizontal: false, vertical: true)
     }
 }
 
