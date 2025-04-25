@@ -9,9 +9,9 @@ struct GameView: View {
     @State private var isTimerRunning = false
     @State private var showGameOver = false
     @State private var timeoutPlayer: String? = nil
-    @State private var showResults = false
     @State private var selectedGameMode: GameMode = .aiOpponent
     @State private var startGameTransition = false
+    @State private var showPauseMenu = false
     
     // Нове променљиве за бонус време
     @State private var showXBonus = false
@@ -91,15 +91,28 @@ struct GameView: View {
                     Spacer()
                     
                     scoreView
-                        .onTapGesture {
-                            SoundManager.shared.playSound(.tap)
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                showResults = true
-                            }
-                        }
                     
-                    Spacer()
-                        .frame(height: deviceLayout.boardSpacing)
+                    // Дугме за паузу између скора и табли
+                    Button(action: {
+                        SoundManager.shared.playSound(.tap)
+                        stopTimer()
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            showPauseMenu = true
+                        }
+                    }) {
+                        Image(systemName: "pause.circle.fill")
+                            .font(.system(size: deviceLayout.isIphone ? 32 : 38))
+                            .foregroundStyle(
+                                .linearGradient(
+                                    colors: [Theme.Colors.primaryGold.opacity(0.8), Theme.Colors.primaryGold.opacity(0.6)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .shadow(color: Theme.Colors.primaryGold.opacity(0.2), radius: 5)
+                    }
+                    .padding(.top, deviceLayout.isIphone ? 8 : 12)
+                    .padding(.bottom, deviceLayout.isIphone ? 8 : 12)
                     
                     gameBoardsGrid(geometry: geometry)
                         .padding(.bottom, deviceLayout.isIphone ? 20 : 30)
@@ -113,46 +126,37 @@ struct GameView: View {
                     Color.clear.frame(height: deviceLayout.bottomSafeArea)
                 }
                 
-                // Results overlay
-                if showResults {
+                // Pause Menu overlay
+                if showPauseMenu {
                     Color.black.opacity(0.5)
                         .ignoresSafeArea()
-                        .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showResults = false
-                                startTimer()
-                            }
-                        }
+                        .transition(.opacity)
                     
                     GameModeModalView(
                         gameMode: selectedGameMode,
                         onPlayVsAI: {
                             withAnimation(.easeInOut(duration: 0.3)) {
-                                showResults = false
+                                showPauseMenu = false
                                 handleGameModeChange(to: .aiOpponent)
                             }
                         },
                         onPlayVsPlayer: {
                             withAnimation(.easeInOut(duration: 0.3)) {
-                                showResults = false
+                                showPauseMenu = false
                                 handleGameModeChange(to: .playerVsPlayer)
                             }
                         },
                         onClose: {
                             withAnimation(.easeInOut(duration: 0.3)) {
-                                showResults = false
+                                showPauseMenu = false
                                 startTimer()
                             }
                         },
                         onGameModeChange: { newMode in
-                            handleGameModeChange(to: newMode)
+                            selectedGameMode = newMode
                         }
                     )
                     .transition(.scale(scale: 0.9).combined(with: .opacity))
-                    .onAppear {
-                        stopTimer()
-                    }
                 }
                 
                 // Game Over overlay
@@ -280,11 +284,11 @@ struct GameView: View {
                 
                 // Контејнер за O индикатор и тајмер
                 VStack(spacing: 4) {
-                Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "+/-")))
-                    .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
-                    .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
-                    .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
-                    
+                    Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "+/-")))
+                        .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
+                        .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
+                        .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
+                        
                     Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
                         .foregroundColor(gameLogic.currentPlayer == "O" ? Theme.Colors.primaryOrange : .white.opacity(0.7))
                         .font(.system(size: deviceLayout.scoreTimerSize, weight: .bold))
@@ -292,7 +296,7 @@ struct GameView: View {
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
-            .background(
+                .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.black.opacity(0.3))
                 )
@@ -556,18 +560,50 @@ struct GameView: View {
     
     // Background gradient
     private var backgroundGradient: some View {
-        // Користимо исте боје као у SplashView
-        let colors: [Color] = [
-            Color(red: 0.1, green: 0.2, blue: 0.45), // Deep blue
-            Color(red: 0.2, green: 0.3, blue: 0.7),  // Medium blue
-            Color(red: 0.3, green: 0.4, blue: 0.9)   // Light blue
-        ]
-        
-        return LinearGradient(
-            gradient: Gradient(colors: colors),
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+        ZStack {
+            // Основни тамни градијент
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.05, blue: 0.1),  // Скоро црна
+                    Color(red: 0.1, green: 0.1, blue: 0.2)     // Тамно плава
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            
+            // Лево плаво светло
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Theme.Colors.primaryBlue.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topLeading,
+                startRadius: 100,
+                endRadius: 400
+            )
+            
+            // Десно наранџасто светло
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Theme.Colors.primaryOrange.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topTrailing,
+                startRadius: 100,
+                endRadius: 400
+            )
+            
+            // Централнално златно светло (суптилно)
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Theme.Colors.primaryGold.opacity(0.15),
+                    Color.clear
+                ]),
+                center: .center,
+                startRadius: 50,
+                endRadius: 200
+            )
+        }
     }
 }
 
