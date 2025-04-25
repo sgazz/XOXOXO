@@ -52,15 +52,6 @@ struct SplashView: View {
                         geometry.size.width * 0.8 : 
                         geometry.size.width
                     
-                    // Floating elements величине
-                    let boardSizes = isIPad ?
-                        [160.0, 140.0, 120.0] :
-                        [120.0, 100.0, 90.0]
-                    
-                    let symbolSizes = isIPad ?
-                        [120.0, 100.0, 90.0] :
-                        [100.0, 80.0, 70.0]
-
                     ZStack {
                         // Modern metallic background
                         Theme.Colors.darkGradient
@@ -83,87 +74,7 @@ struct SplashView: View {
                                         .opacity(0.3)
                                 }
                             )
-                            .ignoresSafeArea()
-                        
-                        // Floating elements
-                        Group {
-                            // Floating boards
-                            FloatingBoard(
-                                size: boardSizes[0],
-                                startX: -geometry.size.width * 0.45,
-                                startY: -geometry.size.height * 0.35
-                            )
-                            
-                            FloatingBoard(
-                                size: boardSizes[1],
-                                startX: geometry.size.width * 0.45,
-                                startY: geometry.size.height * 0.35
-                            )
-                            
-                            FloatingBoard(
-                                size: boardSizes[2],
-                                startX: -geometry.size.width * 0.25,
-                                startY: geometry.size.height * 0.45
-                            )
-                            
-                            // Floating symbols
-                            FloatingSymbol(
-                                symbol: "X",
-                                size: symbolSizes[0],
-                                startX: -geometry.size.width * 0.4,
-                                startY: -geometry.size.height * 0.3
-                            )
-                            
-                            FloatingSymbol(
-                                symbol: "O",
-                                size: symbolSizes[1],
-                                startX: geometry.size.width * 0.35,
-                                startY: geometry.size.height * 0.25
-                            )
-                            
-                            FloatingSymbol(
-                                symbol: "X",
-                                size: 100.0,
-                                startX: geometry.size.width * 0.4,
-                                startY: -geometry.size.height * 0.25
-                            )
-                            
-                            FloatingSymbol(
-                                symbol: "O",
-                                size: 110.0,
-                                startX: geometry.size.width * 0.35,
-                                startY: geometry.size.height * 0.25
-                            )
-                            
-                            FloatingSymbol(
-                                symbol: "X",
-                                size: 90.0,
-                                startX: geometry.size.width * 0.15,
-                                startY: -geometry.size.height * 0.1
-                            )
-                            
-                            FloatingSymbol(
-                                symbol: "O",
-                                size: 130.0,
-                                startX: -geometry.size.width * 0.15,
-                                startY: geometry.size.height * 0.1
-                            )
-                            
-                            FloatingSymbol(
-                                symbol: "X",
-                                size: 95.0,
-                                startX: geometry.size.width * 0.5,
-                                startY: geometry.size.height * 0.4
-                            )
-                            
-                            FloatingSymbol(
-                                symbol: "O",
-                                size: 105.0,
-                                startX: -geometry.size.width * 0.5,
-                                startY: -geometry.size.height * 0.4
-                            )
-                        }
-                        .opacity(backgroundOpacity * 1.5)
+                        .ignoresSafeArea()
                         
                         // Main content
                         VStack {
@@ -193,7 +104,7 @@ struct SplashView: View {
                                 VStack(spacing: isIPad ? 15 : 10) {
                                     Spacer()
                                         .frame(height: geometry.size.height * 0.3)
-                                    
+                                        
                                     Button(action: {
                                         SoundManager.shared.playSound(.tap)
                                         SoundManager.shared.playHaptic()
@@ -207,7 +118,7 @@ struct SplashView: View {
                                         }
                                         .foregroundColor(Theme.Colors.primaryGold)
                                         .frame(width: buttonWidth)
-                                        .frame(height: CGFloat(isIPad ? 100 : 80))
+                                            .frame(height: CGFloat(isIPad ? 100 : 80))
                                         .glowingBorder(color: Theme.Colors.primaryGold)
                                     }
                                     .buttonStyle(Theme.MetallicButtonStyle())
@@ -234,8 +145,8 @@ struct SplashView: View {
                                     .glowingBorder(color: Theme.Colors.metalGray.opacity(0.5))
                                 }
                                 .buttonStyle(Theme.MetallicButtonStyle())
-                                .padding(.bottom, isIPad ? 40 : 30)
-                                .transition(.opacity)
+                                    .padding(.bottom, isIPad ? 40 : 30)
+                                    .transition(.opacity)
                             }
                         }
                         .frame(width: containerWidth)

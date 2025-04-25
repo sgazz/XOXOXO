@@ -86,10 +86,6 @@ struct GameView: View {
                 backgroundGradient
                     .ignoresSafeArea()
                 
-                // Floating symbols
-                floatingSymbols(in: geometry)
-                    .ignoresSafeArea()
-                
                 // Portrait layout
                 VStack(spacing: 0) {
                     Spacer()
@@ -194,15 +190,15 @@ struct GameView: View {
             HStack(spacing: deviceLayout.adaptiveSpacing / 3) {
                 // Контејнер за X индикатор и тајмер
                 VStack(spacing: 4) {
-                    Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "+/-")))
-                        .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : (showXDrawPenalty ? .orange : .gray)))
-                        .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
-                        .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : (showXDrawPenalty ? xDrawPenaltyScale : 1.0)))
-                    
-                    Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
+                Text(showXBonus ? "+15sec" : (showXPenalty ? "-10sec" : (showXDrawPenalty ? "-5sec" : "+/-")))
+                    .foregroundColor(showXBonus ? .green : (showXPenalty ? .red : (showXDrawPenalty ? .orange : .gray)))
+                    .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
+                    .scaleEffect(showXBonus ? xBonusScale : (showXPenalty ? xPenaltyScale : (showXDrawPenalty ? xDrawPenaltyScale : 1.0)))
+                
+                Text(String(format: "%02d:%02d", Int(playerXTime) / 60, Int(playerXTime) % 60))
                         .foregroundColor(gameLogic.currentPlayer == "X" ? Theme.Colors.primaryBlue : .white.opacity(0.7))
-                        .font(.system(size: deviceLayout.scoreTimerSize, weight: .bold))
-                        .minimumScaleFactor(0.5)
+                    .font(.system(size: deviceLayout.scoreTimerSize, weight: .bold))
+                    .minimumScaleFactor(0.5)
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
@@ -284,10 +280,10 @@ struct GameView: View {
                 
                 // Контејнер за O индикатор и тајмер
                 VStack(spacing: 4) {
-                    Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "+/-")))
-                        .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
-                        .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
-                        .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
+                Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "+/-")))
+                    .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
+                    .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
+                    .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
                     
                     Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
                         .foregroundColor(gameLogic.currentPlayer == "O" ? Theme.Colors.primaryOrange : .white.opacity(0.7))
@@ -296,7 +292,7 @@ struct GameView: View {
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
-                .background(
+            .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.black.opacity(0.3))
                 )
@@ -572,24 +568,6 @@ struct GameView: View {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
-    }
-    
-    // Floating symbols for background
-    private func floatingSymbols(in geometry: GeometryProxy) -> some View {
-        Group {
-            // Left side symbols (larger and slower)
-            FloatingSymbol(symbol: "X", size: 150, startX: -geometry.size.width * 0.4, startY: -geometry.size.height * 0.3, slowMotion: true)
-            FloatingSymbol(symbol: "O", size: 160, startX: -geometry.size.width * 0.35, startY: geometry.size.height * 0.3, slowMotion: true)
-            
-            // Right side symbols
-            FloatingSymbol(symbol: "X", size: 120, startX: geometry.size.width * 0.4, startY: -geometry.size.height * 0.25, slowMotion: true)
-            FloatingSymbol(symbol: "O", size: 140, startX: geometry.size.width * 0.35, startY: geometry.size.height * 0.25, slowMotion: true)
-            
-            // Additional symbols scattered around
-            FloatingSymbol(symbol: "X", size: 100, startX: geometry.size.width * 0.15, startY: -geometry.size.height * 0.6, slowMotion: true)
-            FloatingSymbol(symbol: "O", size: 130, startX: -geometry.size.width * 0.15, startY: geometry.size.height * 0.5, slowMotion: true)
-        }
-        .opacity(0.3)
     }
 }
 

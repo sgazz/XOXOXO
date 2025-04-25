@@ -232,7 +232,7 @@ struct CellView: View {
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
-                        )
+                    )
                 )
             
             if isActive {
@@ -255,14 +255,14 @@ struct CellView: View {
         RoundedRectangle(cornerRadius: BoardConstants.cellCornerRadius)
             .stroke(
                 isActive ? goldGradient : 
-                    LinearGradient(
+                LinearGradient(
                         colors: [
                             Color.white.opacity(0.3),
                             Color.white.opacity(0.1)
                         ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
                 lineWidth: BoardConstants.cellBorderWidth
             )
     }

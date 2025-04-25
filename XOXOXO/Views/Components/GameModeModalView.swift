@@ -137,13 +137,13 @@ struct GameModeModalView: View {
                         duration: "1 Minute",
                         color: Theme.Colors.primaryBlue,
                         action: {
-                            SoundManager.shared.playSound(.tap)
-                            timerSettings.gameDuration = .oneMinute
-                            if gameMode == .playerVsPlayer {
+                        SoundManager.shared.playSound(.tap)
+                        timerSettings.gameDuration = .oneMinute
+                        if gameMode == .playerVsPlayer {
                                 onPlayVsPlayer()
                             } else {
-                                onPlayVsAI()
-                            }
+                            onPlayVsAI()
+                        }
                         }
                     )
                     
@@ -152,13 +152,13 @@ struct GameModeModalView: View {
                         duration: "3 Minutes",
                         color: Theme.Colors.primaryGold,
                         action: {
-                            SoundManager.shared.playSound(.tap)
-                            timerSettings.gameDuration = .threeMinutes
-                            if gameMode == .playerVsPlayer {
+                        SoundManager.shared.playSound(.tap)
+                        timerSettings.gameDuration = .threeMinutes
+                        if gameMode == .playerVsPlayer {
                                 onPlayVsPlayer()
                             } else {
-                                onPlayVsAI()
-                            }
+                            onPlayVsAI()
+                        }
                         }
                     )
                     
@@ -167,15 +167,15 @@ struct GameModeModalView: View {
                         duration: "5 Minutes",
                         color: Theme.Colors.primaryOrange,
                         action: {
-                            SoundManager.shared.playSound(.tap)
-                            timerSettings.gameDuration = .fiveMinutes
-                            if gameMode == .playerVsPlayer {
+                        SoundManager.shared.playSound(.tap)
+                        timerSettings.gameDuration = .fiveMinutes
+                        if gameMode == .playerVsPlayer {
                                 onPlayVsPlayer()
                             } else {
-                                onPlayVsAI()
-                            }
+                            onPlayVsAI()
                         }
-                    )
+                        }
+                        )
                 }
                 .padding(.top, isIPad ? 20 : 15)
             }
@@ -215,7 +215,7 @@ struct GameModeModalView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 25))
                     
                     // Ивица
-                    RoundedRectangle(cornerRadius: 25)
+                RoundedRectangle(cornerRadius: 25)
                         .strokeBorder(
                             LinearGradient(
                                 colors: [

@@ -197,8 +197,8 @@ private struct GameOverIcon: View {
                                         Color.black.opacity(0.3),
                                         Color.gray.opacity(0.6)
                                     ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
                                 ),
                                 lineWidth: 15
                             )
@@ -241,7 +241,7 @@ private struct GameOverIcon: View {
                                 .foregroundColor(Theme.Colors.metalGray)
                         }
                         .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 5)
-                    }
+        }
                 )
                 .overlay(
                     // Спољашња ивица
@@ -441,20 +441,20 @@ private struct GameModeButtons: View {
         VStack(spacing: 15) {
             Button(action: onPlayVsAI) {
                 HStack {
-                    Image(systemName: "cpu")
-                    Text("Single Player")
+            Image(systemName: "cpu")
+            Text("Single Player")
                 }
                 .font(Theme.TextStyle.subtitle(size: isCompact ? 20 : 24))
                 .foregroundColor(Theme.Colors.primaryBlue)
                 .frame(width: isCompact ? 250 : 300)
                 .padding(.vertical, isCompact ? 15 : 20)
                 .glowingBorder(color: Theme.Colors.primaryBlue)
-            }
+    }
             .buttonStyle(Theme.MetallicButtonStyle())
             
             Button(action: onPlayVsPlayer) {
                 HStack {
-                    Image(systemName: "person.2")
+            Image(systemName: "person.2")
                     Text("Multiplater")
                 }
                 .font(Theme.TextStyle.subtitle(size: isCompact ? 20 : 24))

@@ -284,3 +284,4 @@ struct TutorialView: View {
 #Preview {
     TutorialView(startGame: .constant(false))
 } 
+ 
