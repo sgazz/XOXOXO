@@ -86,13 +86,13 @@ struct SplashView: View {
                                 .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
                                 .padding(.top, geometry.size.height * (isIPad ? 0.05 : 0.03))
                             
-                            Text("8 Boards. 5 Minutes. 1 Champion.")
+                            Text("8 Boards. 1 Minute. 1 Champion.")
                                 .font(Theme.TextStyle.subtitle(size: subtitleSize))
                                 .foregroundColor(.white)
                                 .shadow(color: Theme.Colors.primaryBlue.opacity(0.8), radius: 8)
                                 .padding(.top, isIPad ? 6 : 3)
                             
-                            Text("Multi-board Tic Tac Toe with\nlightning-fast rounds and tactical gameplay.")
+                            Text("Multi-board Tic Tac Toe\n\nLightning-fast rounds\n\nTactical gameplay")
                                 .font(Theme.TextStyle.body(size: descriptionSize))
                                 .foregroundColor(Theme.Colors.metalGray)
                                 .multilineTextAlignment(.center)

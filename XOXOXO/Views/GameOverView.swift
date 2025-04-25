@@ -155,6 +155,7 @@ struct GameOverView: View {
 private struct GameOverIcon: View {
     let timeoutPlayer: String?
     @State private var isAnimating = false
+    @State private var ringRotation = 0.0
     
     var body: some View {
         ZStack {
@@ -183,7 +184,7 @@ private struct GameOverIcon: View {
                 }
             }
             
-            // Главни металик прстен
+            // Ротирајући метални прстен
             Circle()
                 .fill(Theme.Colors.darkGradient)
                 .overlay(
@@ -197,8 +198,8 @@ private struct GameOverIcon: View {
                                         Color.black.opacity(0.3),
                                         Color.gray.opacity(0.6)
                                     ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
                                 ),
                                 lineWidth: 15
                             )
@@ -220,52 +221,138 @@ private struct GameOverIcon: View {
                                 .rotationEffect(.degrees(Double(i) * 30))
                                 .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 5)
                         }
-                        
-                        // XO текст
-                        VStack(spacing: 5) {
-                            Text("XO")
-                                .font(.system(size: 36, weight: .heavy))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [
-                                            Theme.Colors.primaryGold,
-                                            Theme.Colors.primaryGold.opacity(0.7)
-                                        ],
-                                        startPoint: .top,
-                                        endPoint: .bottom
-                                    )
-                                )
-                            
-                            Text("ARENA")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(Theme.Colors.metalGray)
-                        }
-                        .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 5)
-        }
+                    }
                 )
-                .overlay(
-                    // Спољашња ивица
-                    Circle()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Theme.Colors.primaryGold.opacity(0.8),
-                                    Theme.Colors.primaryGold.opacity(0.3),
-                                    Theme.Colors.primaryGold.opacity(0.8)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 2
+                .rotationEffect(.degrees(ringRotation))
+            
+            // XO текст (статичан)
+            VStack(spacing: 5) {
+                Text("XO")
+                    .font(.system(size: 36, weight: .heavy))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [
+                                Theme.Colors.primaryGold.opacity(0.9),
+                                Theme.Colors.primaryGold.opacity(0.7),
+                                Theme.Colors.primaryGold.opacity(0.9)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
                         )
-                )
+                    )
+                    .overlay(
+                        Text("XO")
+                            .font(.system(size: 36, weight: .heavy))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.7),
+                                        Color.white.opacity(0.3)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .offset(x: 1, y: 1)
+                            .mask(
+                                Text("XO")
+                                    .font(.system(size: 36, weight: .heavy))
+                            )
+                    )
+                    .background(
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Theme.Colors.primaryGold.opacity(0.3),
+                                        Theme.Colors.primaryGold.opacity(0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .blur(radius: 5)
+                            .frame(width: 100, height: 100)
+                    )
+                
+                Text("ARENA")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [
+                                Theme.Colors.primaryGold.opacity(0.8),
+                                Theme.Colors.primaryGold.opacity(0.6)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .overlay(
+                        Text("ARENA")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.5),
+                                        Color.white.opacity(0.2)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .offset(x: 0.5, y: 0.5)
+                            .mask(
+                                Text("ARENA")
+                                    .font(.system(size: 14, weight: .bold))
+                            )
+                    )
+            }
+            .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 5)
+            .background(
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Theme.Colors.primaryGold.opacity(0.2),
+                                Theme.Colors.primaryGold.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 120, height: 120)
+            )
         }
+        .overlay(
+            // Спољашња ивица
+            Circle()
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            Theme.Colors.primaryGold.opacity(0.8),
+                            Theme.Colors.primaryGold.opacity(0.3),
+                            Theme.Colors.primaryGold.opacity(0.8)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 2
+                )
+        )
         .shadow(
             color: Theme.Colors.primaryGold.opacity(0.3),
             radius: 20
         )
-        .rotation3DEffect(.degrees(isAnimating ? 360 : 0), axis: (x: 0, y: 1, z: 0))
         .onAppear {
+            // Покрећемо бесконачну ротацију прстена
+            withAnimation(
+                .linear(duration: 10)
+                .repeatForever(autoreverses: false)
+            ) {
+                ringRotation = 360
+            }
+            
+            // Анимација појављивања иконе
             withAnimation(.spring(response: 0.6, dampingFraction: 0.6)) {
                 isAnimating = true
             }

@@ -64,8 +64,8 @@ struct TutorialView: View {
     
     private let tutorialScreens: [TutorialScreen] = [
         TutorialScreen(
-            title: " This is a XO Arena",
-            subtitle: " Classic Rules, Epic Twist",
+            title: "Welcome to the\n XO Arena",
+            subtitle: "One arena, eight boards, infinite strategies",
             description: " It's Tic-Tac-Toe like you've never seen before.\n\nPlay across 8 boards in a row.\n\nPlan smart. Play fast.\n\nWin the Arena.",
             tutorialType: .basicGame
         ),
@@ -83,7 +83,7 @@ struct TutorialView: View {
         ),
         TutorialScreen(
             title: " Ready to Complete?",
-            subtitle: " 1 Minute. 8 Boards in loop. 1 Champion.",
+            subtitle: " 1 Minute. 8 Boards. 1 Champion.",
             description: "Think fast.\n\nPlay bold.\n\nMaster the multi-board arena and become the XO Arena legend.",
             tutorialType: .winning
         )
@@ -403,6 +403,9 @@ struct TutorialView: View {
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 .animation(.easeInOut, value: currentTab)
+                .onChange(of: currentTab) { _ in
+                    SoundManager.shared.playSound(.tap)
+                }
                 
                 // Page indicator
                 VStack {
@@ -458,6 +461,7 @@ struct TutorialView: View {
                 
                 if index == tutorialScreens.count - 1 {
                     Button(action: {
+                        SoundManager.shared.playSound(.tap)
                         startGame = false
                         dismiss()
                     }) {
