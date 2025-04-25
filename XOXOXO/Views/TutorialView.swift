@@ -49,135 +49,316 @@ struct TutorialView: View {
     
     // MARK: - Tutorial Data
     private struct TutorialScreen {
-        let icon: String
-        let color: Color
         let title: String
         let subtitle: String
         let description: String
-        let subtitleColor: Color
+        let tutorialType: TutorialType
+    }
+    
+    private enum TutorialType {
+        case basicGame
+        case boardConnection
+        case aiGame
+        case winning
     }
     
     private let tutorialScreens: [TutorialScreen] = [
         TutorialScreen(
-            icon: "gamecontroller.fill",
-            color: .blue,
-            title: "🎯 Welcome to the XO Arena",
-            subtitle: "🧠 Classic Rules, Epic Twist",
-            description: "🎮 It's Tic-Tac-Toe like you've never seen before.\nPlay across 8 boards at once.\nPlan smart. Play fast.\nWin the Arena.",
-            subtitleColor: Color(red: 0.3, green: 0.7, blue: 1.0)
+            title: " This is a XO Arena",
+            subtitle: " Classic Rules, Epic Twist",
+            description: " It's Tic-Tac-Toe like you've never seen before.\n\nPlay across 8 boards in a row.\n\nPlan smart. Play fast.\n\nWin the Arena.",
+            tutorialType: .basicGame
         ),
         TutorialScreen(
-            icon: "list.bullet",
-            color: .purple,
-            title: "🧩 The Rules Just Got Smarter",
-            subtitle: "🔁 One Move Changes Everything",
-            description: "🧠 Line up 3 symbols to win a board.\nBut each move sends your rival to a new board.\nIt's strategy on top of strategy!",
-            subtitleColor: Color(red: 0.8, green: 0.4, blue: 1.0)
+            title: " The Rules Just Got Smarter",
+            subtitle: " One Move Changes Everything",
+            description: " Line up 3 symbols to win a board.\n\nBut each move sends you and your rival to a new board.\nIt's strategy on top of strategy!",
+            tutorialType: .boardConnection
         ),
         TutorialScreen(
-            icon: "brain.head.profile",
-            color: .orange,
-            title: "🤖 Choose Your Opponent",
-            subtitle: "🧠 Play AI or Face a Friend",
-            description: "⚔️ PvAI: Battle a smart, adaptive opponent.\n👥 PvP: Challenge a friend in local multiplayer.\nPick your path to victory.",
-            subtitleColor: Color(red: 1.0, green: 0.6, blue: 0.2)
+            title: " Choose Your Opponent",
+            subtitle: " Play AI or Face a Friend",
+            description: "Single Player: Battle a smart, adaptive opponent.\n\nMultiplayer: Challenge a friend in local multiplayer.\n\nPick your path to victory.",
+            tutorialType: .aiGame
         ),
         TutorialScreen(
-            icon: "flag.checkered",
-            color: .green,
-            title: "🏁 Ready to Compete?",
-            subtitle: "🔥 5 Minutes. 8 Boards in loop. 1 Champion.",
-            description: "⚡ Think fast.\n🎯 Play bold.\n👑 Master the multi-board arena and become the XO legend.",
-            subtitleColor: Color(red: 0.3, green: 0.9, blue: 0.4)
+            title: " Ready to Complete?",
+            subtitle: " 1 Minute. 8 Boards in loop. 1 Champion.",
+            description: "Think fast.\n\nPlay bold.\n\nMaster the multi-board arena and become the XO Arena legend.",
+            tutorialType: .winning
         )
     ]
+    
+    // MARK: - Tutorial Animations
+    private func tutorialAnimation(for type: TutorialType, size: CGFloat) -> some View {
+        Group {
+            switch type {
+            case .basicGame:
+                BasicGameAnimation(size: size)
+            case .boardConnection:
+                BoardConnectionAnimation(size: size)
+            case .aiGame:
+                AIGameAnimation(size: size)
+            case .winning:
+                WinningAnimation(size: size)
+            }
+        }
+    }
+    
+    // MARK: - Animation Components
+    private struct BasicGameAnimation: View {
+        let size: CGFloat
+        @State private var currentSymbol = "X"
+        @State private var opacity = 0.0
+        
+        var body: some View {
+            ZStack {
+                // Табла
+                Grid {
+                    ForEach(0..<3) { row in
+                        GridRow {
+                            ForEach(0..<3) { column in
+                                Rectangle()
+                                    .fill(Color.clear)
+                                    .frame(width: size/3.5, height: size/3.5)
+                                    .border(Theme.Colors.primaryGold.opacity(0.3), width: 1)
+                            }
+                        }
+                    }
+                }
+                .frame(width: size, height: size)
+                
+                // Симбол који се анимира
+                Text(currentSymbol)
+                    .font(.system(size: size/4, weight: .bold))
+                    .foregroundColor(currentSymbol == "X" ? Theme.Colors.primaryBlue : Theme.Colors.primaryOrange)
+                    .opacity(opacity)
+            }
+            .onAppear {
+                withAnimation(Animation.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                    opacity = 1.0
+                }
+                
+                Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+                    withAnimation {
+                        currentSymbol = currentSymbol == "X" ? "O" : "X"
+                    }
+                }
+            }
+        }
+    }
+    
+    private struct BoardConnectionAnimation: View {
+        let size: CGFloat
+        @State private var positions: [CGFloat]
+        @State private var animationID = UUID()
+        
+        init(size: CGFloat) {
+            self.size = size
+            let boardWidth = size + size/4
+            _positions = State(initialValue: [0, boardWidth, boardWidth * 2])
+        }
+        
+        // Дефинишемо три различите конфигурације табли
+        private let boardConfigs: [[String?]] = [
+            [nil, "X", nil, "O", nil, nil, nil, "O", "X"],  // Прва конфигурација
+            ["O", nil, "X", nil, nil, "O", "X", nil, nil],  // Друга конфигурација
+            ["X", "O", nil, nil, "X", "O", "X", nil, nil]   // Трећа конфигурација (3 X и 2 O)
+        ]
+        
+        var body: some View {
+            GeometryReader { geometry in
+                let boardWidth = size + size/4
+                
+                ZStack {
+                    ForEach(0..<3) { index in
+                        HStack(spacing: size/4) {
+                            boardView(for: index)
+                            Image(systemName: "arrow.left")
+                                .font(.system(size: size/4))
+                                .foregroundColor(Theme.Colors.primaryGold)
+                        }
+                        .offset(x: positions[index])
+                    }
+                }
+                .onAppear {
+                    resetPositions(boardWidth: boardWidth)
+                    startAnimation(boardWidth: boardWidth)
+                }
+                .onDisappear {
+                    // Генеришемо нови ID за следећу анимацију
+                    animationID = UUID()
+                }
+                .id(animationID) // Користимо ID да бисмо осигурали да се view потпуно обнови
+            }
+            .frame(width: size * 1.5, height: size)
+            .clipped()
+        }
+        
+        private func resetPositions(boardWidth: CGFloat) {
+            positions = [0, boardWidth, boardWidth * 2]
+        }
+        
+        private func startAnimation(boardWidth: CGFloat) {
+            withAnimation(
+                .linear(duration: 8)
+                .repeatForever(autoreverses: false)
+            ) {
+                for i in 0..<3 {
+                    positions[i] -= boardWidth * 3
+                }
+            }
+        }
+        
+        private func boardView(for index: Int) -> some View {
+            ZStack {
+                Grid {
+                    ForEach(0..<3) { row in
+                        GridRow {
+                            ForEach(0..<3) { column in
+                                Rectangle()
+                                    .fill(Color.clear)
+                                    .frame(width: size/4, height: size/4)
+                                    .border(Theme.Colors.primaryGold.opacity(0.3), width: 1)
+                                    .overlay {
+                                        if let symbol = boardConfigs[index][row * 3 + column] {
+                                            Text(symbol)
+                                                .font(.system(size: size/5, weight: .bold))
+                                                .foregroundColor(symbol == "X" ? Theme.Colors.primaryBlue : Theme.Colors.primaryOrange)
+                                                .opacity(0.8)
+                                        }
+                                    }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private struct AIGameAnimation: View {
+        let size: CGFloat
+        @State private var thinking = false
+        @State private var showSymbol = false
+        @State private var animationID = UUID()
+        
+        var body: some View {
+            ZStack {
+                // Табла
+                Grid {
+                    ForEach(0..<3) { row in
+                        GridRow {
+                            ForEach(0..<3) { column in
+                                Rectangle()
+                                    .fill(Color.clear)
+                                    .frame(width: size/3.5, height: size/3.5)
+                                    .border(Theme.Colors.primaryGold.opacity(0.3), width: 1)
+                            }
+                        }
+                    }
+                }
+                
+                // Иконице за режиме игре
+                if thinking {
+                    Image(systemName: "person.2.fill")
+                        .font(.system(size: size/2.5))
+                        .foregroundColor(Theme.Colors.primaryGold)
+                        .opacity(0.8)
+                } else {
+                    Image(systemName: "cpu")
+                        .font(.system(size: size/2.5))
+                        .foregroundColor(Theme.Colors.primaryOrange)
+                        .opacity(showSymbol ? 1 : 0)
+                }
+            }
+            .onAppear {
+                startAnimation()
+            }
+            .onDisappear {
+                // Генеришемо нови ID за следећу анимацију
+                animationID = UUID()
+            }
+            .id(animationID)
+        }
+        
+        private func startAnimation() {
+            withAnimation(Animation.easeInOut(duration: 3.0).repeatForever()) {
+                thinking = true
+            }
+            
+            func animate() {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    withAnimation {
+                        showSymbol = true
+                        thinking = false
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                        withAnimation {
+                            showSymbol = false
+                            thinking = true
+                            
+                            // Настављамо анимацију
+                            animate()
+                        }
+                    }
+                }
+            }
+            
+            animate()
+        }
+    }
+    
+    private struct WinningAnimation: View {
+        let size: CGFloat
+        @State private var showWinLine = false
+        
+        var body: some View {
+            ZStack {
+                // Табла са X-евима
+                Grid {
+                    ForEach(0..<3) { row in
+                        GridRow {
+                            ForEach(0..<3) { column in
+                                Rectangle()
+                                    .fill(Color.clear)
+                                    .frame(width: size/3.5, height: size/3.5)
+                                    .border(Theme.Colors.primaryGold.opacity(0.3), width: 1)
+                                    .overlay {
+                                        if row == column {
+                                            Text("X")
+                                                .font(.system(size: size/4, weight: .bold))
+                                                .foregroundColor(Theme.Colors.primaryBlue)
+                                        }
+                                    }
+                            }
+                        }
+                    }
+                }
+                
+                // Победничка линија
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: 0))
+                    path.addLine(to: CGPoint(x: size, y: size))
+                }
+                .stroke(Theme.Colors.primaryGold, lineWidth: 3)
+                .opacity(showWinLine ? 1 : 0)
+            }
+            .onAppear {
+                withAnimation(Animation.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                    showWinLine = true
+                }
+            }
+        }
+    }
     
     // MARK: - Computed Properties
     private var isLandscape: Bool {
         verticalSizeClass == .compact
     }
     
-    private var iconSize: CGFloat { isLandscape ? 60 : 85 }
-    private var circleSize: CGFloat { isLandscape ? 120 : 180 }
-    private var outerCircleSize: CGFloat { isLandscape ? 140 : 200 }
+    private var animationSize: CGFloat { isLandscape ? 120 : 180 }
     private var verticalSpacing: CGFloat { isLandscape ? Constants.compactSpacing : Constants.defaultSpacing }
-    
-    private func iconSection(_ screen: TutorialScreen) -> some View {
-        ZStack {
-            // Основни златни новчић
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 1.0, green: 0.85, blue: 0.4),  // Светлије злато
-                            Color(red: 0.85, green: 0.6, blue: 0.2),  // Средње злато
-                            Color(red: 0.7, green: 0.5, blue: 0.1)    // Тамније злато
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: circleSize, height: circleSize)
-                
-            // 3D ефекат ивице новчића
-            Circle()
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.6, green: 0.4, blue: 0.1).opacity(0.8),  // Тамна ивица
-                            Color(red: 1.0, green: 0.85, blue: 0.4).opacity(0.8),  // Светла ивица
-                            Color(red: 0.6, green: 0.4, blue: 0.1).opacity(0.8)   // Тамна ивица
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    ),
-                    lineWidth: 8
-                )
-                .frame(width: circleSize, height: circleSize)
-            
-            // Текстура новчића
-            Circle()
-                .stroke(
-                    Color(red: 1.0, green: 0.9, blue: 0.5).opacity(0.3),
-                    lineWidth: 1
-                )
-                .frame(width: circleSize * 0.9, height: circleSize * 0.9)
-            
-            // Унутрашњи прстен
-            Circle()
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.6, green: 0.4, blue: 0.1),
-                            Color(red: 1.0, green: 0.85, blue: 0.4),
-                            Color(red: 0.6, green: 0.4, blue: 0.1)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    ),
-                    lineWidth: 3
-                )
-                .frame(width: circleSize * 0.7, height: circleSize * 0.7)
-            
-            // Икона
-            Image(systemName: screen.icon)
-                .font(.system(size: iconSize, weight: .bold))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.6, green: 0.4, blue: 0.1),  // Тамније злато
-                            Color(red: 0.85, green: 0.6, blue: 0.2)   // Светлије злато
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .shadow(color: Color(red: 0.3, green: 0.2, blue: 0.1).opacity(0.3), radius: 1, x: 1, y: 1)
-        }
-        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 5, y: 5)
-        // Суптилнија 3D ротација
-        .rotation3DEffect(.degrees(15), axis: (x: 0, y: 0.5, z: 0))
-    }
     
     // MARK: - Body
     var body: some View {
@@ -238,7 +419,7 @@ struct TutorialView: View {
         HStack(spacing: Constants.dotSpacing) {
             ForEach(0..<tutorialScreens.count, id: \.self) { index in
                 Circle()
-                    .fill(currentTab == index ? tutorialScreens[index].color : Color.gray.opacity(0.3))
+                    .fill(currentTab == index ? Theme.Colors.primaryGold : Color.gray.opacity(0.3))
                     .frame(width: Constants.dotSize, height: Constants.dotSize)
                     .scaleEffect(currentTab == index ? Constants.activeDotScale : 1.0)
                     .animation(.spring(), value: currentTab)
@@ -255,8 +436,8 @@ struct TutorialView: View {
         let screen = tutorialScreens[index]
         
         return VStack(spacing: verticalSpacing) {
-            iconSection(screen)
-                .frame(width: circleSize, height: circleSize)
+            tutorialAnimation(for: screen.tutorialType, size: animationSize)
+                .frame(width: animationSize, height: animationSize)
             
             VStack(spacing: verticalSpacing) {
                 Text(screen.title)
@@ -266,7 +447,7 @@ struct TutorialView: View {
                 
                 Text(screen.subtitle)
                     .font(.title2)
-                    .foregroundColor(screen.subtitleColor)
+                    .foregroundColor(Theme.Colors.primaryGold)
                     .multilineTextAlignment(.center)
                 
                 Text(screen.description)
@@ -274,6 +455,23 @@ struct TutorialView: View {
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .padding(.top)
+                
+                if index == tutorialScreens.count - 1 {
+                    Button(action: {
+                        startGame = false
+                        dismiss()
+                    }) {
+                        Text("Close")
+                            .font(.title3.bold())
+                            .foregroundColor(.black)
+                            .frame(width: 200, height: 50)
+                            .background(
+                                Theme.Colors.primaryGold
+                            )
+                            .cornerRadius(25)
+                    }
+                    .padding(.top, 30)
+                }
             }
             .padding()
         }
@@ -285,3 +483,5 @@ struct TutorialView: View {
     TutorialView(startGame: .constant(false))
 } 
  
+
+
