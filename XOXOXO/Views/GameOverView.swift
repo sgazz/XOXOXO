@@ -198,8 +198,8 @@ private struct GameOverIcon: View {
                                         Color.black.opacity(0.3),
                                         Color.gray.opacity(0.6)
                                     ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
                                 ),
                                 lineWidth: 15
                             )

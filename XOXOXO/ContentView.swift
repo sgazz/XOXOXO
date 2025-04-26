@@ -94,11 +94,11 @@ struct GameView: View {
                     
                     // Дугме за паузу између скора и табли
                     Button(action: {
-                        SoundManager.shared.playSound(.tap)
+                            SoundManager.shared.playSound(.tap)
                         stopTimer()
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             showPauseMenu = true
-                        }
+                            }
                     }) {
                         Image(systemName: "pause.circle.fill")
                             .font(.system(size: deviceLayout.isIphone ? 32 : 38))
@@ -284,10 +284,10 @@ struct GameView: View {
                 
                 // Контејнер за O индикатор и тајмер
                 VStack(spacing: 4) {
-                    Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "+/-")))
-                        .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
-                        .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
-                        .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
+                Text(showOBonus ? "+15sec" : (showOPenalty ? "-10sec" : (showODrawPenalty ? "-5sec" : "+/-")))
+                    .foregroundColor(showOBonus ? .green : (showOPenalty ? .red : (showODrawPenalty ? .orange : .gray)))
+                    .font(.system(size: deviceLayout.scoreIndicatorSize, weight: .medium))
+                    .scaleEffect(showOBonus ? oBonusScale : (showOPenalty ? oPenaltyScale : (showODrawPenalty ? oDrawPenaltyScale : 1.0)))
                         
                     Text(String(format: "%02d:%02d", Int(playerOTime) / 60, Int(playerOTime) % 60))
                         .foregroundColor(gameLogic.currentPlayer == "O" ? Theme.Colors.primaryOrange : .white.opacity(0.7))
@@ -296,7 +296,7 @@ struct GameView: View {
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
-                .background(
+            .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.black.opacity(0.3))
                 )

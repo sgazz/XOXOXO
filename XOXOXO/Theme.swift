@@ -7,6 +7,7 @@ enum Theme {
         static let primaryGold = Color(red: 1.0, green: 0.85, blue: 0.0)      // #FFD700
         static let primaryBlue = Color(red: 0.0, green: 0.75, blue: 1.0)      // #00BFFF
         static let primaryOrange = Color(red: 1.0, green: 0.27, blue: 0.0)    // #FF4500
+        static let primaryBronze = Color(red: 0.45, green: 0.65, blue: 0.35)  // #73A559 - метална зелено-бронзана
         
         // Background Colors
         static let darkBackground = Color(red: 0.1, green: 0.1, blue: 0.1)    // #1A1A1A

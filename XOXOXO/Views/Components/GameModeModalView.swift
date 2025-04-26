@@ -137,13 +137,8 @@ struct GameModeModalView: View {
                         duration: "1 Minute",
                         color: Theme.Colors.primaryBlue,
                         action: {
-                        SoundManager.shared.playSound(.tap)
-                        timerSettings.gameDuration = .oneMinute
-                        if gameMode == .playerVsPlayer {
-                                onPlayVsPlayer()
-                            } else {
-                            onPlayVsAI()
-                        }
+                            SoundManager.shared.playSound(.tap)
+                            timerSettings.gameDuration = .oneMinute
                         }
                     )
                     
@@ -152,13 +147,8 @@ struct GameModeModalView: View {
                         duration: "3 Minutes",
                         color: Theme.Colors.primaryGold,
                         action: {
-                        SoundManager.shared.playSound(.tap)
-                        timerSettings.gameDuration = .threeMinutes
-                        if gameMode == .playerVsPlayer {
-                                onPlayVsPlayer()
-                            } else {
-                            onPlayVsAI()
-                        }
+                            SoundManager.shared.playSound(.tap)
+                            timerSettings.gameDuration = .threeMinutes
                         }
                     )
                     
@@ -167,17 +157,34 @@ struct GameModeModalView: View {
                         duration: "5 Minutes",
                         color: Theme.Colors.primaryOrange,
                         action: {
+                            SoundManager.shared.playSound(.tap)
+                            timerSettings.gameDuration = .fiveMinutes
+                        }
+                    )
+                    
+                    // Start button
+                    Button(action: {
                         SoundManager.shared.playSound(.tap)
-                        timerSettings.gameDuration = .fiveMinutes
                         if gameMode == .playerVsPlayer {
-                                onPlayVsPlayer()
-                            } else {
+                            onPlayVsPlayer()
+                        } else {
                             onPlayVsAI()
                         }
+                    }) {
+                        HStack(spacing: isIPad ? 20 : 15) {
+                            Image(systemName: "play.fill")
+                                .font(Theme.TextStyle.subtitle(size: isIPad ? 32 : 24))
+                            Text("Start Game")
+                                .font(Theme.TextStyle.subtitle(size: isIPad ? 32 : 24))
                         }
-                        )
+                        .foregroundColor(Theme.Colors.primaryBronze)
+                        .frame(maxWidth: isIPad ? 500 : 400)
+                        .padding(.vertical, isIPad ? 20 : 15)
+                        .glowingBorder(color: Theme.Colors.primaryBronze)
+                    }
+                    .buttonStyle(Theme.MetallicButtonStyle())
+                    .padding(.top, isIPad ? 20 : 15)
                 }
-                .padding(.top, isIPad ? 20 : 15)
             }
             .padding(isIPad ? 40 : 30)
             .background(

@@ -403,7 +403,7 @@ struct TutorialView: View {
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 .animation(.easeInOut, value: currentTab)
-                .onChange(of: currentTab) { _ in
+                .onChange(of: currentTab) { oldValue, newValue in
                     SoundManager.shared.playSound(.tap)
                 }
                 
