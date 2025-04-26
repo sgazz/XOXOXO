@@ -47,6 +47,10 @@ class GameLogic: ObservableObject {
         if gameMode == .aiOpponent && !playerSettings.isPlayerX {
             makeAIMove(in: currentBoard, thinkingTime: 0.1) {}
         }
+        // Multiplayer: resetuj simbol igrača na X
+        if gameMode == .playerVsPlayer {
+            playerSettings.playerSymbol = "X"
+        }
     }
 
     func makeMove(at position: Int, in boardIndex: Int) {
@@ -142,6 +146,10 @@ class GameLogic: ObservableObject {
         // Ако је играч изабрао O, AI треба да игра први
         if gameMode == .aiOpponent && !playerSettings.isPlayerX {
             makeAIMove(in: currentBoard, thinkingTime: 0.1) {}
+        }
+        // Multiplayer: resetuj simbol igrača na X
+        if gameMode == .playerVsPlayer {
+            playerSettings.playerSymbol = "X"
         }
     }
 
