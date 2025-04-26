@@ -251,12 +251,25 @@ struct GameModeModalView: View {
                 Text(duration)
                     .font(Theme.TextStyle.subtitle(size: isIPad ? 32 : 24))
             }
-            .foregroundColor(color)
+            .foregroundColor(timerSettings.gameDuration == getDuration(from: duration) ? color : Theme.Colors.metalGray)
             .frame(maxWidth: isIPad ? 500 : 400)
             .padding(.vertical, isIPad ? 20 : 15)
-            .glowingBorder(color: color)
+            .glowingBorder(color: timerSettings.gameDuration == getDuration(from: duration) ? color : Theme.Colors.metalGray.opacity(0.3))
         }
         .buttonStyle(Theme.MetallicButtonStyle())
+    }
+    
+    private func getDuration(from text: String) -> GameDuration {
+        switch text {
+        case "1 Minute":
+            return .oneMinute
+        case "3 Minutes":
+            return .threeMinutes
+        case "5 Minutes":
+            return .fiveMinutes
+        default:
+            return .oneMinute
+        }
     }
 }
 
