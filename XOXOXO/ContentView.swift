@@ -441,12 +441,16 @@ struct GameView: View {
                         self.handleDrawPenalty()
                     }
                     
-                    // Start timer for human player
-                    self.startTimer()
+                    // Start timer for human player if game is not over
+                    if !self.showGameOver {
+                        self.startTimer()
+                    }
                 }
             } else {
-                // Start timer for next player if not in AI mode
-                startTimer()
+                // Start timer for next player if not in AI mode and game is not over
+                if !showGameOver {
+                    startTimer()
+                }
             }
         }
     }
