@@ -12,6 +12,7 @@ struct GameView: View {
     @State private var selectedGameMode: GameMode = .aiOpponent
     @State private var startGameTransition = false
     @State private var showPauseMenu = false
+    @State private var showGameModeModal = false
     
     // Нове променљиве за бонус време
     @State private var showXBonus = false
@@ -132,23 +133,46 @@ struct GameView: View {
                         .ignoresSafeArea()
                         .transition(.opacity)
                     
+                    PauseModalView(
+                        onGo: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showPauseMenu = false
+                                startTimer()
+                            }
+                        },
+                        onRestart: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showPauseMenu = false
+                                showGameModeModal = true
+                            }
+                        }
+                    )
+                    .transition(.scale(scale: 0.9).combined(with: .opacity))
+                }
+                
+                // Game Mode Modal overlay
+                if showGameModeModal {
+                    Color.black.opacity(0.5)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                    
                     GameModeModalView(
                         gameMode: selectedGameMode,
                         onPlayVsAI: {
                             withAnimation(.easeInOut(duration: 0.3)) {
-                                showPauseMenu = false
+                                showGameModeModal = false
                                 handleGameModeChange(to: .aiOpponent)
                             }
                         },
                         onPlayVsPlayer: {
                             withAnimation(.easeInOut(duration: 0.3)) {
-                                showPauseMenu = false
+                                showGameModeModal = false
                                 handleGameModeChange(to: .playerVsPlayer)
                             }
                         },
                         onClose: {
                             withAnimation(.easeInOut(duration: 0.3)) {
-                                showPauseMenu = false
+                                showGameModeModal = false
                                 startTimer()
                             }
                         },
