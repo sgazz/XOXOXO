@@ -23,7 +23,7 @@ private struct BaseValues {
     // Величине текста
     static let titleSize: CGFloat = 56
     static let subtitleSize: CGFloat = 28
-    static let descriptionSize: CGFloat = 22
+    static let descriptionSize: CGFloat = 18
     
     // Скале текста
     static let titleScale: CGFloat = 0.12

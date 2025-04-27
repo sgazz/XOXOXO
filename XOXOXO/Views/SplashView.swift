@@ -96,6 +96,7 @@ struct SplashView: View {
                                 .font(Theme.TextStyle.body(size: descriptionSize))
                                 .foregroundColor(Theme.Colors.metalGray)
                                 .multilineTextAlignment(.center)
+                                .minimumScaleFactor(0.7)
                                 .shadow(color: .black.opacity(0.3), radius: 3)
                                 .padding(.top, isIPad ? 3 : 2)
                                 .padding(.bottom, geometry.size.height * (isIPad ? 0.04 : 0.02))
