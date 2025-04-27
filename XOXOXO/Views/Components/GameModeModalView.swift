@@ -25,235 +25,240 @@ struct GameModeModalView: View {
     }
     
     var body: some View {
-        ZStack {
-            // Замућена позадина са металик градијентом
-            Color.black.opacity(0.7)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    onClose()
-                }
-            
-            // Модални прозор
-            VStack(spacing: isIPad ? 20 : 15) {
-                // Title
-                Text("Choose Your Game Mode")
-                    .font(Theme.TextStyle.title(size: isIPad ? 32 : 24))
-                    .foregroundColor(Theme.Colors.primaryGold)
-                    .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
-                
-                // Game mode buttons
-                HStack(spacing: isIPad ? 20 : 15) {
-                    // Single Player button
-                    Button(action: {
-                        SoundManager.shared.playSound(.tap)
-                        onGameModeChange(.aiOpponent)
-                    }) {
-                        HStack {
-                            Image(systemName: "cpu")
-                            Text("Single Player")
-                        }
-                        .font(Theme.TextStyle.subtitle(size: isIPad ? 24 : 20))
-                        .foregroundColor(gameMode == .aiOpponent ? Theme.Colors.primaryBlue : Theme.Colors.metalGray)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, isIPad ? 15 : 12)
-                        .glowingBorder(color: gameMode == .aiOpponent ? Theme.Colors.primaryBlue : Theme.Colors.metalGray.opacity(0.3))
+        GeometryReader { geometry in
+            ZStack {
+                // Замућена позадина са металик градијентом
+                Color.black.opacity(0.7)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        onClose()
                     }
-                    .buttonStyle(Theme.MetallicButtonStyle())
+                
+                // Модални прозор
+                VStack(spacing: geometry.size.height * 0.025) {
+                    // Title
+                    Text("Choose Game Mode")
+                        .font(Theme.TextStyle.title(size: min(geometry.size.width * 0.08, 36)))
+                        .foregroundColor(Theme.Colors.primaryGold)
+                        .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
                     
-                    // Multiplayer button
-                    Button(action: {
-                        SoundManager.shared.playSound(.tap)
-                        onGameModeChange(.playerVsPlayer)
-                    }) {
-                        HStack {
-                            Image(systemName: "person.2")
-                            Text("Multiplayer")
-                        }
-                        .font(Theme.TextStyle.subtitle(size: isIPad ? 24 : 20))
-                        .foregroundColor(gameMode == .playerVsPlayer ? Theme.Colors.primaryOrange : Theme.Colors.metalGray)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, isIPad ? 15 : 12)
-                        .glowingBorder(color: gameMode == .playerVsPlayer ? Theme.Colors.primaryOrange : Theme.Colors.metalGray.opacity(0.3))
-                    }
-                    .buttonStyle(Theme.MetallicButtonStyle())
-                }
-                .padding(.bottom, isIPad ? 15 : 10)
-                
-                // Symbol selection
-                VStack(spacing: isIPad ? 10 : 8) {
-                    HStack(spacing: isIPad ? 20 : 15) {
-                        // X button
-                        Button(action: { 
+                    // Game mode buttons
+                    HStack(spacing: geometry.size.width * 0.04) {
+                        // Single Player button
+                        Button(action: {
                             SoundManager.shared.playSound(.tap)
-                            playerSettings.playerSymbol = "X" 
+                            onGameModeChange(.aiOpponent)
                         }) {
-                            Text("X")
-                                .font(Theme.TextStyle.title(size: isIPad ? 32 : 28))
-                                .foregroundColor(playerSettings.isPlayerX ? Theme.Colors.primaryBlue : Theme.Colors.metalGray)
-                                .frame(width: isIPad ? 80 : 60, height: isIPad ? 80 : 60)
-                                .background(
-                                    Circle()
-                                        .fill(Theme.Colors.darkGradient)
-                                        .overlay(
-                                            Circle()
-                                                .strokeBorder(playerSettings.isPlayerX ? Theme.Colors.primaryBlue : Theme.Colors.metalGray.opacity(0.3), lineWidth: 2)
-                                        )
-                                        .shadow(color: playerSettings.isPlayerX ? Theme.Colors.primaryBlue.opacity(0.5) : Color.clear, radius: 10)
-                                )
+                            HStack {
+                                Image(systemName: "cpu")
+                                Text("Single Player")
+                            }
+                            .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.06, isIPad ? 24 : 18)))
+                            .foregroundColor(gameMode == .aiOpponent ? Theme.Colors.primaryBlue : Theme.Colors.metalGray)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, geometry.size.height * 0.018)
+                            .glowingBorder(color: gameMode == .aiOpponent ? Theme.Colors.primaryBlue : Theme.Colors.metalGray.opacity(0.3))
                         }
+                        .buttonStyle(Theme.MetallicButtonStyle())
                         
-                        // O button
-                        Button(action: { 
+                        // Multiplayer button
+                        Button(action: {
                             SoundManager.shared.playSound(.tap)
-                            playerSettings.playerSymbol = "O" 
+                            onGameModeChange(.playerVsPlayer)
                         }) {
-                            Text("O")
-                                .font(Theme.TextStyle.title(size: isIPad ? 32 : 28))
-                                .foregroundColor(playerSettings.isPlayerO ? Theme.Colors.primaryOrange : Theme.Colors.metalGray)
-                                .frame(width: isIPad ? 80 : 60, height: isIPad ? 80 : 60)
-                                .background(
-                                    Circle()
-                                        .fill(Theme.Colors.darkGradient)
-                                        .overlay(
-                                            Circle()
-                                                .strokeBorder(playerSettings.isPlayerO ? Theme.Colors.primaryOrange : Theme.Colors.metalGray.opacity(0.3), lineWidth: 2)
-                                        )
-                                        .shadow(color: playerSettings.isPlayerO ? Theme.Colors.primaryOrange.opacity(0.5) : Color.clear, radius: 10)
-                                )
+                            HStack {
+                                Image(systemName: "person.2")
+                                Text("Multiplayer")
+                            }
+                            .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.06, isIPad ? 24 : 18)))
+                            .foregroundColor(gameMode == .playerVsPlayer ? Theme.Colors.primaryOrange : Theme.Colors.metalGray)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, geometry.size.height * 0.018)
+                            .glowingBorder(color: gameMode == .playerVsPlayer ? Theme.Colors.primaryOrange : Theme.Colors.metalGray.opacity(0.3))
                         }
+                        .buttonStyle(Theme.MetallicButtonStyle())
                     }
+                    .padding(.bottom, geometry.size.height * 0.015)
                     
-                    Text(playerSettings.isPlayerX ? "You play first (X)" : "AI plays first (X)")
-                        .font(Theme.TextStyle.body(size: isIPad ? 18 : 16))
-                        .foregroundColor(Theme.Colors.metalGray)
-                        .padding(.top, 5)
-                }
-                .padding(.vertical, isIPad ? 15 : 10)
-                
-                // Time selection buttons
-                VStack(spacing: isIPad ? 15 : 10) {
-                    // 1 minute button
-                    timeButton(
-                        duration: "1 Minute",
-                        color: Theme.Colors.primaryGold,
-                        action: {
-                            SoundManager.shared.playSound(.tap)
-                            timerSettings.gameDuration = .oneMinute
+                    // Symbol selection
+                    VStack(spacing: geometry.size.height * 0.012) {
+                        HStack(spacing: geometry.size.width * 0.04) {
+                            // X button
+                            Button(action: { 
+                                SoundManager.shared.playSound(.tap)
+                                playerSettings.playerSymbol = "X" 
+                            }) {
+                                Text("X")
+                                    .font(Theme.TextStyle.title(size: min(geometry.size.width * 0.08, isIPad ? 48 : 32)))
+                                    .foregroundColor(playerSettings.isPlayerX ? Theme.Colors.primaryBlue : Theme.Colors.metalGray)
+                                    .frame(width: geometry.size.width * 0.16, height: geometry.size.width * 0.16)
+                                    .background(
+                                        Circle()
+                                            .fill(Theme.Colors.darkGradient)
+                                            .overlay(
+                                                Circle()
+                                                    .strokeBorder(playerSettings.isPlayerX ? Theme.Colors.primaryBlue : Theme.Colors.metalGray.opacity(0.3), lineWidth: 2)
+                                            )
+                                            .shadow(color: playerSettings.isPlayerX ? Theme.Colors.primaryBlue.opacity(0.5) : Color.clear, radius: 10)
+                                    )
+                            }
+                            
+                            // O button
+                            Button(action: { 
+                                SoundManager.shared.playSound(.tap)
+                                playerSettings.playerSymbol = "O" 
+                            }) {
+                                Text("O")
+                                    .font(Theme.TextStyle.title(size: min(geometry.size.width * 0.08, isIPad ? 48 : 32)))
+                                    .foregroundColor(playerSettings.isPlayerO ? Theme.Colors.primaryOrange : Theme.Colors.metalGray)
+                                    .frame(width: geometry.size.width * 0.16, height: geometry.size.width * 0.16)
+                                    .background(
+                                        Circle()
+                                            .fill(Theme.Colors.darkGradient)
+                                            .overlay(
+                                                Circle()
+                                                    .strokeBorder(playerSettings.isPlayerO ? Theme.Colors.primaryOrange : Theme.Colors.metalGray.opacity(0.3), lineWidth: 2)
+                                            )
+                                            .shadow(color: playerSettings.isPlayerO ? Theme.Colors.primaryOrange.opacity(0.5) : Color.clear, radius: 10)
+                                    )
+                            }
                         }
-                    )
-                    
-                    // 3 minutes button
-                    timeButton(
-                        duration: "3 Minutes",
-                        color: Theme.Colors.primaryGold,
-                        action: {
-                            SoundManager.shared.playSound(.tap)
-                            timerSettings.gameDuration = .threeMinutes
-                        }
-                    )
-                    
-                    // 5 minutes button
-                    timeButton(
-                        duration: "5 Minutes",
-                        color: Theme.Colors.primaryGold,
-                        action: {
-                            SoundManager.shared.playSound(.tap)
-                            timerSettings.gameDuration = .fiveMinutes
-                        }
-                    )
-                    
-                    // Start button
-                    Button(action: {
-                        SoundManager.shared.playSound(.tap)
-                        if gameMode == .playerVsPlayer {
-                            onPlayVsPlayer()
-                        } else {
-                            onPlayVsAI()
-                        }
-                    }) {
-                        HStack(spacing: isIPad ? 20 : 15) {
-                            Image(systemName: "play.fill")
-                                .font(Theme.TextStyle.subtitle(size: isIPad ? 32 : 24))
-                            Text("Start Game")
-                                .font(Theme.TextStyle.subtitle(size: isIPad ? 32 : 24))
-                        }
-                        .foregroundColor(Theme.Colors.primaryBronze)
-                        .frame(maxWidth: isIPad ? 500 : 400)
-                        .padding(.vertical, isIPad ? 20 : 15)
-                        .glowingBorder(color: Theme.Colors.primaryBronze)
-                    }
-                    .buttonStyle(Theme.MetallicButtonStyle())
-                    .padding(.top, isIPad ? 20 : 15)
-                }
-            }
-            .padding(isIPad ? 40 : 30)
-            .background(
-                ZStack {
-                    // Основна позадина
-                    RoundedRectangle(cornerRadius: 25)
-                        .fill(Theme.Colors.darkGradient)
-                    
-                    // Акцентна светла
-                    ZStack {
-                        // Главни сноп светлости
-                        Circle()
-                            .fill(Theme.Colors.primaryGold)
-                            .frame(width: 400)
-                            .offset(y: -200)
-                            .blur(radius: 100)
-                            .opacity(0.3)
                         
-                        // Плаво светло
-                        Circle()
-                            .fill(Theme.Colors.primaryBlue)
-                            .frame(width: 300)
-                            .offset(x: -150, y: 100)
-                            .blur(radius: 100)
-                            .opacity(0.2)
-                        
-                        // Наранџасто светло
-                        Circle()
-                            .fill(Theme.Colors.primaryOrange)
-                            .frame(width: 300)
-                            .offset(x: 150, y: 100)
-                            .blur(radius: 100)
-                            .opacity(0.2)
+                        Text(playerSettings.isPlayerX ? "You play first (X)" : "AI plays first (X)")
+                            .font(Theme.TextStyle.body(size: min(geometry.size.width * 0.045, 18)))
+                            .foregroundColor(Theme.Colors.metalGray)
+                            .padding(.top, geometry.size.height * 0.008)
                     }
-                    .clipShape(RoundedRectangle(cornerRadius: 25))
+                    .padding(.vertical, geometry.size.height * 0.018)
                     
-                    // Ивица
-                RoundedRectangle(cornerRadius: 25)
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Theme.Colors.primaryGold.opacity(0.6),
-                                    Theme.Colors.primaryGold.opacity(0.2),
-                                    Theme.Colors.primaryGold.opacity(0.6)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 2
+                    // Time selection buttons
+                    VStack(spacing: geometry.size.height * 0.018) {
+                        // 1 minute button
+                        timeButton(
+                            duration: "1 Minute",
+                            color: Theme.Colors.primaryGold,
+                            action: {
+                                SoundManager.shared.playSound(.tap)
+                                timerSettings.gameDuration = .oneMinute
+                            },
+                            geometry: geometry
                         )
+                        
+                        // 3 minutes button
+                        timeButton(
+                            duration: "3 Minutes",
+                            color: Theme.Colors.primaryGold,
+                            action: {
+                                SoundManager.shared.playSound(.tap)
+                                timerSettings.gameDuration = .threeMinutes
+                            },
+                            geometry: geometry
+                        )
+                        
+                        // 5 minutes button
+                        timeButton(
+                            duration: "5 Minutes",
+                            color: Theme.Colors.primaryGold,
+                            action: {
+                                SoundManager.shared.playSound(.tap)
+                                timerSettings.gameDuration = .fiveMinutes
+                            },
+                            geometry: geometry
+                        )
+                        
+                        // Start button
+                        Button(action: {
+                            SoundManager.shared.playSound(.tap)
+                            if gameMode == .playerVsPlayer {
+                                onPlayVsPlayer()
+                            } else {
+                                onPlayVsAI()
+                            }
+                        }) {
+                            HStack(spacing: geometry.size.width * 0.04) {
+                                Image(systemName: "play.fill")
+                                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.07, 28)))
+                                Text("Start Game")
+                                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.07, 28)))
+                            }
+                            .foregroundColor(Theme.Colors.primaryBronze)
+                            .frame(maxWidth: geometry.size.width * 0.8)
+                            .padding(.vertical, geometry.size.height * 0.025)
+                            .glowingBorder(color: Theme.Colors.primaryBronze)
+                        }
+                        .buttonStyle(Theme.MetallicButtonStyle())
+                        .padding(.top, geometry.size.height * 0.025)
+                    }
                 }
-                .shadow(color: Theme.Colors.primaryGold.opacity(0.3), radius: 20)
-            )
-            .frame(maxWidth: isIPad ? 600 : 450)
+                .padding(geometry.size.width * 0.07)
+                .background(
+                    ZStack {
+                        // Основна позадина
+                        RoundedRectangle(cornerRadius: 25)
+                            .fill(Theme.Colors.darkGradient)
+                        
+                        // Акцентна светла
+                        ZStack {
+                            // Главни сноп светлости
+                            Circle()
+                                .fill(Theme.Colors.primaryGold)
+                                .frame(width: geometry.size.width * 0.7)
+                                .offset(y: -geometry.size.height * 0.25)
+                                .blur(radius: 100)
+                                .opacity(0.3)
+                            
+                            // Плаво светло
+                            Circle()
+                                .fill(Theme.Colors.primaryBlue)
+                                .frame(width: geometry.size.width * 0.5)
+                                .offset(x: -geometry.size.width * 0.25, y: geometry.size.height * 0.13)
+                                .blur(radius: 100)
+                                .opacity(0.2)
+                            
+                            // Наранџасто светло
+                            Circle()
+                                .fill(Theme.Colors.primaryOrange)
+                                .frame(width: geometry.size.width * 0.5)
+                                .offset(x: geometry.size.width * 0.25, y: geometry.size.height * 0.13)
+                                .blur(radius: 100)
+                                .opacity(0.2)
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 25))
+                        
+                        // Ивица
+                        RoundedRectangle(cornerRadius: 25)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Theme.Colors.primaryGold.opacity(0.6),
+                                        Theme.Colors.primaryGold.opacity(0.2),
+                                        Theme.Colors.primaryGold.opacity(0.6)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 2
+                            )
+                    }
+                    .shadow(color: Theme.Colors.primaryGold.opacity(0.3), radius: 20)
+                )
+                .frame(maxWidth: min(geometry.size.width * 0.95, 600))
+            }
+            .transition(.opacity.combined(with: .scale))
         }
-        .transition(.opacity.combined(with: .scale))
     }
     
-    private func timeButton(duration: String, color: Color, action: @escaping () -> Void) -> some View {
+    private func timeButton(duration: String, color: Color, action: @escaping () -> Void, geometry: GeometryProxy) -> some View {
         Button(action: action) {
-            HStack(spacing: isIPad ? 20 : 15) {
+            HStack(spacing: geometry.size.width * 0.04) {
                 Image(systemName: "timer")
-                    .font(Theme.TextStyle.subtitle(size: isIPad ? 32 : 24))
+                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.07, 28)))
                 Text(duration)
-                    .font(Theme.TextStyle.subtitle(size: isIPad ? 32 : 24))
+                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.07, 28)))
             }
             .foregroundColor(timerSettings.gameDuration == getDuration(from: duration) ? color : Theme.Colors.metalGray)
-            .frame(maxWidth: isIPad ? 500 : 400)
-            .padding(.vertical, isIPad ? 20 : 15)
+            .frame(maxWidth: geometry.size.width * 0.8)
+            .padding(.vertical, geometry.size.height * 0.025)
             .glowingBorder(color: timerSettings.gameDuration == getDuration(from: duration) ? color : Theme.Colors.metalGray.opacity(0.3))
         }
         .buttonStyle(Theme.MetallicButtonStyle())
