@@ -135,7 +135,7 @@ struct GameModeModalView: View {
                     // 1 minute button
                     timeButton(
                         duration: "1 Minute",
-                        color: Theme.Colors.primaryBlue,
+                        color: Theme.Colors.primaryGold,
                         action: {
                             SoundManager.shared.playSound(.tap)
                             timerSettings.gameDuration = .oneMinute
@@ -155,7 +155,7 @@ struct GameModeModalView: View {
                     // 5 minutes button
                     timeButton(
                         duration: "5 Minutes",
-                        color: Theme.Colors.primaryOrange,
+                        color: Theme.Colors.primaryGold,
                         action: {
                             SoundManager.shared.playSound(.tap)
                             timerSettings.gameDuration = .fiveMinutes
