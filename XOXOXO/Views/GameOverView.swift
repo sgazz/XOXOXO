@@ -15,7 +15,6 @@ struct GameOverView: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @State private var showGameModeModal = false
     @State private var selectedGameMode: GameMode = .aiOpponent
-    @State private var showGameView = false
     
     private var deviceLayout: DeviceLayout {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
@@ -63,65 +62,7 @@ struct GameOverView: View {
             
             GeometryReader { geometry in
                 let spacing = deviceLayout.adaptiveSpacing
-                
-                if isLandscape {
-                    // Landscape layout
-                    VStack(spacing: spacing) {
-                        Spacer()
-                        
-                        GameOverIcon(timeoutPlayer: timeoutPlayer)
-                            .frame(width: min(geometry.size.width * 0.2, 150))
-                        GameOverTitle(timeoutPlayer: timeoutPlayer, score: score)
-                        
-                        GameStats(
-                            playerXTime: playerXTime,
-                            playerOTime: playerOTime,
-                            score: score
-                        )
-                        GameModeButtons(
-                            onPlayVsAI: { 
-                                selectedGameMode = .aiOpponent
-                                showGameModeModal = true 
-                            },
-                            onPlayVsPlayer: { 
-                                selectedGameMode = .playerVsPlayer
-                                showGameModeModal = true 
-                            }
-                        )
-                        
-                        Spacer()
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(spacing)
-                } else {
-                    // Portrait layout
-                    VStack(spacing: spacing) {
-                        Spacer()
-                        
-                        GameOverIcon(timeoutPlayer: timeoutPlayer)
-                            .frame(width: min(geometry.size.width * 0.4, 150))
-                        GameOverTitle(timeoutPlayer: timeoutPlayer, score: score)
-                        GameStats(
-                            playerXTime: playerXTime,
-                            playerOTime: playerOTime,
-                            score: score
-                        )
-                        GameModeButtons(
-                            onPlayVsAI: { 
-                                selectedGameMode = .aiOpponent
-                                showGameModeModal = true 
-                            },
-                            onPlayVsPlayer: { 
-                                selectedGameMode = .playerVsPlayer
-                                showGameModeModal = true 
-                            }
-                        )
-                        
-                        Spacer()
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(spacing)
-                }
+                gameOverContent(geometry: geometry, spacing: spacing)
             }
             
             if showGameModeModal {
@@ -148,6 +89,33 @@ struct GameOverView: View {
             insertion: .scale(scale: 0.8).combined(with: .opacity),
             removal: .scale(scale: 1.1).combined(with: .opacity)
         ))
+    }
+
+    private func gameOverContent(geometry: GeometryProxy, spacing: CGFloat) -> some View {
+        VStack(spacing: spacing) {
+            Spacer()
+            GameOverIcon(timeoutPlayer: timeoutPlayer)
+                .frame(width: min(geometry.size.width * (isLandscape ? 0.2 : 0.4), 150))
+            GameOverTitle(timeoutPlayer: timeoutPlayer, score: score)
+            GameStats(
+                playerXTime: playerXTime,
+                playerOTime: playerOTime,
+                score: score
+            )
+            GameModeButtons(
+                onPlayVsAI: {
+                    selectedGameMode = .aiOpponent
+                    showGameModeModal = true
+                },
+                onPlayVsPlayer: {
+                    selectedGameMode = .playerVsPlayer
+                    showGameModeModal = true
+                }
+            )
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(spacing)
     }
 }
 
@@ -365,19 +333,17 @@ private struct GameOverTitle: View {
     let score: (x: Int, o: Int)
     
     var body: some View {
-        VStack(spacing: 8) {
+        let title: String = {
             if let player = timeoutPlayer {
-                Text("\(player == "X" ? "Player O" : "Player X") Wins!")
-                    .font(Theme.TextStyle.title(size: 38))
-                    .foregroundColor(Theme.Colors.primaryGold)
-                    .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
+                return "\((player == "X") ? "Player O" : "Player X") Wins!"
             } else {
-                Text(score.x > score.o ? "Player X Wins!" : "Player O Wins!")
-                    .font(Theme.TextStyle.title(size: 38))
-                    .foregroundColor(Theme.Colors.primaryGold)
-                    .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
+                return score.x > score.o ? "Player X Wins!" : "Player O Wins!"
             }
-        }
+        }()
+        Text(title)
+            .font(Theme.TextStyle.title(size: 38))
+            .foregroundColor(Theme.Colors.primaryGold)
+            .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
     }
 }
 

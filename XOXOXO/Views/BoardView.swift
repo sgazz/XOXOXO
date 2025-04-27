@@ -11,8 +11,6 @@ struct BoardView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     
-    private let symbols = ["", "X", "O"]
-    
     private var deviceLayout: DeviceLayout {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
     }
@@ -43,7 +41,7 @@ struct BoardView: View {
                                 symbol: board[index],
                                 isActive: isActive && board[index].isEmpty,
                                 isAnimating: cellAnimations[index],
-                                deviceLayout: deviceLayout,
+                                cellSize: cellSize,
                                 goldGradient: goldGradient
                             )
                             .aspectRatio(1, contentMode: .fit)
@@ -198,7 +196,7 @@ struct CellView: View {
     let symbol: String
     let isActive: Bool
     let isAnimating: Bool
-    let deviceLayout: DeviceLayout
+    let cellSize: CGFloat
     let goldGradient: LinearGradient
     
     @Environment(\.colorScheme) private var colorScheme
@@ -267,10 +265,6 @@ struct CellView: View {
             )
     }
     
-    private var symbolSize: CGFloat {
-        deviceLayout.gridPadding * BoardConstants.symbolSizeMultiplier
-    }
-    
     var body: some View {
         ZStack {
             cellBackground
@@ -280,7 +274,7 @@ struct CellView: View {
                 SymbolView(
                     symbol: symbol,
                     isAnimating: isAnimating,
-                    size: symbolSize
+                    size: cellSize * 0.7
                 )
             }
         }
