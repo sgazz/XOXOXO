@@ -18,6 +18,12 @@ class GameLogic: ObservableObject {
     @Published var gameMode: GameMode = .aiOpponent
     @Published var winningIndexes: [Int] = []
     
+    // Нова променљива за праћење времена потеза
+    @Published var moveTimes: [(x: [TimeInterval], o: [TimeInterval])] = []
+    @Published var totalMoves: Int = 0
+    @Published var winningStreak: Int = 0
+    @Published var fastestMove: TimeInterval = .infinity
+    
     private let playerSettings = PlayerSettings.shared
     
     // Додајемо променљиву за праћење последњег победника
@@ -26,6 +32,9 @@ class GameLogic: ObservableObject {
     // Додајемо променљиву за праћење нерешеног резултата
     private var lastDrawBoard: Int?
 
+    // Нова променљива за праћење последњег времена потеза
+    private var lastMoveTime: Date = Date()
+    
     static let winningCombinations = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8], // horizontal
         [0, 3, 6], [1, 4, 7], [2, 5, 8], // vertical
@@ -42,6 +51,7 @@ class GameLogic: ObservableObject {
         self.totalScore = (x: 0, o: 0)
         self.gameMode = gameMode
         self.winningIndexes = []
+        self.moveTimes = Array(repeating: (x: [], o: []), count: Self.BOARD_COUNT)
         
         // Ако је играч изабрао O, AI треба да игра први
         if gameMode == .aiOpponent && !playerSettings.isPlayerX {
@@ -60,6 +70,24 @@ class GameLogic: ObservableObject {
         lastDrawBoard = nil
         winningIndexes = []
         
+        // Записујемо време потеза
+        let moveTime = Date().timeIntervalSince(lastMoveTime)
+        lastMoveTime = Date()
+        
+        // Ажурирамо статистику
+        if currentPlayer == "X" {
+            moveTimes[boardIndex].x.append(moveTime)
+        } else {
+            moveTimes[boardIndex].o.append(moveTime)
+        }
+        
+        // Ажурирамо најбржи потез
+        if moveTime < fastestMove {
+            fastestMove = moveTime
+        }
+        
+        totalMoves += 1
+        
         boards[boardIndex][position] = currentPlayer
 
         // Check if this board is complete
@@ -73,13 +101,16 @@ class GameLogic: ObservableObject {
                 if boardWinner == "X" {
                     boardScores[boardIndex].x += 1
                     totalScore.x += 1
+                    winningStreak = currentPlayer == "X" ? winningStreak + 1 : 1
                 } else {
                     boardScores[boardIndex].o += 1
                     totalScore.o += 1
+                    winningStreak = currentPlayer == "O" ? winningStreak + 1 : 1
                 }
             } else {
                 // Ако нема победника а табла је пуна, то је нерешено
                 lastDrawBoard = boardIndex
+                winningStreak = 0
             }
             // Reset this board
             boards[boardIndex] = Array(repeating: "", count: 9)
@@ -137,6 +168,13 @@ class GameLogic: ObservableObject {
         gameOver = false
         isThinking = false
         winningIndexes = []
+        
+        // Resetuj статистику
+        moveTimes = Array(repeating: (x: [], o: []), count: Self.BOARD_COUNT)
+        totalMoves = 0
+        winningStreak = 0
+        fastestMove = .infinity
+        lastMoveTime = Date()
         
         // Resetuj praćenje
         lastWinner = nil
@@ -214,5 +252,37 @@ class GameLogic: ObservableObject {
             return currentPlayer == playerSettings.playerSymbol
         }
         return true
+    }
+
+    // Нова рачунска особина за просечно време по потезу
+    var averageTimePerMove: (x: TimeInterval, o: TimeInterval) {
+        var xTotal: TimeInterval = 0
+        var oTotal: TimeInterval = 0
+        var xCount = 0
+        var oCount = 0
+        
+        for board in moveTimes {
+            xTotal += board.x.reduce(0, +)
+            oTotal += board.o.reduce(0, +)
+            xCount += board.x.count
+            oCount += board.o.count
+        }
+        
+        return (
+            x: xCount > 0 ? xTotal / Double(xCount) : 0,
+            o: oCount > 0 ? oTotal / Double(oCount) : 0
+        )
+    }
+    
+    // Нова метода за ресетовање само статистике
+    func resetStatistics() {
+        moveTimes = Array(repeating: (x: [], o: []), count: Self.BOARD_COUNT)
+        totalMoves = 0
+        winningStreak = 0
+        fastestMove = .infinity
+        lastMoveTime = Date()
+        
+        // Обавести UI да се статистика променила
+        objectWillChange.send()
     }
 }

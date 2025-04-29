@@ -190,6 +190,7 @@ struct GameView: View {
                         playerXTime: playerXTime,
                         playerOTime: playerOTime,
                         score: gameLogic.totalScore,
+                        gameLogic: gameLogic,
                         onPlayVsAI: {
                             gameLogic.changeGameMode(to: .aiOpponent)
                             resetGame()
@@ -197,6 +198,12 @@ struct GameView: View {
                         onPlayVsPlayer: {
                             gameLogic.changeGameMode(to: .playerVsPlayer)
                             resetGame()
+                        },
+                        onStart: {
+                            resetGame()
+                        },
+                        onResetStatistics: {
+                            gameLogic.resetStatistics()
                         }
                     )
                 }
