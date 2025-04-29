@@ -10,11 +10,14 @@ struct GameOverView: View {
     // Акције
     let onPlayVsAI: () -> Void
     let onPlayVsPlayer: () -> Void
+    let onStart: () -> Void
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @State private var showGameModeModal = false
     @State private var selectedGameMode: GameMode = .aiOpponent
+    @State private var isAISelected = false
+    @State private var isMultiplayerSelected = false
     
     private var deviceLayout: DeviceLayout {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
@@ -103,12 +106,7 @@ struct GameOverView: View {
                 score: score
             )
             GameModeButtons(
-                onPlayVsAI: {
-                    selectedGameMode = .aiOpponent
-                    showGameModeModal = true
-                },
-                onPlayVsPlayer: {
-                    selectedGameMode = .playerVsPlayer
+                onStart: {
                     showGameModeModal = true
                 }
             )
@@ -481,8 +479,7 @@ private struct StatBox: View {
 }
 
 private struct GameModeButtons: View {
-    let onPlayVsAI: () -> Void
-    let onPlayVsPlayer: () -> Void
+    let onStart: () -> Void
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
@@ -492,29 +489,16 @@ private struct GameModeButtons: View {
     
     var body: some View {
         VStack(spacing: 15) {
-            Button(action: onPlayVsAI) {
+            Button(action: onStart) {
                 HStack {
-            Image(systemName: "cpu")
-            Text("Single Player")
+                    Image(systemName: "play.fill")
+                    Text("Choose Game Mode")
                 }
                 .font(Theme.TextStyle.subtitle(size: isCompact ? 20 : 24))
-                .foregroundColor(Theme.Colors.primaryBlue)
+                .foregroundColor(Theme.Colors.primaryGold)
                 .frame(width: isCompact ? 250 : 300)
                 .padding(.vertical, isCompact ? 15 : 20)
-                .glowingBorder(color: Theme.Colors.primaryBlue)
-    }
-            .buttonStyle(Theme.MetallicButtonStyle())
-            
-            Button(action: onPlayVsPlayer) {
-                HStack {
-            Image(systemName: "person.2")
-                    Text("Multiplater")
-                }
-                .font(Theme.TextStyle.subtitle(size: isCompact ? 20 : 24))
-                .foregroundColor(Theme.Colors.primaryOrange)
-                .frame(width: isCompact ? 250 : 300)
-                .padding(.vertical, isCompact ? 15 : 20)
-                .glowingBorder(color: Theme.Colors.primaryOrange)
+                .glowingBorder(color: Theme.Colors.primaryGold)
             }
             .buttonStyle(Theme.MetallicButtonStyle())
         }
@@ -529,6 +513,7 @@ private struct GameModeButtons: View {
         playerOTime: 180,
         score: (x: 3, o: 5),
         onPlayVsAI: {},
-        onPlayVsPlayer: {}
+        onPlayVsPlayer: {},
+        onStart: {}
     )
 } 
