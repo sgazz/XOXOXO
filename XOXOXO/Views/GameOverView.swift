@@ -17,6 +17,7 @@ struct GameOverView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @State private var showGameModeModal = false
+    @State private var showAllTimeStats = false
     @State private var selectedGameMode: GameMode = .aiOpponent
     @State private var isAISelected = false
     @State private var isMultiplayerSelected = false
@@ -31,6 +32,10 @@ struct GameOverView: View {
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
+    }
+    
+    private var isCompact: Bool {
+        horizontalSizeClass == .compact
     }
     
     var body: some View {
@@ -89,6 +94,19 @@ struct GameOverView: View {
                     }
                 )
             }
+            
+            if showAllTimeStats {
+                AllTimeStatsView(
+                    playerStats: [(x: gameLogic.playerStats.x, o: gameLogic.playerStats.o)],
+                    onReset: {
+                        gameLogic.resetStatistics()
+                        showAllTimeStats = false
+                    },
+                    onClose: {
+                        showAllTimeStats = false
+                    }
+                )
+            }
         }
         .transition(.asymmetric(
             insertion: .scale(scale: 0.8).combined(with: .opacity),
@@ -107,6 +125,39 @@ struct GameOverView: View {
                 playerStats: gameLogic.playerStats,
                 onResetStatistics: onResetStatistics
             )
+            
+            // Dugmad za statistiku
+            HStack(spacing: 15) {
+                // Reset Statistics dugme
+                Button(action: onResetStatistics) {
+                    HStack {
+                        Image(systemName: "arrow.counterclockwise")
+                        Text("Reset Stats")
+                    }
+                    .font(Theme.TextStyle.subtitle(size: isCompact ? 16 : 18))
+                    .foregroundColor(Theme.Colors.primaryGold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, isCompact ? 12 : 15)
+                    .glowingBorder(color: Theme.Colors.primaryGold)
+                }
+                .buttonStyle(Theme.MetallicButtonStyle())
+                
+                // All Time Stats dugme
+                Button(action: { showAllTimeStats = true }) {
+                    HStack {
+                        Image(systemName: "chart.bar.fill")
+                        Text("All Time Stats")
+                    }
+                    .font(Theme.TextStyle.subtitle(size: isCompact ? 16 : 18))
+                    .foregroundColor(Theme.Colors.primaryGold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, isCompact ? 12 : 15)
+                    .glowingBorder(color: Theme.Colors.primaryGold)
+                }
+                .buttonStyle(Theme.MetallicButtonStyle())
+            }
+            .padding(.horizontal)
+            
             GameModeButtons(
                 onStart: {
                     showGameModeModal = true
