@@ -21,6 +21,19 @@ An unusual version of Tic-Tac-Toe written in SwiftUI.
 - Interaction sounds
 - iPad and iPhone support
 - Support for different screen orientations
+- Detailed player statistics:
+  - Total games played
+  - Win rate
+  - Total moves
+  - Fastest move
+  - Average move time
+  - Total move time
+  - Winning streaks
+  - Perfect games (winning without losing a field)
+  - Comeback victories (winning after losing 2+ boards)
+  - Move analysis (corner moves, center moves, side moves)
+  - Board-specific statistics
+  - Time-based statistics
 
 ## Project Structure
 
