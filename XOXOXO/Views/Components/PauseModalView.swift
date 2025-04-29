@@ -69,10 +69,12 @@ struct PauseModalView: View {
                 // Модални прозор
                 VStack(spacing: geometry.size.height * 0.025) {
                     // Title
-                    Text("Pause")
-                        .font(Theme.TextStyle.title(size: min(geometry.size.width * 0.08, 36)))
+                    Text("PAUSE")
+                        .font(Theme.TextStyle.title(size: min(geometry.size.width * 0.12, 48)))
                         .foregroundColor(Theme.Colors.primaryOrange)
                         .shadow(color: Theme.Colors.primaryOrange.opacity(0.5), radius: 10)
+                        .shadow(color: Theme.Colors.primaryOrange.opacity(0.3), radius: 20)
+                        .scaleEffect(1.1)
                     
                     // Buttons
                     VStack(spacing: geometry.size.height * 0.018) {
@@ -83,9 +85,9 @@ struct PauseModalView: View {
                         }) {
                             HStack(spacing: geometry.size.width * 0.04) {
                                 Image(systemName: "play.fill")
-                                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.07, 28)))
+                                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.08, 32)))
                                 Text("Go!")
-                                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.07, 28)))
+                                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.08, 32)))
                             }
                             .foregroundColor(Theme.Colors.primaryGold)
                             .frame(maxWidth: geometry.size.width * 0.8)
@@ -101,9 +103,9 @@ struct PauseModalView: View {
                         }) {
                             HStack(spacing: geometry.size.width * 0.04) {
                                 Image(systemName: "arrow.clockwise")
-                                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.07, 28)))
-                                Text("Restart")
-                                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.07, 28)))
+                                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.08, 32)))
+                                Text("Choose Game Mode")
+                                    .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.08, 32)))
                             }
                             .foregroundColor(Theme.Colors.primaryBronze)
                             .frame(maxWidth: geometry.size.width * 0.8)

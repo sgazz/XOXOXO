@@ -124,10 +124,11 @@ struct GameModeModalView: View {
                             }
                         }
                         
-                        Text(playerSettings.isPlayerX ? "You play first (X)" : "AI plays first (X)")
-                            .font(Theme.TextStyle.body(size: min(geometry.size.width * 0.045, 18)))
-                            .foregroundColor(Theme.Colors.metalGray)
+                        Text(playerSettings.isPlayerX ? "You play first as X" : "AI plays first as X")
+                            .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.05, 20)))
+                            .foregroundColor(playerSettings.isPlayerX ? Theme.Colors.primaryBlue : Theme.Colors.primaryOrange)
                             .padding(.top, geometry.size.height * 0.008)
+                            .shadow(color: playerSettings.isPlayerX ? Theme.Colors.primaryBlue.opacity(0.5) : Theme.Colors.primaryOrange.opacity(0.5), radius: 5)
                     }
                     .padding(.vertical, geometry.size.height * 0.018)
                     
