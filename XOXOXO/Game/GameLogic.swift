@@ -24,6 +24,36 @@ class GameLogic: ObservableObject {
     @Published var winningStreak: Int = 0
     @Published var fastestMove: TimeInterval = .infinity
     
+    // Нове променљиве за праћење статистике по играчу
+    @Published var playerStats: (x: PlayerStats, o: PlayerStats) = (
+        x: PlayerStats(),
+        o: PlayerStats()
+    )
+    
+    struct PlayerStats {
+        var totalGames: Int = 0
+        var gamesWon: Int = 0
+        var totalMoves: Int = 0
+        var fastestMove: TimeInterval = .infinity
+        var totalMoveTime: TimeInterval = 0
+        
+        var averageMoveTime: TimeInterval {
+            return totalMoves > 0 ? totalMoveTime / Double(totalMoves) : 0
+        }
+        
+        var winRate: Double {
+            return totalGames > 0 ? Double(gamesWon) / Double(totalGames) : 0
+        }
+        
+        mutating func reset() {
+            totalGames = 0
+            gamesWon = 0
+            totalMoves = 0
+            fastestMove = .infinity
+            totalMoveTime = 0
+        }
+    }
+    
     private let playerSettings = PlayerSettings.shared
     
     // Додајемо променљиву за праћење последњег победника
@@ -77,8 +107,18 @@ class GameLogic: ObservableObject {
         // Ажурирамо статистику
         if currentPlayer == "X" {
             moveTimes[boardIndex].x.append(moveTime)
+            playerStats.x.totalMoves += 1
+            playerStats.x.totalMoveTime += moveTime
+            if moveTime < playerStats.x.fastestMove {
+                playerStats.x.fastestMove = moveTime
+            }
         } else {
             moveTimes[boardIndex].o.append(moveTime)
+            playerStats.o.totalMoves += 1
+            playerStats.o.totalMoveTime += moveTime
+            if moveTime < playerStats.o.fastestMove {
+                playerStats.o.fastestMove = moveTime
+            }
         }
         
         // Ажурирамо најбржи потез
@@ -102,15 +142,23 @@ class GameLogic: ObservableObject {
                     boardScores[boardIndex].x += 1
                     totalScore.x += 1
                     winningStreak = currentPlayer == "X" ? winningStreak + 1 : 1
+                    playerStats.x.gamesWon += 1
+                    playerStats.x.totalGames += 1
+                    playerStats.o.totalGames += 1
                 } else {
                     boardScores[boardIndex].o += 1
                     totalScore.o += 1
                     winningStreak = currentPlayer == "O" ? winningStreak + 1 : 1
+                    playerStats.o.gamesWon += 1
+                    playerStats.o.totalGames += 1
+                    playerStats.x.totalGames += 1
                 }
             } else {
                 // Ако нема победника а табла је пуна, то је нерешено
                 lastDrawBoard = boardIndex
                 winningStreak = 0
+                playerStats.x.totalGames += 1
+                playerStats.o.totalGames += 1
             }
             // Reset this board
             boards[boardIndex] = Array(repeating: "", count: 9)
@@ -175,6 +223,10 @@ class GameLogic: ObservableObject {
         winningStreak = 0
         fastestMove = .infinity
         lastMoveTime = Date()
+        
+        // Ресетујемо статистику играча
+        playerStats.x.reset()
+        playerStats.o.reset()
         
         // Resetuj praćenje
         lastWinner = nil
@@ -281,6 +333,10 @@ class GameLogic: ObservableObject {
         winningStreak = 0
         fastestMove = .infinity
         lastMoveTime = Date()
+        
+        // Ресетујемо статистику играча
+        playerStats.x.reset()
+        playerStats.o.reset()
         
         // Обавести UI да се статистика променила
         objectWillChange.send()
