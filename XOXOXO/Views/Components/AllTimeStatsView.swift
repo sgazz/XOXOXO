@@ -18,197 +18,51 @@ struct AllTimeStatsView: View {
                 // Main content
                 VStack(spacing: 20) {
                     // Title section
-                    VStack(spacing: 10) {
-                        Text("All Time Statistics")
-                            .font(Theme.TextStyle.title(size: 32))
-                            .foregroundColor(Theme.Colors.primaryGold)
-                            .padding(.top, 20)
-                        
-                        Text("Detailed player performance metrics")
-                            .font(Theme.TextStyle.body(size: 16))
-                            .foregroundColor(.white.opacity(0.7))
-                    }
-                    .padding(.bottom, 10)
+                    StatsTitleView()
                     
                     // Scrollable content
                     ScrollView(.vertical, showsIndicators: true) {
                         VStack(spacing: 25) {
                             // Headers
-                            HStack(spacing: 0) {
-                                Text("Player X")
-                                    .font(Theme.TextStyle.subtitle(size: 24))
-                                    .foregroundColor(Theme.Colors.primaryBlue)
-                                    .frame(maxWidth: .infinity)
-                                
-                                Text("Statistics")
-                                    .font(Theme.TextStyle.subtitle(size: 24))
-                                    .foregroundColor(Theme.Colors.primaryGold)
-                                    .frame(maxWidth: .infinity)
-                                
-                                Text("Player O")
-                                    .font(Theme.TextStyle.subtitle(size: 24))
-                                    .foregroundColor(Theme.Colors.primaryOrange)
-                                    .frame(maxWidth: .infinity)
-                            }
-                            .padding(.bottom, 10)
+                            StatsHeaderView()
                             
                             // Game Statistics
-                            statsRow(
-                                title: "Total Games",
-                                xValue: "\(playerStats[0].x.totalGames)",
-                                oValue: "\(playerStats[0].o.totalGames)"
-                            )
-                            
-                            statsRow(
-                                title: "Games Won",
-                                xValue: "\(playerStats[0].x.gamesWon)",
-                                oValue: "\(playerStats[0].o.gamesWon)"
-                            )
-                            
-                            statsRow(
-                                title: "Win Rate",
-                                xValue: String(format: "%.1f%%", playerStats[0].x.winRate),
-                                oValue: String(format: "%.1f%%", playerStats[0].o.winRate)
-                            )
-                            
-                            statsRow(
-                                title: "Games Lost",
-                                xValue: "\(playerStats[0].x.gamesLost)",
-                                oValue: "\(playerStats[0].o.gamesLost)"
-                            )
-                            
-                            statsRow(
-                                title: "Games Drawn",
-                                xValue: "\(playerStats[0].x.gamesDrawn)",
-                                oValue: "\(playerStats[0].o.gamesDrawn)"
-                            )
+                            GameStatsView(playerStats: playerStats)
                             
                             Divider()
                                 .background(Theme.Colors.primaryGold.opacity(0.3))
                                 .padding(.vertical, 10)
                             
                             // Versus Statistics
-                            statsRow(
-                                title: "vs AI",
-                                xValue: "\(playerStats[0].x.vsAIGames)",
-                                oValue: "\(playerStats[0].o.vsAIGames)"
-                            )
-                            
-                            statsRow(
-                                title: "vs Player",
-                                xValue: "\(playerStats[0].x.vsPlayerGames)",
-                                oValue: "\(playerStats[0].o.vsPlayerGames)"
-                            )
+                            VersusStatsView(playerStats: playerStats)
                             
                             Divider()
                                 .background(Theme.Colors.primaryGold.opacity(0.3))
                                 .padding(.vertical, 10)
                             
                             // Time Statistics
-                            statsRow(
-                                title: "Total Game Time",
-                                xValue: String(format: "%.1f min", playerStats[0].x.totalGameTime / 60),
-                                oValue: String(format: "%.1f min", playerStats[0].o.totalGameTime / 60)
-                            )
-                            
-                            statsRow(
-                                title: "Average Game Time",
-                                xValue: String(format: "%.1f min", playerStats[0].x.averageGameTime / 60),
-                                oValue: String(format: "%.1f min", playerStats[0].o.averageGameTime / 60)
-                            )
-                            
-                            statsRow(
-                                title: "Fastest Win",
-                                xValue: String(format: "%.1f sec", playerStats[0].x.fastestWin),
-                                oValue: String(format: "%.1f sec", playerStats[0].o.fastestWin)
-                            )
+                            TimeStatsView(playerStats: playerStats)
                             
                             Divider()
                                 .background(Theme.Colors.primaryGold.opacity(0.3))
                                 .padding(.vertical, 10)
                             
                             // Move Statistics
-                            statsRow(
-                                title: "Total Moves",
-                                xValue: "\(playerStats[0].x.totalMoves)",
-                                oValue: "\(playerStats[0].o.totalMoves)"
-                            )
-                            
-                            statsRow(
-                                title: "Center Moves",
-                                xValue: "\(playerStats[0].x.centerMoves)",
-                                oValue: "\(playerStats[0].o.centerMoves)"
-                            )
-                            
-                            statsRow(
-                                title: "Corner Moves",
-                                xValue: "\(playerStats[0].x.cornerMoves)",
-                                oValue: "\(playerStats[0].o.cornerMoves)"
-                            )
-                            
-                            statsRow(
-                                title: "Center Move %",
-                                xValue: String(format: "%.1f%%", playerStats[0].x.centerMovePercentage),
-                                oValue: String(format: "%.1f%%", playerStats[0].o.centerMovePercentage)
-                            )
-                            
-                            statsRow(
-                                title: "Corner Move %",
-                                xValue: String(format: "%.1f%%", playerStats[0].x.cornerMovePercentage),
-                                oValue: String(format: "%.1f%%", playerStats[0].o.cornerMovePercentage)
-                            )
+                            MoveStatsView(playerStats: playerStats)
                             
                             Divider()
                                 .background(Theme.Colors.primaryGold.opacity(0.3))
                                 .padding(.vertical, 10)
                             
                             // Board Statistics
-                            statsRow(
-                                title: "Boards Won",
-                                xValue: "\(playerStats[0].x.boardsWon)",
-                                oValue: "\(playerStats[0].o.boardsWon)"
-                            )
-                            
-                            statsRow(
-                                title: "Total Boards",
-                                xValue: "\(playerStats[0].x.totalBoards)",
-                                oValue: "\(playerStats[0].o.totalBoards)"
-                            )
+                            BoardStatsView(playerStats: playerStats)
                             
                             Divider()
                                 .background(Theme.Colors.primaryGold.opacity(0.3))
                                 .padding(.vertical, 10)
                             
                             // Streaks and Bonuses
-                            statsRow(
-                                title: "Current Win Streak",
-                                xValue: "\(playerStats[0].x.currentWinStreak)",
-                                oValue: "\(playerStats[0].o.currentWinStreak)"
-                            )
-                            
-                            statsRow(
-                                title: "Best Win Streak",
-                                xValue: "\(playerStats[0].x.longestWinStreak)",
-                                oValue: "\(playerStats[0].o.longestWinStreak)"
-                            )
-                            
-                            statsRow(
-                                title: "Comeback Wins",
-                                xValue: "\(playerStats[0].x.comebackWins)",
-                                oValue: "\(playerStats[0].o.comebackWins)"
-                            )
-                            
-                            statsRow(
-                                title: "Bonus Points",
-                                xValue: "\(playerStats[0].x.bonusCount)",
-                                oValue: "\(playerStats[0].o.bonusCount)"
-                            )
-                            
-                            statsRow(
-                                title: "Penalty Points",
-                                xValue: "\(playerStats[0].x.penaltyCount)",
-                                oValue: "\(playerStats[0].o.penaltyCount)"
-                            )
+                            StreakStatsView(playerStats: playerStats)
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 20)
@@ -216,32 +70,7 @@ struct AllTimeStatsView: View {
                     .frame(maxHeight: .infinity)
                     
                     // Buttons
-                    HStack(spacing: 20) {
-                        Button(action: onReset) {
-                            HStack {
-                                Image(systemName: "arrow.counterclockwise")
-                                Text("Reset All Time Stats")
-                            }
-                            .font(Theme.TextStyle.body(size: 16))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                        }
-                        .buttonStyle(Theme.MetallicButtonStyle())
-                        
-                        Button(action: onClose) {
-                            HStack {
-                                Image(systemName: "xmark")
-                                Text("Back")
-                            }
-                            .font(Theme.TextStyle.body(size: 16))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                        }
-                        .buttonStyle(Theme.MetallicButtonStyle())
-                    }
-                    .padding(.bottom, 20)
+                    StatsButtonsView(onReset: onReset, onClose: onClose)
                 }
                 .frame(width: min(geometry.size.width * 0.9, 800))
                 .background(
@@ -257,26 +86,280 @@ struct AllTimeStatsView: View {
             }
         }
     }
-    
-    private func statsRow(title: String, xValue: String, oValue: String) -> some View {
-        HStack(spacing: 0) {
-            Text(xValue)
+}
+
+// MARK: - Supporting Views
+struct StatsTitleView: View {
+    var body: some View {
+        VStack(spacing: 10) {
+            Text("All Time Statistics")
+                .font(Theme.TextStyle.title(size: 32))
+                .foregroundColor(Theme.Colors.primaryGold)
+                .padding(.top, 20)
+            
+            Text("Detailed player performance metrics")
                 .font(Theme.TextStyle.body(size: 16))
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .padding(.bottom, 10)
+    }
+}
+
+struct StatsHeaderView: View {
+    var body: some View {
+        HStack(spacing: 0) {
+            Text("Player X")
+                .font(Theme.TextStyle.subtitle(size: 24))
                 .foregroundColor(Theme.Colors.primaryBlue)
                 .frame(maxWidth: .infinity)
             
-            Text(title)
-                .font(Theme.TextStyle.body(size: 16))
-                .foregroundColor(.white.opacity(0.7))
+            Text("Statistics")
+                .font(Theme.TextStyle.subtitle(size: 24))
+                .foregroundColor(Theme.Colors.primaryGold)
                 .frame(maxWidth: .infinity)
             
-            Text(oValue)
-                .font(Theme.TextStyle.body(size: 16))
+            Text("Player O")
+                .font(Theme.TextStyle.subtitle(size: 24))
                 .foregroundColor(Theme.Colors.primaryOrange)
                 .frame(maxWidth: .infinity)
         }
-        .padding(.vertical, 5)
+        .padding(.bottom, 10)
     }
+}
+
+struct GameStatsView: View {
+    let playerStats: [(x: GameLogic.PlayerStats, o: GameLogic.PlayerStats)]
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            statsRow(
+                title: "Total Games",
+                xValue: "\(playerStats[0].x.totalGames)",
+                oValue: "\(playerStats[0].o.totalGames)"
+            )
+            
+            statsRow(
+                title: "Games Won",
+                xValue: "\(playerStats[0].x.gamesWon)",
+                oValue: "\(playerStats[0].o.gamesWon)"
+            )
+            
+            statsRow(
+                title: "Win Rate",
+                xValue: String(format: "%.1f%%", playerStats[0].x.winRate),
+                oValue: String(format: "%.1f%%", playerStats[0].o.winRate)
+            )
+            
+            statsRow(
+                title: "Games Lost",
+                xValue: "\(playerStats[0].x.totalGames - playerStats[0].x.gamesWon - playerStats[0].x.gamesDrawn)",
+                oValue: "\(playerStats[0].o.totalGames - playerStats[0].o.gamesWon - playerStats[0].o.gamesDrawn)"
+            )
+            
+            statsRow(
+                title: "Games Drawn",
+                xValue: "\(playerStats[0].x.gamesDrawn)",
+                oValue: "\(playerStats[0].o.gamesDrawn)"
+            )
+        }
+    }
+}
+
+struct VersusStatsView: View {
+    let playerStats: [(x: GameLogic.PlayerStats, o: GameLogic.PlayerStats)]
+    
+    var body: some View {
+        Group {
+            statsRow(
+                title: "vs AI",
+                xValue: "\(playerStats[0].x.vsAIGames)",
+                oValue: "\(playerStats[0].o.vsAIGames)"
+            )
+            
+            statsRow(
+                title: "vs Player",
+                xValue: "\(playerStats[0].x.vsPlayerGames)",
+                oValue: "\(playerStats[0].o.vsPlayerGames)"
+            )
+        }
+    }
+}
+
+struct TimeStatsView: View {
+    let playerStats: [(x: GameLogic.PlayerStats, o: GameLogic.PlayerStats)]
+    
+    var body: some View {
+        Group {
+            statsRow(
+                title: "Total Game Time",
+                xValue: String(format: "%.1f min", playerStats[0].x.totalGameTime / 60),
+                oValue: String(format: "%.1f min", playerStats[0].o.totalGameTime / 60)
+            )
+            
+            statsRow(
+                title: "Average Game Time",
+                xValue: String(format: "%.1f min", playerStats[0].x.averageGameTime / 60),
+                oValue: String(format: "%.1f min", playerStats[0].o.averageGameTime / 60)
+            )
+            
+            statsRow(
+                title: "Fastest Win",
+                xValue: String(format: "%.1f sec", playerStats[0].x.fastestWin),
+                oValue: String(format: "%.1f sec", playerStats[0].o.fastestWin)
+            )
+        }
+    }
+}
+
+struct MoveStatsView: View {
+    let playerStats: [(x: GameLogic.PlayerStats, o: GameLogic.PlayerStats)]
+    
+    var body: some View {
+        Group {
+            statsRow(
+                title: "Total Moves",
+                xValue: "\(playerStats[0].x.totalMoves)",
+                oValue: "\(playerStats[0].o.totalMoves)"
+            )
+            
+            statsRow(
+                title: "Center Moves",
+                xValue: "\(playerStats[0].x.centerMoves)",
+                oValue: "\(playerStats[0].o.centerMoves)"
+            )
+            
+            statsRow(
+                title: "Corner Moves",
+                xValue: "\(playerStats[0].x.cornerMoves)",
+                oValue: "\(playerStats[0].o.cornerMoves)"
+            )
+            
+            statsRow(
+                title: "Center Move %",
+                xValue: String(format: "%.1f%%", playerStats[0].x.centerMovePercentage),
+                oValue: String(format: "%.1f%%", playerStats[0].o.centerMovePercentage)
+            )
+            
+            statsRow(
+                title: "Corner Move %",
+                xValue: String(format: "%.1f%%", playerStats[0].x.cornerMovePercentage),
+                oValue: String(format: "%.1f%%", playerStats[0].o.cornerMovePercentage)
+            )
+        }
+    }
+}
+
+struct BoardStatsView: View {
+    let playerStats: [(x: GameLogic.PlayerStats, o: GameLogic.PlayerStats)]
+    
+    var body: some View {
+        Group {
+            statsRow(
+                title: "Boards Won",
+                xValue: "\(playerStats[0].x.boardsWon)",
+                oValue: "\(playerStats[0].o.boardsWon)"
+            )
+            
+            statsRow(
+                title: "Total Boards",
+                xValue: "\(playerStats[0].x.totalBoards)",
+                oValue: "\(playerStats[0].o.totalBoards)"
+            )
+        }
+    }
+}
+
+struct StreakStatsView: View {
+    let playerStats: [(x: GameLogic.PlayerStats, o: GameLogic.PlayerStats)]
+    
+    var body: some View {
+        Group {
+            statsRow(
+                title: "Current Win Streak",
+                xValue: "\(playerStats[0].x.currentWinStreak)",
+                oValue: "\(playerStats[0].o.currentWinStreak)"
+            )
+            
+            statsRow(
+                title: "Best Win Streak",
+                xValue: "\(playerStats[0].x.longestWinStreak)",
+                oValue: "\(playerStats[0].o.longestWinStreak)"
+            )
+            
+            statsRow(
+                title: "Comeback Wins",
+                xValue: "\(playerStats[0].x.comebackWins)",
+                oValue: "\(playerStats[0].o.comebackWins)"
+            )
+            
+            statsRow(
+                title: "Bonus Points",
+                xValue: "\(playerStats[0].x.bonusCount)",
+                oValue: "\(playerStats[0].o.bonusCount)"
+            )
+            
+            statsRow(
+                title: "Penalty Points",
+                xValue: "\(playerStats[0].x.penaltyCount)",
+                oValue: "\(playerStats[0].o.penaltyCount)"
+            )
+        }
+    }
+}
+
+struct StatsButtonsView: View {
+    let onReset: () -> Void
+    let onClose: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 20) {
+            Button(action: onReset) {
+                HStack {
+                    Image(systemName: "arrow.counterclockwise")
+                    Text("Reset All Time Stats")
+                }
+                .font(Theme.TextStyle.body(size: 16))
+                .foregroundColor(.white)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+            }
+            .buttonStyle(Theme.MetallicButtonStyle())
+            
+            Button(action: onClose) {
+                HStack {
+                    Image(systemName: "xmark")
+                    Text("Back")
+                }
+                .font(Theme.TextStyle.body(size: 16))
+                .foregroundColor(.white)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+            }
+            .buttonStyle(Theme.MetallicButtonStyle())
+        }
+        .padding(.bottom, 20)
+    }
+}
+
+// MARK: - Helper Functions
+private func statsRow(title: String, xValue: String, oValue: String) -> some View {
+    HStack(spacing: 0) {
+        Text(xValue)
+            .font(Theme.TextStyle.body(size: 16))
+            .foregroundColor(Theme.Colors.primaryBlue)
+            .frame(maxWidth: .infinity)
+        
+        Text(title)
+            .font(Theme.TextStyle.body(size: 16))
+            .foregroundColor(.white.opacity(0.7))
+            .frame(maxWidth: .infinity)
+        
+        Text(oValue)
+            .font(Theme.TextStyle.body(size: 16))
+            .foregroundColor(Theme.Colors.primaryOrange)
+            .frame(maxWidth: .infinity)
+    }
+    .padding(.vertical, 5)
 }
 
 #Preview {

@@ -33,24 +33,58 @@ class GameLogic: ObservableObject {
     struct PlayerStats {
         var totalGames: Int = 0
         var gamesWon: Int = 0
+        var gamesDrawn: Int = 0
         var totalMoves: Int = 0
         var fastestMove: TimeInterval = .infinity
         var totalMoveTime: TimeInterval = 0
+        var vsAIGames: Int = 0
+        var vsPlayerGames: Int = 0
+        var totalGameTime: TimeInterval = 0
+        var averageGameTime: TimeInterval = 0
+        var fastestWin: TimeInterval = .infinity
+        var centerMoves: Int = 0
+        var cornerMoves: Int = 0
+        var centerMovePercentage: Double = 0
+        var cornerMovePercentage: Double = 0
+        var boardsWon: Int = 0
+        var totalBoards: Int = 0
+        var currentWinStreak: Int = 0
+        var longestWinStreak: Int = 0
+        var comebackWins: Int = 0
+        var bonusCount: Int = 0
+        var penaltyCount: Int = 0
         
         var averageMoveTime: TimeInterval {
             return totalMoves > 0 ? totalMoveTime / Double(totalMoves) : 0
         }
         
         var winRate: Double {
-            return totalGames > 0 ? Double(gamesWon) / Double(totalGames) : 0
+            return totalGames > 0 ? Double(gamesWon) / Double(totalGames) * 100 : 0
         }
         
         mutating func reset() {
             totalGames = 0
             gamesWon = 0
+            gamesDrawn = 0
             totalMoves = 0
             fastestMove = .infinity
             totalMoveTime = 0
+            vsAIGames = 0
+            vsPlayerGames = 0
+            totalGameTime = 0
+            averageGameTime = 0
+            fastestWin = .infinity
+            centerMoves = 0
+            cornerMoves = 0
+            centerMovePercentage = 0
+            cornerMovePercentage = 0
+            boardsWon = 0
+            totalBoards = 0
+            currentWinStreak = 0
+            longestWinStreak = 0
+            comebackWins = 0
+            bonusCount = 0
+            penaltyCount = 0
         }
     }
     
