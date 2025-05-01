@@ -55,7 +55,7 @@ struct StatisticsView: View {
                 }
                 .font(Theme.TextStyle.subtitle(size: isCompact ? 16 : 18))
                 .foregroundColor(Theme.Colors.primaryGold)
-                .frame(maxWidth: .infinity)
+                .frame(width: isCompact ? 250 : 300)
                 .padding(.vertical, isCompact ? 12 : 15)
                 .glowingBorder(color: Theme.Colors.primaryGold)
             }
@@ -143,7 +143,7 @@ private struct PlayerStatsColumn: View {
             // Проценат победа
             StatBox(
                 title: "Win Rate",
-                value: String(format: "%.1f%%", stats.winRate * 100),
+                value: String(format: "%.1f%%", stats.winRate),
                 color: color
             )
             
@@ -175,7 +175,10 @@ private struct PlayerStatsColumn: View {
     }
     
     private func formatMoveTime(_ time: TimeInterval) -> String {
-        String(format: "%.1fs", time)
+        if time == .infinity {
+            return "0.0s"
+        }
+        return String(format: "%.1fs", time)
     }
 }
 
