@@ -17,7 +17,6 @@ struct GameOverView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @State private var showGameModeModal = false
-    @State private var showAllTimeStats = false
     @State private var selectedGameMode: GameMode = .aiOpponent
     @State private var isAISelected = false
     @State private var isMultiplayerSelected = false
@@ -94,19 +93,6 @@ struct GameOverView: View {
                     }
                 )
             }
-            
-            if showAllTimeStats {
-                AllTimeStatsView(
-                    stats: gameLogic.playerStats.x,
-                    onClose: {
-                        showAllTimeStats = false
-                    },
-                    onReset: {
-                        gameLogic.resetStatistics()
-                        showAllTimeStats = false
-                    }
-                )
-            }
         }
         .transition(.asymmetric(
             insertion: .scale(scale: 0.8).combined(with: .opacity),
@@ -124,24 +110,6 @@ struct GameOverView: View {
                 playerStats: gameLogic.playerStats,
                 onResetStatistics: onResetStatistics
             )
-            
-            // Dugmad za statistiku
-            HStack(spacing: 15) {
-                // All Time Stats dugme
-                Button(action: { showAllTimeStats = true }) {
-                    HStack {
-                        Image(systemName: "chart.bar.fill")
-                        Text("All Time Stats")
-                    }
-                    .font(Theme.TextStyle.subtitle(size: isCompact ? 16 : 18))
-                    .foregroundColor(Theme.Colors.primaryGold)
-                    .frame(width: isCompact ? 250 : 300)
-                    .padding(.vertical, isCompact ? 12 : 15)
-                    .glowingBorder(color: Theme.Colors.primaryGold)
-                }
-                .buttonStyle(Theme.MetallicButtonStyle())
-            }
-            .padding(.horizontal)
             
             GameModeButtons(
                 onStart: {
@@ -198,7 +166,7 @@ private struct GameModeButtons: View {
             Button(action: onStart) {
                 HStack {
                     Image(systemName: "play.fill")
-                    Text("Choose Game Mode")
+                    Text("Play Again")
                 }
                 .font(Theme.TextStyle.subtitle(size: isCompact ? 16 : 18))
                 .foregroundColor(Theme.Colors.primaryGold)
@@ -208,14 +176,13 @@ private struct GameModeButtons: View {
             }
             .buttonStyle(Theme.MetallicButtonStyle())
         }
-        .padding(.top, isCompact ? 15 : 40)
     }
 }
 
 #Preview {
     GameOverView(
-        timeoutPlayer: "X",
-        playerXTime: 0,
+        timeoutPlayer: nil,
+        playerXTime: 120,
         playerOTime: 180,
         score: (x: 3, o: 5),
         gameLogic: GameLogic(),
@@ -224,4 +191,5 @@ private struct GameModeButtons: View {
         onStart: {},
         onResetStatistics: {}
     )
+    .preferredColorScheme(.dark)
 } 

@@ -153,13 +153,6 @@ private struct PlayerStatsColumn: View {
                 color: color
             )
             
-            // Најбржи потез
-            StatBox(
-                title: "Fastest",
-                value: formatMoveTime(stats.fastestMove),
-                color: color
-            )
-            
             // Укупно потеза
             StatBox(
                 title: "Moves",
@@ -237,21 +230,19 @@ private struct StatBox: View {
                 totalGames: 10,
                 gamesWon: 6,
                 totalMoves: 42,
-                fastestMove: 1.2,
+                averageMoveTime: 1.2,
                 totalMoveTime: 360
             ),
             o: GameLogic.PlayerStats(
                 totalGames: 10,
                 gamesWon: 4,
                 totalMoves: 38,
-                fastestMove: 1.5,
+                averageMoveTime: 1.5,
                 totalMoveTime: 420
             )
         ),
         onResetStatistics: {}
     )
-    .background(Theme.Colors.darkGradient)
-    .environment(\.horizontalSizeClass, .compact)
 }
 
 #Preview("Statistics View - Landscape") {
@@ -264,14 +255,14 @@ private struct StatBox: View {
                 totalGames: 10,
                 gamesWon: 6,
                 totalMoves: 42,
-                fastestMove: 1.2,
+                averageMoveTime: 1.2,
                 totalMoveTime: 360
             ),
             o: GameLogic.PlayerStats(
                 totalGames: 10,
                 gamesWon: 4,
                 totalMoves: 38,
-                fastestMove: 1.5,
+                averageMoveTime: 1.5,
                 totalMoveTime: 420
             )
         ),
