@@ -97,12 +97,12 @@ struct GameOverView: View {
             
             if showAllTimeStats {
                 AllTimeStatsView(
-                    playerStats: [(x: gameLogic.playerStats.x, o: gameLogic.playerStats.o)],
-                    onReset: {
-                        gameLogic.resetStatistics()
+                    stats: gameLogic.playerStats.x,
+                    onClose: {
                         showAllTimeStats = false
                     },
-                    onClose: {
+                    onReset: {
+                        gameLogic.resetStatistics()
                         showAllTimeStats = false
                     }
                 )
@@ -116,7 +116,6 @@ struct GameOverView: View {
 
     private func gameOverContent(geometry: GeometryProxy, spacing: CGFloat) -> some View {
         VStack(spacing: spacing) {
-            Spacer()
             GameOverTitle(timeoutPlayer: timeoutPlayer, score: score)
             StatisticsView(
                 playerXTime: playerXTime,
@@ -128,20 +127,6 @@ struct GameOverView: View {
             
             // Dugmad za statistiku
             HStack(spacing: 15) {
-                // Reset Statistics dugme
-                Button(action: onResetStatistics) {
-                    HStack {
-                        Image(systemName: "arrow.counterclockwise")
-                        Text("Reset Stats")
-                    }
-                    .font(Theme.TextStyle.subtitle(size: isCompact ? 16 : 18))
-                    .foregroundColor(Theme.Colors.primaryGold)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, isCompact ? 12 : 15)
-                    .glowingBorder(color: Theme.Colors.primaryGold)
-                }
-                .buttonStyle(Theme.MetallicButtonStyle())
-                
                 // All Time Stats dugme
                 Button(action: { showAllTimeStats = true }) {
                     HStack {
@@ -150,7 +135,7 @@ struct GameOverView: View {
                     }
                     .font(Theme.TextStyle.subtitle(size: isCompact ? 16 : 18))
                     .foregroundColor(Theme.Colors.primaryGold)
-                    .frame(maxWidth: .infinity)
+                    .frame(width: isCompact ? 250 : 300)
                     .padding(.vertical, isCompact ? 12 : 15)
                     .glowingBorder(color: Theme.Colors.primaryGold)
                 }
@@ -175,6 +160,12 @@ private struct GameOverTitle: View {
     let timeoutPlayer: String?
     let score: (x: Int, o: Int)
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    private var isCompact: Bool {
+        horizontalSizeClass == .compact
+    }
+    
     var body: some View {
         let title: String = {
             if let player = timeoutPlayer {
@@ -184,9 +175,12 @@ private struct GameOverTitle: View {
             }
         }()
         Text(title)
-            .font(Theme.TextStyle.title(size: 38))
+            .font(Theme.TextStyle.title(size: isCompact ? 32 : 38))
             .foregroundColor(Theme.Colors.primaryGold)
             .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
+            .frame(width: isCompact ? 250 : 300)
+            .padding(.vertical, isCompact ? 12 : 15)
+            .glowingBorder(color: Theme.Colors.primaryGold)
     }
 }
 
@@ -206,15 +200,15 @@ private struct GameModeButtons: View {
                     Image(systemName: "play.fill")
                     Text("Choose Game Mode")
                 }
-                .font(Theme.TextStyle.subtitle(size: isCompact ? 20 : 24))
+                .font(Theme.TextStyle.subtitle(size: isCompact ? 16 : 18))
                 .foregroundColor(Theme.Colors.primaryGold)
                 .frame(width: isCompact ? 250 : 300)
-                .padding(.vertical, isCompact ? 15 : 20)
+                .padding(.vertical, isCompact ? 12 : 15)
                 .glowingBorder(color: Theme.Colors.primaryGold)
             }
             .buttonStyle(Theme.MetallicButtonStyle())
         }
-        .padding(.top, isCompact ? 30 : 40)
+        .padding(.top, isCompact ? 15 : 40)
     }
 }
 
