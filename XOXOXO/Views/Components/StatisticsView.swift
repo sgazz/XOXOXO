@@ -18,6 +18,12 @@ struct StatisticsView: View {
         horizontalSizeClass == .compact
     }
     
+    // Нова функција за рачунање Win Rate-а тренутне игре
+    private func calculateCurrentWinRate(score: Int, totalScore: Int) -> Double {
+        guard totalScore > 0 else { return 0.0 }
+        return Double(score) / Double(totalScore) * 100.0
+    }
+    
     var body: some View {
         VStack(spacing: isCompact ? 20 : 30) {
             // Основна статистика
@@ -28,6 +34,7 @@ struct StatisticsView: View {
                     stats: playerStats.x,
                     time: playerXTime,
                     score: score.x,
+                    totalScore: score.x + score.o,
                     color: Theme.Colors.primaryBlue
                 )
                 
@@ -43,24 +50,10 @@ struct StatisticsView: View {
                     stats: playerStats.o,
                     time: playerOTime,
                     score: score.o,
+                    totalScore: score.x + score.o,
                     color: Theme.Colors.primaryOrange
                 )
             }
-            
-            // Дугме за ресетовање статистике
-            Button(action: onResetStatistics) {
-                HStack {
-                    Image(systemName: "arrow.counterclockwise")
-                    Text("Reset Statistics")
-                }
-                .font(Theme.TextStyle.subtitle(size: isCompact ? 16 : 18))
-                .foregroundColor(Theme.Colors.primaryGold)
-                .frame(width: isCompact ? 250 : 300)
-                .padding(.vertical, isCompact ? 12 : 15)
-                .glowingBorder(color: Theme.Colors.primaryGold)
-            }
-            .buttonStyle(Theme.MetallicButtonStyle())
-            .padding(.top, 10)
         }
         .padding(.vertical, isCompact ? 10 : 15)
         .padding(.horizontal, isCompact ? 15 : 25)
@@ -120,7 +113,13 @@ private struct PlayerStatsColumn: View {
     let stats: GameLogic.PlayerStats
     let time: TimeInterval
     let score: Int
+    let totalScore: Int
     let color: Color
+    
+    private func calculateCurrentWinRate() -> Double {
+        guard totalScore > 0 else { return 0.0 }
+        return Double(score) / Double(totalScore) * 100.0
+    }
     
     var body: some View {
         VStack(spacing: 12) {
@@ -140,10 +139,10 @@ private struct PlayerStatsColumn: View {
                 color: color
             )
             
-            // Проценат победа
+            // Win Rate за тренутну игру
             StatBox(
                 title: "Win Rate",
-                value: String(format: "%.1f%%", stats.winRate),
+                value: String(format: "%.1f%%", calculateCurrentWinRate()),
                 color: color
             )
             
