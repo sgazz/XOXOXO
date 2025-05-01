@@ -31,28 +31,60 @@ class GameLogic: ObservableObject {
     )
     
     struct PlayerStats {
+        // Основна статистика
         var totalGames: Int = 0
         var gamesWon: Int = 0
         var gamesDrawn: Int = 0
         var totalMoves: Int = 0
         var fastestMove: TimeInterval = .infinity
         var totalMoveTime: TimeInterval = 0
+        
+        // Мод статистика
         var vsAIGames: Int = 0
         var vsPlayerGames: Int = 0
+        var aiWins: Int = 0
+        var aiLosses: Int = 0
+        var aiDraws: Int = 0
+        
+        // Временска статистика
         var totalGameTime: TimeInterval = 0
         var averageGameTime: TimeInterval = 0
         var fastestWin: TimeInterval = .infinity
+        
+        // Позициона статистика
         var centerMoves: Int = 0
         var cornerMoves: Int = 0
+        var edgeMoves: Int = 0
         var centerMovePercentage: Double = 0
         var cornerMovePercentage: Double = 0
+        var edgeMovePercentage: Double = 0
+        
+        // Табла статистика
         var boardsWon: Int = 0
         var totalBoards: Int = 0
+        
+        // Низ статистика
         var currentWinStreak: Int = 0
         var longestWinStreak: Int = 0
         var comebackWins: Int = 0
+        
+        // Бонус статистика
         var bonusCount: Int = 0
         var penaltyCount: Int = 0
+        
+        // AI специфична статистика
+        var blockedWins: Int = 0
+        var winningMoves: Int = 0
+        var centerWins: Int = 0
+        var cornerWins: Int = 0
+        var edgeWins: Int = 0
+        
+        // Multiplayer специфична статистика
+        var multiplayerWins: Int = 0
+        var multiplayerLosses: Int = 0
+        var multiplayerDraws: Int = 0
+        var multiplayerWinStreak: Int = 0
+        var multiplayerLongestStreak: Int = 0
         
         var averageMoveTime: TimeInterval {
             return totalMoves > 0 ? totalMoveTime / Double(totalMoves) : 0
@@ -60,6 +92,14 @@ class GameLogic: ObservableObject {
         
         var winRate: Double {
             return totalGames > 0 ? Double(gamesWon) / Double(totalGames) * 100 : 0
+        }
+        
+        var aiWinRate: Double {
+            return vsAIGames > 0 ? Double(aiWins) / Double(vsAIGames) * 100 : 0
+        }
+        
+        var multiplayerWinRate: Double {
+            return vsPlayerGames > 0 ? Double(multiplayerWins) / Double(vsPlayerGames) * 100 : 0
         }
         
         mutating func reset() {
@@ -71,13 +111,18 @@ class GameLogic: ObservableObject {
             totalMoveTime = 0
             vsAIGames = 0
             vsPlayerGames = 0
+            aiWins = 0
+            aiLosses = 0
+            aiDraws = 0
             totalGameTime = 0
             averageGameTime = 0
             fastestWin = .infinity
             centerMoves = 0
             cornerMoves = 0
+            edgeMoves = 0
             centerMovePercentage = 0
             cornerMovePercentage = 0
+            edgeMovePercentage = 0
             boardsWon = 0
             totalBoards = 0
             currentWinStreak = 0
@@ -85,6 +130,16 @@ class GameLogic: ObservableObject {
             comebackWins = 0
             bonusCount = 0
             penaltyCount = 0
+            blockedWins = 0
+            winningMoves = 0
+            centerWins = 0
+            cornerWins = 0
+            edgeWins = 0
+            multiplayerWins = 0
+            multiplayerLosses = 0
+            multiplayerDraws = 0
+            multiplayerWinStreak = 0
+            multiplayerLongestStreak = 0
         }
     }
     
@@ -146,12 +201,30 @@ class GameLogic: ObservableObject {
             if moveTime < playerStats.x.fastestMove {
                 playerStats.x.fastestMove = moveTime
             }
+            
+            // Ажурирамо позициону статистику
+            if position == 4 {
+                playerStats.x.centerMoves += 1
+            } else if [0, 2, 6, 8].contains(position) {
+                playerStats.x.cornerMoves += 1
+            } else {
+                playerStats.x.edgeMoves += 1
+            }
         } else {
             moveTimes[boardIndex].o.append(moveTime)
             playerStats.o.totalMoves += 1
             playerStats.o.totalMoveTime += moveTime
             if moveTime < playerStats.o.fastestMove {
                 playerStats.o.fastestMove = moveTime
+            }
+            
+            // Ажурирамо позициону статистику
+            if position == 4 {
+                playerStats.o.centerMoves += 1
+            } else if [0, 2, 6, 8].contains(position) {
+                playerStats.o.cornerMoves += 1
+            } else {
+                playerStats.o.edgeMoves += 1
             }
         }
         
@@ -179,6 +252,46 @@ class GameLogic: ObservableObject {
                     playerStats.x.gamesWon += 1
                     playerStats.x.totalGames += 1
                     playerStats.o.totalGames += 1
+                    
+                    // Ажурирамо мод статистику
+                    if gameMode == .aiOpponent {
+                        playerStats.x.vsAIGames += 1
+                        playerStats.o.vsAIGames += 1
+                        playerStats.x.aiWins += 1
+                        playerStats.o.aiLosses += 1
+                    } else {
+                        playerStats.x.vsPlayerGames += 1
+                        playerStats.o.vsPlayerGames += 1
+                        playerStats.x.multiplayerWins += 1
+                        playerStats.o.multiplayerLosses += 1
+                    }
+                    
+                    // Ажурирамо позициону статистику победа
+                    if position == 4 {
+                        playerStats.x.centerWins += 1
+                    } else if [0, 2, 6, 8].contains(position) {
+                        playerStats.x.cornerWins += 1
+                    } else {
+                        playerStats.x.edgeWins += 1
+                    }
+                    
+                    // Ажурирамо статистику nizova
+                    playerStats.x.currentWinStreak += 1
+                    if playerStats.x.currentWinStreak > playerStats.x.longestWinStreak {
+                        playerStats.x.longestWinStreak = playerStats.x.currentWinStreak
+                    }
+                    if gameMode == .playerVsPlayer {
+                        playerStats.x.multiplayerWinStreak += 1
+                        if playerStats.x.multiplayerWinStreak > playerStats.x.multiplayerLongestStreak {
+                            playerStats.x.multiplayerLongestStreak = playerStats.x.multiplayerWinStreak
+                        }
+                    }
+                    
+                    // Ресетујемо nizове за противника
+                    playerStats.o.currentWinStreak = 0
+                    if gameMode == .playerVsPlayer {
+                        playerStats.o.multiplayerWinStreak = 0
+                    }
                 } else {
                     boardScores[boardIndex].o += 1
                     totalScore.o += 1
@@ -186,6 +299,46 @@ class GameLogic: ObservableObject {
                     playerStats.o.gamesWon += 1
                     playerStats.o.totalGames += 1
                     playerStats.x.totalGames += 1
+                    
+                    // Ажурирамо мод статистику
+                    if gameMode == .aiOpponent {
+                        playerStats.o.vsAIGames += 1
+                        playerStats.x.vsAIGames += 1
+                        playerStats.o.aiWins += 1
+                        playerStats.x.aiLosses += 1
+                    } else {
+                        playerStats.o.vsPlayerGames += 1
+                        playerStats.x.vsPlayerGames += 1
+                        playerStats.o.multiplayerWins += 1
+                        playerStats.x.multiplayerLosses += 1
+                    }
+                    
+                    // Ажурирамо позициону статистику победа
+                    if position == 4 {
+                        playerStats.o.centerWins += 1
+                    } else if [0, 2, 6, 8].contains(position) {
+                        playerStats.o.cornerWins += 1
+                    } else {
+                        playerStats.o.edgeWins += 1
+                    }
+                    
+                    // Ажурирамо статистику nizova
+                    playerStats.o.currentWinStreak += 1
+                    if playerStats.o.currentWinStreak > playerStats.o.longestWinStreak {
+                        playerStats.o.longestWinStreak = playerStats.o.currentWinStreak
+                    }
+                    if gameMode == .playerVsPlayer {
+                        playerStats.o.multiplayerWinStreak += 1
+                        if playerStats.o.multiplayerWinStreak > playerStats.o.multiplayerLongestStreak {
+                            playerStats.o.multiplayerLongestStreak = playerStats.o.multiplayerWinStreak
+                        }
+                    }
+                    
+                    // Ресетујемо nizове за противника
+                    playerStats.x.currentWinStreak = 0
+                    if gameMode == .playerVsPlayer {
+                        playerStats.x.multiplayerWinStreak = 0
+                    }
                 }
             } else {
                 // Ако нема победника а табла је пуна, то је нерешено
@@ -193,6 +346,27 @@ class GameLogic: ObservableObject {
                 winningStreak = 0
                 playerStats.x.totalGames += 1
                 playerStats.o.totalGames += 1
+                
+                // Ажурирамо мод статистику
+                if gameMode == .aiOpponent {
+                    playerStats.x.vsAIGames += 1
+                    playerStats.o.vsAIGames += 1
+                    playerStats.x.aiDraws += 1
+                    playerStats.o.aiDraws += 1
+                } else {
+                    playerStats.x.vsPlayerGames += 1
+                    playerStats.o.vsPlayerGames += 1
+                    playerStats.x.multiplayerDraws += 1
+                    playerStats.o.multiplayerDraws += 1
+                }
+                
+                // Ресетујемо nizове
+                playerStats.x.currentWinStreak = 0
+                playerStats.o.currentWinStreak = 0
+                if gameMode == .playerVsPlayer {
+                    playerStats.x.multiplayerWinStreak = 0
+                    playerStats.o.multiplayerWinStreak = 0
+                }
             }
             // Reset this board
             boards[boardIndex] = Array(repeating: "", count: 9)
@@ -201,7 +375,7 @@ class GameLogic: ObservableObject {
         // Change current player
         currentPlayer = currentPlayer == "X" ? "O" : "X"
         
-        // Update board only when X's turn comes (after O played)
+        // Update board only after both players have made their moves
         if currentPlayer == "X" {
             currentBoard = (boardIndex + 1) % Self.BOARD_COUNT
         }
@@ -241,31 +415,23 @@ class GameLogic: ObservableObject {
     }
 
     func resetGame() {
-        // Resetuj sve table
         boards = Array(repeating: Array(repeating: "", count: 9), count: Self.BOARD_COUNT)
         boardScores = Array(repeating: (x: 0, o: 0), count: Self.BOARD_COUNT)
         totalScore = (x: 0, o: 0)
+        currentPlayer = "X"
         currentBoard = 0
-        currentPlayer = "X" // Почињемо увек са X
+        totalMoves = 0
+        fastestMove = .infinity
+        moveTimes = Array(repeating: (x: [], o: []), count: Self.BOARD_COUNT)
+        lastMoveTime = Date()
+        winningStreak = 0
         gameOver = false
         isThinking = false
         winningIndexes = []
         
-        // Resetuj статистику
-        moveTimes = Array(repeating: (x: [], o: []), count: Self.BOARD_COUNT)
-        totalMoves = 0
-        winningStreak = 0
-        fastestMove = .infinity
-        lastMoveTime = Date()
-        
-        // Ресетујемо статистику играча
+        // Resetujemo statistiku
         playerStats.x.reset()
         playerStats.o.reset()
-        
-        // Resetuj praćenje
-        lastWinner = nil
-        lastWinningBoard = nil
-        lastDrawBoard = nil
         
         // Ако је играч изабрао O, AI треба да игра први
         if gameMode == .aiOpponent && !playerSettings.isPlayerX {
