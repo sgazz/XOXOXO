@@ -81,6 +81,7 @@ struct PauseModalView: View {
                         // Go! button
                         Button(action: {
                             SoundManager.shared.playSound(.tap)
+                            SoundManager.shared.playHaptic()
                             onGo()
                         }) {
                             HStack(spacing: geometry.size.width * 0.04) {
@@ -99,6 +100,7 @@ struct PauseModalView: View {
                         // Restart button
                         Button(action: {
                             SoundManager.shared.playSound(.tap)
+                            SoundManager.shared.playHaptic()
                             onRestart()
                         }) {
                             HStack(spacing: geometry.size.width * 0.04) {

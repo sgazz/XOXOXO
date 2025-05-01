@@ -255,6 +255,7 @@ class GameLogic: ObservableObject {
                 }
             } else {
                 // Ако нема победника а табла је пуна, то је нерешено
+                print("Draw detected on board \(boardIndex)")
                 lastDrawBoard = boardIndex
                 winningStreak = 0
                 playerStats.x.totalGames += 1
@@ -326,31 +327,38 @@ class GameLogic: ObservableObject {
 
     func resetGame() {
         boards = Array(repeating: Array(repeating: "", count: 9), count: Self.BOARD_COUNT)
-        boardScores = Array(repeating: (x: 0, o: 0), count: Self.BOARD_COUNT)
-        totalScore = (x: 0, o: 0)
-        currentPlayer = "X"
         currentBoard = 0
-        totalMoves = 0
-        fastestMove = .infinity
-        moveTimes = Array(repeating: (x: [], o: []), count: Self.BOARD_COUNT)
-        lastMoveTime = Date()
-        winningStreak = 0
+        currentPlayer = "X"
         gameOver = false
         isThinking = false
+        boardScores = Array(repeating: (x: 0, o: 0), count: Self.BOARD_COUNT)
+        totalScore = (x: 0, o: 0)
         winningIndexes = []
-        
-        // Resetujemo statistiku trenutne igre
         moveTimes = Array(repeating: (x: [], o: []), count: Self.BOARD_COUNT)
         totalMoves = 0
         winningStreak = 0
         fastestMove = .infinity
-        lastMoveTime = Date()
+        
+        // Resetujemo statistiku poteza za trenutnu partiju
+        playerStats.x.totalMoves = 0
+        playerStats.x.totalMoveTime = 0
+        playerStats.x.averageMoveTime = 0
+        playerStats.x.centerMoves = 0
+        playerStats.x.cornerMoves = 0
+        playerStats.x.edgeMoves = 0
+        
+        playerStats.o.totalMoves = 0
+        playerStats.o.totalMoveTime = 0
+        playerStats.o.averageMoveTime = 0
+        playerStats.o.centerMoves = 0
+        playerStats.o.cornerMoves = 0
+        playerStats.o.edgeMoves = 0
         
         // Ако је играч изабрао O, AI треба да игра први
         if gameMode == .aiOpponent && !playerSettings.isPlayerX {
             makeAIMove(in: currentBoard, thinkingTime: 0.1) {}
         }
-        // Multiplayer: resetuj simbol igrača на X
+        // Multiplayer: resetuj simbol igrača na X
         if gameMode == .playerVsPlayer {
             playerSettings.playerSymbol = "X"
         }

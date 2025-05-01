@@ -405,6 +405,7 @@ struct TutorialView: View {
                 .animation(.easeInOut, value: currentTab)
                 .onChange(of: currentTab) { oldValue, newValue in
                     SoundManager.shared.playSound(.tap)
+                    SoundManager.shared.playHaptic()
                 }
                 
                 // Page indicator

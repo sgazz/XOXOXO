@@ -47,6 +47,7 @@ struct GameModeModalView: View {
                         // Single Player button
                         Button(action: {
                             SoundManager.shared.playSound(.tap)
+                            SoundManager.shared.playHaptic()
                             onGameModeChange(.aiOpponent)
                         }) {
                             HStack {
@@ -64,6 +65,7 @@ struct GameModeModalView: View {
                         // Multiplayer button
                         Button(action: {
                             SoundManager.shared.playSound(.tap)
+                            SoundManager.shared.playHaptic()
                             onGameModeChange(.playerVsPlayer)
                         }) {
                             HStack {
@@ -86,6 +88,7 @@ struct GameModeModalView: View {
                             // X button
                             Button(action: { 
                                 SoundManager.shared.playSound(.tap)
+                                SoundManager.shared.playHaptic()
                                 playerSettings.playerSymbol = "X" 
                             }) {
                                 Text("X")
@@ -106,6 +109,7 @@ struct GameModeModalView: View {
                             // O button
                             Button(action: { 
                                 SoundManager.shared.playSound(.tap)
+                                SoundManager.shared.playHaptic()
                                 playerSettings.playerSymbol = "O" 
                             }) {
                                 Text("O")
@@ -140,6 +144,7 @@ struct GameModeModalView: View {
                             color: Theme.Colors.primaryGold,
                             action: {
                                 SoundManager.shared.playSound(.tap)
+                                SoundManager.shared.playHaptic()
                                 timerSettings.gameDuration = .oneMinute
                             },
                             geometry: geometry
@@ -151,6 +156,7 @@ struct GameModeModalView: View {
                             color: Theme.Colors.primaryGold,
                             action: {
                                 SoundManager.shared.playSound(.tap)
+                                SoundManager.shared.playHaptic()
                                 timerSettings.gameDuration = .threeMinutes
                             },
                             geometry: geometry
@@ -162,6 +168,7 @@ struct GameModeModalView: View {
                             color: Theme.Colors.primaryGold,
                             action: {
                                 SoundManager.shared.playSound(.tap)
+                                SoundManager.shared.playHaptic()
                                 timerSettings.gameDuration = .fiveMinutes
                             },
                             geometry: geometry
@@ -170,6 +177,7 @@ struct GameModeModalView: View {
                         // Start button
                         Button(action: {
                             SoundManager.shared.playSound(.tap)
+                            SoundManager.shared.playHaptic()
                             if gameMode == .playerVsPlayer {
                                 onPlayVsPlayer()
                             } else {

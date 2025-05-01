@@ -163,7 +163,11 @@ private struct GameModeButtons: View {
     
     var body: some View {
         VStack(spacing: 15) {
-            Button(action: onStart) {
+            Button(action: {
+                SoundManager.shared.playSound(.tap)
+                SoundManager.shared.playHaptic()
+                onStart()
+            }) {
                 HStack {
                     Image(systemName: "play.fill")
                     Text("Play Again")

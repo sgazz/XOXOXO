@@ -209,11 +209,15 @@ class SoundManager {
     func playSound(_ sound: GameSound) {
         guard isSoundEnabled else { return }
         
+        print("Playing sound: \(sound.rawValue)")
         if let player = getAudioPlayer(for: sound.rawValue) {
             if player.isPlaying {
                 player.currentTime = 0
             }
             player.play()
+            print("Sound played successfully")
+        } else {
+            print("Failed to play sound: \(sound.rawValue)")
         }
     }
     
