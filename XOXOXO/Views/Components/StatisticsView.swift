@@ -132,8 +132,8 @@ private struct PlayerStatsColumn: View {
     let currentMoves: Int
     
     private func calculateCurrentWinRate() -> Double {
-        guard totalScore > 0 else { return 0.0 }
-        return Double(score) / Double(totalScore) * 100.0
+        guard stats.totalGames > 0 else { return 0.0 }
+        return Double(stats.gamesWon) / Double(stats.totalGames) * 100.0
     }
     
     var body: some View {
@@ -159,14 +159,15 @@ private struct PlayerStatsColumn: View {
                 title: "Win Rate",
                 value: String(format: "%.1f%%", stats.winRate),
                 color: color,
-                subtitle: String(format: "Current: %.1f%%", calculateCurrentWinRate())
+                subtitle: "\(stats.gamesWon)/\(stats.totalGames) games"
             )
             
             // Prosečno vreme po potezu
             StatBox(
                 title: "Avg Move",
                 value: formatMoveTime(stats.averageMoveTime),
-                color: color
+                color: color,
+                subtitle: "\(stats.totalMoves) moves"
             )
             
             // Strategijska statistika
@@ -194,7 +195,11 @@ private struct PlayerStatsColumn: View {
         if time == .infinity || time == 0 {
             return "0.0s"
         }
-        return String(format: "%.1fs", time)
+        if time < 1.0 {
+            return String(format: "%.1fs", time)
+        } else {
+            return String(format: "%.1fs", time)
+        }
     }
 }
 
