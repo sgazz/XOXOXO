@@ -56,7 +56,7 @@ struct AIDifficultyView: View {
                         difficultyButton(
                             title: "Easy",
                             description: "Perfect for beginners",
-                            icon: "tortoise",
+                            icon: "shield",
                             color: Theme.Colors.primaryGreen,
                             isSelected: gameLogic.aiDifficulty == .easy,
                             action: {
@@ -71,7 +71,7 @@ struct AIDifficultyView: View {
                         difficultyButton(
                             title: "Medium",
                             description: "Balanced challenge",
-                            icon: "hare",
+                            icon: "sword",
                             color: Theme.Colors.primaryGold,
                             isSelected: gameLogic.aiDifficulty == .medium,
                             action: {
@@ -86,7 +86,7 @@ struct AIDifficultyView: View {
                         difficultyButton(
                             title: "Hard",
                             description: "For experienced players",
-                            icon: "bolt",
+                            icon: "crown",
                             color: Theme.Colors.primaryOrange,
                             isSelected: gameLogic.aiDifficulty == .hard,
                             action: {
@@ -126,15 +126,12 @@ struct AIDifficultyView: View {
                             SoundManager.shared.playHaptic()
                             onStart()
                         }) {
-                            HStack {
-                                Text("Start Game")
-                                Image(systemName: "play.fill")
-                            }
-                            .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.06, 24)))
-                            .foregroundColor(Theme.Colors.primaryBronze)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, geometry.size.height * 0.02)
-                            .glowingBorder(color: Theme.Colors.primaryBronze)
+                            Text("Start Game")
+                                .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.06, 24)))
+                                .foregroundColor(Theme.Colors.primaryBronze)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, geometry.size.height * 0.02)
+                                .glowingBorder(color: Theme.Colors.primaryBronze)
                         }
                         .buttonStyle(Theme.MetallicButtonStyle())
                     }
@@ -194,6 +191,14 @@ struct AIDifficultyView: View {
                 .frame(maxWidth: min(geometry.size.width * 0.95, 600))
             }
             .transition(.opacity.combined(with: .scale))
+            .onAppear {
+                SoundManager.shared.playSound(.modalOpen)
+                SoundManager.shared.playHaptic(style: .medium)
+            }
+            .onDisappear {
+                SoundManager.shared.playSound(.modalClose)
+                SoundManager.shared.playHaptic(style: .light)
+            }
         }
     }
     
@@ -207,12 +212,8 @@ struct AIDifficultyView: View {
         geometry: GeometryProxy
     ) -> some View {
         Button(action: action) {
-            HStack(spacing: geometry.size.width * 0.04) {
-                Image(systemName: icon)
-                    .font(.system(size: min(geometry.size.width * 0.07, 28)))
-                    .foregroundColor(isSelected ? color : Theme.Colors.metalGray)
-                
-                VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                VStack(alignment: .center, spacing: 4) {
                     Text(title)
                         .font(Theme.TextStyle.subtitle(size: min(geometry.size.width * 0.06, 24)))
                         .foregroundColor(isSelected ? color : Theme.Colors.metalGray)
@@ -221,8 +222,7 @@ struct AIDifficultyView: View {
                         .font(Theme.TextStyle.body(size: min(geometry.size.width * 0.04, 16)))
                         .foregroundColor(Theme.Colors.metalGray)
                 }
-                
-                Spacer()
+                .frame(maxWidth: .infinity)
                 
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
@@ -244,6 +244,23 @@ struct AIDifficultyView: View {
                     )
             )
             .shadow(color: isSelected ? color.opacity(0.3) : Color.clear, radius: 10)
+        }
+        .onChange(of: isSelected) { newValue in
+            if newValue {
+                switch title {
+                case "Easy":
+                    SoundManager.shared.playSound(.easySelected)
+                    SoundManager.shared.playHaptic(style: .light)
+                case "Medium":
+                    SoundManager.shared.playSound(.mediumSelected)
+                    SoundManager.shared.playHaptic(style: .medium)
+                case "Hard":
+                    SoundManager.shared.playSound(.hardSelected)
+                    SoundManager.shared.playHaptic(style: .heavy)
+                default:
+                    break
+                }
+            }
         }
     }
 }

@@ -75,6 +75,16 @@ class SoundManager {
             soundData = generateDrawSound(duration: 0.5, sampleRate: sampleRate)
         case "error":
             soundData = generateErrorSound(duration: 0.2, sampleRate: sampleRate)
+        case "modalOpen":
+            soundData = generateModalOpenSound(duration: 0.3, sampleRate: sampleRate)
+        case "modalClose":
+            soundData = generateModalCloseSound(duration: 0.2, sampleRate: sampleRate)
+        case "easySelected":
+            soundData = generateEasySelectedSound(duration: 0.2, sampleRate: sampleRate)
+        case "mediumSelected":
+            soundData = generateMediumSelectedSound(duration: 0.25, sampleRate: sampleRate)
+        case "hardSelected":
+            soundData = generateHardSelectedSound(duration: 0.3, sampleRate: sampleRate)
         default:
             soundData = generateClickSound(duration: 0.1, sampleRate: sampleRate)
         }
@@ -200,6 +210,96 @@ class SoundManager {
         return data as Data
     }
     
+    private func generateModalOpenSound(duration: Double, sampleRate: Double) -> Data {
+        let frameCount = Int(duration * sampleRate)
+        let data = NSMutableData()
+        let volume: Float = 0.6
+        
+        for i in 0..<frameCount {
+            let progress = Float(i) / Float(frameCount)
+            let amplitude = volume * sin(Float.pi * progress)
+            let frequency: Float = 300 + 400 * progress
+            
+            let sample = sin(2.0 * Float.pi * frequency * Float(i) / Float(sampleRate)) * amplitude
+            var intSample = Int16(sample * 32767)
+            data.append(&intSample, length: 2)
+        }
+        
+        return data as Data
+    }
+    
+    private func generateModalCloseSound(duration: Double, sampleRate: Double) -> Data {
+        let frameCount = Int(duration * sampleRate)
+        let data = NSMutableData()
+        let volume: Float = 0.5
+        
+        for i in 0..<frameCount {
+            let progress = Float(i) / Float(frameCount)
+            let amplitude = volume * (1.0 - progress)
+            let frequency: Float = 700 - 400 * progress
+            
+            let sample = sin(2.0 * Float.pi * frequency * Float(i) / Float(sampleRate)) * amplitude
+            var intSample = Int16(sample * 32767)
+            data.append(&intSample, length: 2)
+        }
+        
+        return data as Data
+    }
+    
+    private func generateEasySelectedSound(duration: Double, sampleRate: Double) -> Data {
+        let frameCount = Int(duration * sampleRate)
+        let data = NSMutableData()
+        let volume: Float = 0.5
+        
+        for i in 0..<frameCount {
+            let progress = Float(i) / Float(frameCount)
+            let amplitude = volume * (1.0 - progress)
+            let frequency: Float = 400 + 200 * progress
+            
+            let sample = sin(2.0 * Float.pi * frequency * Float(i) / Float(sampleRate)) * amplitude
+            var intSample = Int16(sample * 32767)
+            data.append(&intSample, length: 2)
+        }
+        
+        return data as Data
+    }
+    
+    private func generateMediumSelectedSound(duration: Double, sampleRate: Double) -> Data {
+        let frameCount = Int(duration * sampleRate)
+        let data = NSMutableData()
+        let volume: Float = 0.6
+        
+        for i in 0..<frameCount {
+            let progress = Float(i) / Float(frameCount)
+            let amplitude = volume * (1.0 - progress)
+            let frequency: Float = 500 + 300 * progress
+            
+            let sample = sin(2.0 * Float.pi * frequency * Float(i) / Float(sampleRate)) * amplitude
+            var intSample = Int16(sample * 32767)
+            data.append(&intSample, length: 2)
+        }
+        
+        return data as Data
+    }
+    
+    private func generateHardSelectedSound(duration: Double, sampleRate: Double) -> Data {
+        let frameCount = Int(duration * sampleRate)
+        let data = NSMutableData()
+        let volume: Float = 0.7
+        
+        for i in 0..<frameCount {
+            let progress = Float(i) / Float(frameCount)
+            let amplitude = volume * (1.0 - progress)
+            let frequency: Float = 600 + 400 * progress
+            
+            let sample = sin(2.0 * Float.pi * frequency * Float(i) / Float(sampleRate)) * amplitude
+            var intSample = Int16(sample * 32767)
+            data.append(&intSample, length: 2)
+        }
+        
+        return data as Data
+    }
+    
     // Прелодовање звука - позива се током стартапа апликације
     func preloadSound(_ sound: GameSound) {
         _ = getAudioPlayer(for: sound.rawValue)
@@ -249,9 +349,14 @@ class SoundManager {
 // Енумерација са свим звуковима у игри
 enum GameSound: String, CaseIterable {
     case tap = "tap"
+    case move = "move"
     case win = "win"
     case lose = "lose"
     case draw = "draw"
-    case move = "move"
     case error = "error"
+    case modalOpen = "modalOpen"
+    case modalClose = "modalClose"
+    case easySelected = "easySelected"
+    case mediumSelected = "mediumSelected"
+    case hardSelected = "hardSelected"
 } 
