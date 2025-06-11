@@ -5,6 +5,29 @@ enum GameMode {
     case playerVsPlayer
 }
 
+// Dodajemo enum za težinu AI protivnika
+enum AIDifficulty: String, CaseIterable, Codable {
+    case easy
+    case medium
+    case hard
+
+    var title: String {
+        switch self {
+        case .easy: return "Lako"
+        case .medium: return "Srednje"
+        case .hard: return "Teško"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .easy: return "AI igra nasumično i ne blokira uvek."
+        case .medium: return "AI blokira i pokušava da pobedi."
+        case .hard: return "AI igra optimalno svaki potez."
+        }
+    }
+}
+
 class GameLogic: ObservableObject {
     static let BOARD_COUNT = 8 // Increased from 6 to 8 boards
 
@@ -30,55 +53,40 @@ class GameLogic: ObservableObject {
         o: PlayerStats()
     )
     
+    @Published var aiDifficulty: AIDifficulty = .medium
+    
     struct PlayerStats: Codable {
-        // Основна статистика
+        // Osnovna statistika
         var totalGames: Int = 0
         var gamesWon: Int = 0
-        var gamesDrawn: Int = 0
         var totalMoves: Int = 0
         var averageMoveTime: TimeInterval = 0
-        var totalMoveTime: TimeInterval = 0
         
-        // Мод статистика
-        var vsAIGames: Int = 0
-        var vsPlayerGames: Int = 0
-        
-        // Временска статистика
-        var totalGameTime: TimeInterval = 0
-        
-        // Позициона статистика
+        // Strategijska statistika
         var centerMoves: Int = 0
         var cornerMoves: Int = 0
         var edgeMoves: Int = 0
         
-        // Табла статистика
-        var boardsWon: Int = 0
-        var totalBoards: Int = 0
-        
-        // Низ статистика
-        var currentWinStreak: Int = 0
+        // Nizovi
         var longestWinStreak: Int = 0
         
+        // Izračunate vrednosti
         var winRate: Double {
             return totalGames > 0 ? Double(gamesWon) / Double(totalGames) * 100 : 0
+        }
+        
+        var drawRate: Double {
+            return totalGames > 0 ? Double(totalGames - gamesWon) / Double(totalGames) * 100 : 0
         }
         
         mutating func reset() {
             totalGames = 0
             gamesWon = 0
-            gamesDrawn = 0
             totalMoves = 0
             averageMoveTime = 0
-            totalMoveTime = 0
-            vsAIGames = 0
-            vsPlayerGames = 0
-            totalGameTime = 0
             centerMoves = 0
             cornerMoves = 0
             edgeMoves = 0
-            boardsWon = 0
-            totalBoards = 0
-            currentWinStreak = 0
             longestWinStreak = 0
         }
         
@@ -149,22 +157,21 @@ class GameLogic: ObservableObject {
     }
 
     func makeMove(at position: Int, in boardIndex: Int) {
-        // Ресетујемо праћење
+        // Resetujemo praćenje
         lastWinner = nil
         lastWinningBoard = nil
         lastDrawBoard = nil
         winningIndexes = []
         
-        // Записујемо време потеза
+        // Zapisujemo vreme poteza
         let moveTime = Date().timeIntervalSince(lastMoveTime)
         lastMoveTime = Date()
         
-        // Ажурирамо статистику
+        // Ažuriramo statistiku
         if currentPlayer == "X" {
             moveTimes[boardIndex].x.append(moveTime)
             playerStats.x.totalMoves += 1
-            playerStats.x.totalMoveTime += moveTime
-            playerStats.x.averageMoveTime = playerStats.x.totalMoveTime / Double(playerStats.x.totalMoves)
+            playerStats.x.averageMoveTime = (playerStats.x.averageMoveTime * Double(playerStats.x.totalMoves - 1) + moveTime) / Double(playerStats.x.totalMoves)
             
             // Ažuriramo pozicionu statistiku
             if position == 4 {
@@ -177,8 +184,7 @@ class GameLogic: ObservableObject {
         } else {
             moveTimes[boardIndex].o.append(moveTime)
             playerStats.o.totalMoves += 1
-            playerStats.o.totalMoveTime += moveTime
-            playerStats.o.averageMoveTime = playerStats.o.totalMoveTime / Double(playerStats.o.totalMoves)
+            playerStats.o.averageMoveTime = (playerStats.o.averageMoveTime * Double(playerStats.o.totalMoves - 1) + moveTime) / Double(playerStats.o.totalMoves)
             
             // Ažuriramo pozicionu statistiku
             if position == 4 {
@@ -190,11 +196,6 @@ class GameLogic: ObservableObject {
             }
         }
         
-        // Ажурирамо најбржи потез
-        if moveTime < fastestMove {
-            fastestMove = moveTime
-        }
-        
         totalMoves += 1
         boards[boardIndex][position] = currentPlayer
 
@@ -202,79 +203,39 @@ class GameLogic: ObservableObject {
         if checkBoardComplete(in: boardIndex) {
             // Update scores if there is a winner
             if let boardWinner = checkBoardWinner(in: boardIndex) {
-                // Памтимо победника пре ресетовања табле
+                // Pamtimo pobednika pre resetovanja table
                 lastWinner = boardWinner
                 lastWinningBoard = boardIndex
                 
                 if boardWinner == "X" {
                     boardScores[boardIndex].x += 1
                     totalScore.x += 1
-                    winningStreak = currentPlayer == "X" ? winningStreak + 1 : 1
                     playerStats.x.gamesWon += 1
                     playerStats.x.totalGames += 1
                     playerStats.o.totalGames += 1
                     
-                    // Ажурирамо мод статистику
-                    if gameMode == .aiOpponent {
-                        playerStats.x.vsAIGames += 1
-                        playerStats.o.vsAIGames += 1
-                    } else {
-                        playerStats.x.vsPlayerGames += 1
-                        playerStats.o.vsPlayerGames += 1
+                    // Ažuriramo niz statistiku
+                    if playerStats.x.longestWinStreak < playerStats.x.gamesWon {
+                        playerStats.x.longestWinStreak = playerStats.x.gamesWon
                     }
-                    
-                    // Ажурирамо низ статистику
-                    playerStats.x.currentWinStreak += 1
-                    if playerStats.x.currentWinStreak > playerStats.x.longestWinStreak {
-                        playerStats.x.longestWinStreak = playerStats.x.currentWinStreak
-                    }
-                    playerStats.o.currentWinStreak = 0
                 } else {
                     boardScores[boardIndex].o += 1
                     totalScore.o += 1
-                    winningStreak = currentPlayer == "O" ? winningStreak + 1 : 1
                     playerStats.o.gamesWon += 1
                     playerStats.o.totalGames += 1
                     playerStats.x.totalGames += 1
                     
-                    // Ажурирамо мод статистику
-                    if gameMode == .aiOpponent {
-                        playerStats.x.vsAIGames += 1
-                        playerStats.o.vsAIGames += 1
-                    } else {
-                        playerStats.x.vsPlayerGames += 1
-                        playerStats.o.vsPlayerGames += 1
+                    // Ažuriramo niz statistiku
+                    if playerStats.o.longestWinStreak < playerStats.o.gamesWon {
+                        playerStats.o.longestWinStreak = playerStats.o.gamesWon
                     }
-                    
-                    // Ажурирамо низ статистику
-                    playerStats.o.currentWinStreak += 1
-                    if playerStats.o.currentWinStreak > playerStats.o.longestWinStreak {
-                        playerStats.o.longestWinStreak = playerStats.o.currentWinStreak
-                    }
-                    playerStats.x.currentWinStreak = 0
                 }
             } else {
-                // Ако нема победника а табла је пуна, то је нерешено
+                // Ako nema pobednika a tabla je puna, to je nerešeno
                 print("Draw detected on board \(boardIndex)")
                 lastDrawBoard = boardIndex
-                winningStreak = 0
                 playerStats.x.totalGames += 1
                 playerStats.o.totalGames += 1
-                playerStats.x.gamesDrawn += 1
-                playerStats.o.gamesDrawn += 1
-                
-                // Ажурирамо мод статистику
-                if gameMode == .aiOpponent {
-                    playerStats.x.vsAIGames += 1
-                    playerStats.o.vsAIGames += 1
-                } else {
-                    playerStats.x.vsPlayerGames += 1
-                    playerStats.o.vsPlayerGames += 1
-                }
-                
-                // Ресетујемо низове
-                playerStats.x.currentWinStreak = 0
-                playerStats.o.currentWinStreak = 0
             }
             // Reset this board
             boards[boardIndex] = Array(repeating: "", count: 9)
@@ -288,7 +249,7 @@ class GameLogic: ObservableObject {
             currentBoard = (boardIndex + 1) % Self.BOARD_COUNT
         }
         
-        // Сачувај статистику
+        // Sačuvaj statistiku
         PlayerStats.saveToUserDefaults(stats: playerStats)
     }
 
@@ -310,17 +271,14 @@ class GameLogic: ObservableObject {
     }
 
     func makeAIMove(in boardIndex: Int, thinkingTime: TimeInterval = 0.5, completion: @escaping () -> Void) {
-        // AI moves only available in AI mode
-        if gameMode == .aiOpponent {
-            isThinking = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + thinkingTime) {
-                if let aiMove = TicTacToeAI.shared.makeMove(in: self.boards[boardIndex]) {
-                    self.makeMove(at: aiMove, in: boardIndex)
-                }
-                self.isThinking = false
-                completion()
+        isThinking = true
+        
+        // Koristimo novi AI sa izabranim nivoom težine
+        DispatchQueue.main.asyncAfter(deadline: .now() + thinkingTime) {
+            if let move = TicTacToeAI.shared.makeMove(in: self.boards[boardIndex], difficulty: self.aiDifficulty) {
+                self.makeMove(at: move, in: boardIndex)
             }
-        } else {
+            self.isThinking = false
             completion()
         }
     }
@@ -341,14 +299,12 @@ class GameLogic: ObservableObject {
         
         // Resetujemo statistiku poteza za trenutnu partiju
         playerStats.x.totalMoves = 0
-        playerStats.x.totalMoveTime = 0
         playerStats.x.averageMoveTime = 0
         playerStats.x.centerMoves = 0
         playerStats.x.cornerMoves = 0
         playerStats.x.edgeMoves = 0
         
         playerStats.o.totalMoves = 0
-        playerStats.o.totalMoveTime = 0
         playerStats.o.averageMoveTime = 0
         playerStats.o.centerMoves = 0
         playerStats.o.cornerMoves = 0
