@@ -245,7 +245,7 @@ struct AIDifficultyView: View {
             )
             .shadow(color: isSelected ? color.opacity(0.3) : Color.clear, radius: 10)
         }
-        .onChange(of: isSelected) { newValue in
+        .onChange(of: isSelected) { oldValue, newValue in
             if newValue {
                 switch title {
                 case "Easy":
