@@ -95,12 +95,12 @@ struct GameView: View {
                     
                     // Дугме за паузу између скора и табли
                     Button(action: {
-                        SoundManager.shared.playSound(.tap)
+                            SoundManager.shared.playSound(.tap)
                         SoundManager.shared.playHaptic()
                         stopTimer()
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             showPauseMenu = true
-                        }
+                            }
                     }) {
                         Image(systemName: "pause.circle.fill")
                             .font(.system(size: deviceLayout.isIphone ? 32 : 38))

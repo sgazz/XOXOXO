@@ -1,16 +1,16 @@
 import SwiftUI
 
 struct StatisticsView: View {
-    // Основна статистика
+    // Osnovna statistika
     let playerXTime: TimeInterval
     let playerOTime: TimeInterval
     let score: (x: Int, o: Int)
     let totalMoves: Int
     
-    // Детаљна статистика по играчу
+    // Detaljna statistika po igraču
     let playerStats: (x: GameLogic.PlayerStats, o: GameLogic.PlayerStats)
     
-    // Акција за ресетовање статистике
+    // Akcija za resetovanje statistike
     let onResetStatistics: () -> Void
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -25,19 +25,13 @@ struct StatisticsView: View {
         verticalSizeClass == .regular
     }
     
-    // Нова функција за рачунање Win Rate-а тренутне игре
-    private func calculateCurrentWinRate(score: Int, totalScore: Int) -> Double {
-        guard totalScore > 0 else { return 0.0 }
-        return Double(score) / Double(totalScore) * 100.0
-    }
-    
     var body: some View {
         Group {
             if isPortrait {
                 VStack(spacing: isCompact ? 20 : 30) {
-                    // Основна статистика
+                    // Osnovna statistika
                     HStack(spacing: isCompact ? 20 : 30) {
-                        // Плави играч (X)
+                        // Plavi igrač (X)
                         PlayerStatsColumn(
                             symbol: "X",
                             stats: playerStats.x,
@@ -48,13 +42,13 @@ struct StatisticsView: View {
                             currentMoves: totalMoves
                         )
                         
-                        // Вертикална линија
+                        // Vertikalna linija
                         Rectangle()
                             .fill(Theme.Colors.metalGray.opacity(0.3))
                             .frame(width: 1)
                             .padding(.vertical, 10)
                         
-                        // Црвени играч (O)
+                        // Crveni igrač (O)
                         PlayerStatsColumn(
                             symbol: "O",
                             stats: playerStats.o,
@@ -72,29 +66,28 @@ struct StatisticsView: View {
                         SoundManager.shared.playHaptic()
                         showResetConfirmation = true
                     }) {
-                        HStack {
-                            Image(systemName: "arrow.counterclockwise")
-                            Text("Reset Statistics")
-                        }
-                        .font(Theme.TextStyle.subtitle(size: isCompact ? 16 : 18))
-                        .foregroundColor(Theme.Colors.primaryGold)
-                        .frame(width: isCompact ? 250 : 300)
-                        .padding(.vertical, isCompact ? 12 : 15)
-                        .glowingBorder(color: Theme.Colors.primaryGold)
+                        Text("Reset Statistics")
+                            .font(Theme.TextStyle.body(size: 16))
+                            .foregroundColor(Theme.Colors.metalGray)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Theme.Colors.metalGray.opacity(0.5), lineWidth: 1)
+                            )
                     }
-                    .buttonStyle(Theme.MetallicButtonStyle())
                     .alert("Reset Statistics", isPresented: $showResetConfirmation) {
-                        Button("Cancel", role: .cancel) {}
+                        Button("Cancel", role: .cancel) { }
                         Button("Reset", role: .destructive) {
                             onResetStatistics()
                         }
                     } message: {
-                        Text("Are you sure you want to reset all statistics? This action cannot be undone.")
+                        Text("Are you sure you want to reset all statistics? This cannot be undone.")
                     }
                 }
             } else {
                 HStack(spacing: isCompact ? 20 : 30) {
-                    // Плави играч (X)
+                    // Plavi igrač (X)
                     PlayerStatsColumn(
                         symbol: "X",
                         stats: playerStats.x,
@@ -105,13 +98,13 @@ struct StatisticsView: View {
                         currentMoves: totalMoves
                     )
                     
-                    // Вертикална линија
+                    // Vertikalna linija
                     Rectangle()
                         .fill(Theme.Colors.metalGray.opacity(0.3))
                         .frame(width: 1)
                         .padding(.vertical, 10)
                     
-                    // Црвени играч (O)
+                    // Crveni igrač (O)
                     PlayerStatsColumn(
                         symbol: "O",
                         stats: playerStats.o,
@@ -126,57 +119,9 @@ struct StatisticsView: View {
         }
         .padding(.vertical, isCompact ? 10 : 15)
         .padding(.horizontal, isCompact ? 15 : 25)
-        .background(
-            ZStack {
-                // Основни градијент
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Theme.Colors.darkGradient)
-                
-                // Горње светло
-                Circle()
-                    .fill(Theme.Colors.primaryGold)
-                    .frame(width: 100, height: 100)
-                    .offset(y: -50)
-                    .blur(radius: 70)
-                    .opacity(0.1)
-                
-                // Лево светло
-                Circle()
-                    .fill(Theme.Colors.primaryBlue)
-                    .frame(width: 80, height: 80)
-                    .offset(x: -40)
-                    .blur(radius: 60)
-                    .opacity(0.08)
-                
-                // Десно светло
-                Circle()
-                    .fill(Theme.Colors.primaryOrange)
-                    .frame(width: 80, height: 80)
-                    .offset(x: 40)
-                    .blur(radius: 60)
-                    .opacity(0.08)
-            }
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [
-                            Theme.Colors.primaryGold.opacity(0.5),
-                            Theme.Colors.primaryGold.opacity(0.2),
-                            Theme.Colors.primaryGold.opacity(0.5)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1.5
-                )
-        )
-        .shadow(color: Theme.Colors.primaryGold.opacity(0.15), radius: 15)
     }
 }
 
-// Нова подкомпонента за приказ статистике играча
 private struct PlayerStatsColumn: View {
     let symbol: String
     let stats: GameLogic.PlayerStats
@@ -193,7 +138,7 @@ private struct PlayerStatsColumn: View {
     
     var body: some View {
         VStack(spacing: 12) {
-            // Симбол и резултат
+            // Simbol i rezultat
             Text(symbol)
                 .font(.system(size: 24, weight: .bold))
                 .foregroundColor(color)
@@ -202,7 +147,7 @@ private struct PlayerStatsColumn: View {
                 .font(.system(size: 32, weight: .bold))
                 .foregroundColor(color)
             
-            // Време
+            // Vreme
             StatBox(
                 title: "Time",
                 value: formatGameTime(time),
@@ -217,19 +162,26 @@ private struct PlayerStatsColumn: View {
                 subtitle: String(format: "Current: %.1f%%", calculateCurrentWinRate())
             )
             
-            // Просечно време по потезу
+            // Prosečno vreme po potezu
             StatBox(
                 title: "Avg Move",
                 value: formatMoveTime(stats.averageMoveTime),
                 color: color
             )
             
-            // Укупно потеза
+            // Strategijska statistika
             StatBox(
-                title: "Moves",
-                value: "\(stats.totalMoves)",
+                title: "Strategy",
+                value: "C:\(stats.centerMoves) E:\(stats.edgeMoves)",
                 color: color,
-                subtitle: "Current: \(stats.totalMoves - (stats.totalGames * 5))"
+                subtitle: "Corners: \(stats.cornerMoves)"
+            )
+            
+            // Nizovi
+            StatBox(
+                title: "Best Streak",
+                value: "\(stats.longestWinStreak)",
+                color: color
             )
         }
     }
@@ -276,13 +228,32 @@ private struct StatBox: View {
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.black.opacity(0.3))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            color.opacity(0.3),
+                            color.opacity(0.1),
+                            color.opacity(0.3)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
     }
 }
 
 #Preview("Statistics View - Portrait") {
     StatisticsView(
-        playerXTime: 120,        // 2 минута
-        playerOTime: 180,        // 3 минута
+        playerXTime: 120,
+        playerOTime: 180,
         score: (x: 3, o: 5),
         totalMoves: 8,
         playerStats: (
@@ -291,44 +262,22 @@ private struct StatBox: View {
                 gamesWon: 6,
                 totalMoves: 42,
                 averageMoveTime: 1.2,
-                totalMoveTime: 360
+                centerMoves: 5,
+                cornerMoves: 8,
+                edgeMoves: 3,
+                longestWinStreak: 4
             ),
             o: GameLogic.PlayerStats(
                 totalGames: 10,
                 gamesWon: 4,
                 totalMoves: 38,
                 averageMoveTime: 1.5,
-                totalMoveTime: 420
+                centerMoves: 4,
+                cornerMoves: 7,
+                edgeMoves: 4,
+                longestWinStreak: 3
             )
         ),
         onResetStatistics: {}
     )
-}
-
-#Preview("Statistics View - Landscape") {
-    StatisticsView(
-        playerXTime: 120,        // 2 минута
-        playerOTime: 180,        // 3 минута
-        score: (x: 3, o: 5),
-        totalMoves: 8,
-        playerStats: (
-            x: GameLogic.PlayerStats(
-                totalGames: 10,
-                gamesWon: 6,
-                totalMoves: 42,
-                averageMoveTime: 1.2,
-                totalMoveTime: 360
-            ),
-            o: GameLogic.PlayerStats(
-                totalGames: 10,
-                gamesWon: 4,
-                totalMoves: 38,
-                averageMoveTime: 1.5,
-                totalMoveTime: 420
-            )
-        ),
-        onResetStatistics: {}
-    )
-    .background(Theme.Colors.darkGradient)
-    .environment(\.horizontalSizeClass, .regular)
 } 

@@ -26,6 +26,10 @@ struct SplashView: View {
         horizontalSizeClass == .regular || (horizontalSizeClass == .compact && verticalSizeClass == .compact)
     }
     
+    private var isIPad: Bool {
+        horizontalSizeClass == .regular
+    }
+    
     var body: some View {
         ZStack {
             if startGameTransition {
@@ -36,21 +40,34 @@ struct SplashView: View {
                     ))
             } else {
                 GeometryReader { geometry in
-                    let isIPad = horizontalSizeClass == .regular
                     let deviceLayout = DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
                     
-                    // Прилагођене величине за iPad и iPhone
-                    let titleSize = min(geometry.size.width * deviceLayout.titleScale, deviceLayout.titleSize)
-                    let subtitleSize = min(geometry.size.width * deviceLayout.subtitleScale, deviceLayout.subtitleSize)
-                    let descriptionSize = min(geometry.size.width * deviceLayout.descriptionScale, deviceLayout.descriptionSize)
+                    // Прилагођене величине за iPad, iPhone и landscape
+                    let titleSize = isLandscape ? 
+                        (isIPad ? 
+                            min(geometry.size.width * deviceLayout.titleScale * 0.5, deviceLayout.titleSize * 0.6) :
+                            min(geometry.size.width * deviceLayout.titleScale * 0.7, deviceLayout.titleSize * 0.8)) :
+                        min(geometry.size.width * deviceLayout.titleScale, deviceLayout.titleSize)
                     
-                    let buttonWidth = isIPad ? 
-                        min(geometry.size.width * 0.6, 500) : 
-                        min(geometry.size.width * 0.8, 400)
+                    let subtitleSize = isLandscape ?
+                        (isIPad ?
+                            min(geometry.size.width * deviceLayout.subtitleScale * 0.5, deviceLayout.subtitleSize * 0.6) :
+                            min(geometry.size.width * deviceLayout.subtitleScale * 0.7, deviceLayout.subtitleSize * 0.8)) :
+                        min(geometry.size.width * deviceLayout.subtitleScale, deviceLayout.subtitleSize)
                     
-                    let containerWidth = isIPad ? 
-                        geometry.size.width * 0.8 : 
-                        geometry.size.width
+                    let descriptionSize = isLandscape ?
+                        (isIPad ?
+                            min(geometry.size.width * deviceLayout.descriptionScale * 0.5, deviceLayout.descriptionSize * 0.6) :
+                            min(geometry.size.width * deviceLayout.descriptionScale * 0.7, deviceLayout.descriptionSize * 0.8)) :
+                        min(geometry.size.width * deviceLayout.descriptionScale, deviceLayout.descriptionSize)
+                    
+                    let buttonWidth = isLandscape ?
+                        (isIPad ? min(geometry.size.width * 0.3, 400) : min(geometry.size.width * 0.4, 300)) :
+                        (isIPad ? min(geometry.size.width * 0.5, 600) : min(geometry.size.width * 0.8, 400))
+                    
+                    let containerWidth = isLandscape ?
+                        (isIPad ? geometry.size.width * 0.8 : geometry.size.width * 0.9) :
+                        (isIPad ? geometry.size.width * 0.7 : geometry.size.width)
                     
                     ZStack {
                         // Modern metallic background
@@ -61,36 +78,181 @@ struct SplashView: View {
                                     // Accent lights
                                     Circle()
                                         .fill(Theme.Colors.primaryBlue)
-                                        .frame(width: geometry.size.width * 0.8)
-                                        .offset(x: -geometry.size.width * 0.5, y: -geometry.size.height * 0.3)
-                                        .blur(radius: 100)
+                                        .frame(width: geometry.size.width * (isLandscape ? (isIPad ? 0.5 : 0.6) : 0.8))
+                                        .offset(x: isLandscape ? 
+                                                (isIPad ? -geometry.size.width * 0.25 : -geometry.size.width * 0.3) : 
+                                                -geometry.size.width * 0.5,
+                                                y: isLandscape ? 
+                                                (isIPad ? -geometry.size.height * 0.15 : -geometry.size.height * 0.2) : 
+                                                -geometry.size.height * 0.3)
+                                        .blur(radius: isLandscape ? (isIPad ? 60 : 80) : 100)
                                         .opacity(0.3)
                                     
                                     Circle()
                                         .fill(Theme.Colors.primaryOrange)
-                                        .frame(width: geometry.size.width * 0.8)
-                                        .offset(x: geometry.size.width * 0.5, y: geometry.size.height * 0.3)
-                                        .blur(radius: 100)
+                                        .frame(width: geometry.size.width * (isLandscape ? (isIPad ? 0.5 : 0.6) : 0.8))
+                                        .offset(x: isLandscape ? 
+                                                (isIPad ? geometry.size.width * 0.25 : geometry.size.width * 0.3) : 
+                                                geometry.size.width * 0.5,
+                                                y: isLandscape ? 
+                                                (isIPad ? geometry.size.height * 0.15 : geometry.size.height * 0.2) : 
+                                                geometry.size.height * 0.3)
+                                        .blur(radius: isLandscape ? (isIPad ? 60 : 80) : 100)
                                         .opacity(0.3)
                                 }
                             )
                         .ignoresSafeArea()
                         
                         // Main content
-                        VStack {
+                        Group {
+                            if isLandscape {
+                                if isIPad {
+                                    // iPad Landscape Layout
+                                    HStack(spacing: geometry.size.width * 0.03) {
+                                        // Left side - Title and description
+                                        VStack(alignment: .leading, spacing: 20) {
+                                            Text("XO Arena")
+                                                .font(Theme.TextStyle.title(size: titleSize))
+                                                .foregroundColor(Theme.Colors.primaryGold)
+                                                .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
+                                            
+                                            Text("8 Boards. 1 Minute. 1 Champion.")
+                                                .font(Theme.TextStyle.subtitle(size: subtitleSize))
+                                                .foregroundColor(.white)
+                                                .shadow(color: Theme.Colors.primaryBlue.opacity(0.8), radius: 8)
+                                            
+                                            Text("Multi-board Tic Tac Toe\nLightning-fast rounds\nTactical gameplay")
+                                                .font(Theme.TextStyle.body(size: descriptionSize))
+                                                .foregroundColor(Theme.Colors.metalGray)
+                                                .multilineTextAlignment(.leading)
+                                                .minimumScaleFactor(0.7)
+                                                .shadow(color: .black.opacity(0.3), radius: 3)
+                                        }
+                                        .frame(maxWidth: geometry.size.width * 0.35)
+                                        
+                                        // Right side - Buttons
+                                        if showTapPrompt {
+                                            VStack(spacing: 25) {
+                                                Button(action: {
+                                                    SoundManager.shared.playSound(.tap)
+                                                    SoundManager.shared.playHaptic()
+                                                    showGameModeModal = true
+                                                }) {
+                                                    HStack {
+                                                        Image(systemName: "play.fill")
+                                                            .font(.system(size: 36))
+                                                        Text("Start Game")
+                                                            .font(Theme.TextStyle.subtitle(size: 36))
+                                                    }
+                                                    .foregroundColor(Theme.Colors.primaryGold)
+                                                    .frame(width: buttonWidth)
+                                                    .frame(height: 120)
+                                                    .glowingBorder(color: Theme.Colors.primaryGold)
+                                                }
+                                                .buttonStyle(Theme.MetallicButtonStyle())
+                                                
+                                                Button(action: {
+                                                    SoundManager.shared.playSound(.tap)
+                                                    showTutorial = true
+                                                }) {
+                                                    HStack {
+                                                        Image(systemName: "questionmark.circle")
+                                                            .font(.system(size: 30))
+                                                        Text("How to Play")
+                                                            .font(Theme.TextStyle.body(size: 30))
+                                                    }
+                                                    .foregroundColor(Theme.Colors.metalGray)
+                                                    .padding(.vertical, 12)
+                                                    .padding(.horizontal, 24)
+                                                    .glowingBorder(color: Theme.Colors.metalGray.opacity(0.5))
+                                                }
+                                                .buttonStyle(Theme.MetallicButtonStyle())
+                                            }
+                                            .transition(.opacity)
+                                        }
+                                    }
+                                    .padding(.horizontal, geometry.size.width * 0.1)
+                                } else {
+                                    // iPhone Landscape Layout
+                                    HStack(spacing: geometry.size.width * 0.05) {
+                                        // Left side - Title and description
+                                        VStack(alignment: .leading, spacing: 15) {
+                                            Text("XO Arena")
+                                                .font(Theme.TextStyle.title(size: titleSize))
+                                                .foregroundColor(Theme.Colors.primaryGold)
+                                                .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
+                                            
+                                            Text("8 Boards. 1 Minute. 1 Champion.")
+                                                .font(Theme.TextStyle.subtitle(size: subtitleSize))
+                                                .foregroundColor(.white)
+                                                .shadow(color: Theme.Colors.primaryBlue.opacity(0.8), radius: 8)
+                                            
+                                            Text("Multi-board Tic Tac Toe\nLightning-fast rounds\nTactical gameplay")
+                                                .font(Theme.TextStyle.body(size: descriptionSize))
+                                                .foregroundColor(Theme.Colors.metalGray)
+                                                .multilineTextAlignment(.leading)
+                                                .minimumScaleFactor(0.7)
+                                                .shadow(color: .black.opacity(0.3), radius: 3)
+                                        }
+                                        .frame(maxWidth: geometry.size.width * 0.4)
+                                        
+                                        // Right side - Buttons
+                                        if showTapPrompt {
+                                            VStack(spacing: 20) {
+                                                Button(action: {
+                                                    SoundManager.shared.playSound(.tap)
+                                                    SoundManager.shared.playHaptic()
+                                                    showGameModeModal = true
+                                                }) {
+                                                    HStack {
+                                                        Image(systemName: "play.fill")
+                                                            .font(.system(size: 30))
+                                                        Text("Start Game")
+                                                            .font(Theme.TextStyle.subtitle(size: 30))
+                                                    }
+                                                    .foregroundColor(Theme.Colors.primaryGold)
+                                                    .frame(width: buttonWidth)
+                                                    .frame(height: 100)
+                                                    .glowingBorder(color: Theme.Colors.primaryGold)
+                                                }
+                                                .buttonStyle(Theme.MetallicButtonStyle())
+                                                
+                                                Button(action: {
+                                                    SoundManager.shared.playSound(.tap)
+                                                    showTutorial = true
+                                                }) {
+                                                    HStack {
+                                                        Image(systemName: "questionmark.circle")
+                                                            .font(.system(size: 24))
+                                                        Text("How to Play")
+                                                            .font(Theme.TextStyle.body(size: 24))
+                                                    }
+                                                    .foregroundColor(Theme.Colors.metalGray)
+                                                    .padding(.vertical, 12)
+                                                    .padding(.horizontal, 24)
+                                                    .glowingBorder(color: Theme.Colors.metalGray.opacity(0.5))
+                                                }
+                                                .buttonStyle(Theme.MetallicButtonStyle())
+                                            }
+                                            .transition(.opacity)
+                                        }
+                                    }
+                                    .padding(.horizontal, geometry.size.width * 0.05)
+                                }
+                            } else {
+                                // Portrait Layout (both iPad and iPhone)
+                                VStack(spacing: isIPad ? 20 : 15) {
                             Spacer()
                             
                             Text("XO Arena")
                                 .font(Theme.TextStyle.title(size: titleSize))
                                 .foregroundColor(Theme.Colors.primaryGold)
                                 .shadow(color: Theme.Colors.primaryGold.opacity(0.5), radius: 10)
-                                .padding(.top, geometry.size.height * (isIPad ? 0.05 : 0.03))
                             
                             Text("8 Boards. 1 Minute. 1 Champion.")
                                 .font(Theme.TextStyle.subtitle(size: subtitleSize))
                                 .foregroundColor(.white)
                                 .shadow(color: Theme.Colors.primaryBlue.opacity(0.8), radius: 8)
-                                .padding(.top, isIPad ? 6 : 3)
                             
                             Text("Multi-board Tic Tac Toe\nLightning-fast rounds\nTactical gameplay")
                                 .font(Theme.TextStyle.body(size: descriptionSize))
@@ -98,13 +260,10 @@ struct SplashView: View {
                                 .multilineTextAlignment(.center)
                                 .minimumScaleFactor(0.7)
                                 .shadow(color: .black.opacity(0.3), radius: 3)
-                                .padding(.top, isIPad ? 3 : 2)
-                                .padding(.bottom, geometry.size.height * (isIPad ? 0.04 : 0.02))
                             
                             if showTapPrompt {
-                                VStack(spacing: isIPad ? 15 : 10) {
                                     Spacer()
-                                        .frame(height: geometry.size.height * 0.3)
+                                            .frame(height: geometry.size.height * (isIPad ? 0.2 : 0.3))
                                         
                                     Button(action: {
                                         SoundManager.shared.playSound(.tap)
@@ -113,22 +272,19 @@ struct SplashView: View {
                                     }) {
                                         HStack {
                                             Image(systemName: "play.fill")
-                                                .font(.system(size: isIPad ? 30 : 24))
+                                                    .font(.system(size: isIPad ? 36 : 30))
                                             Text("Start Game")
-                                                .font(Theme.TextStyle.subtitle(size: isIPad ? 30 : 24))
+                                                    .font(Theme.TextStyle.subtitle(size: isIPad ? 36 : 30))
                                         }
                                         .foregroundColor(Theme.Colors.primaryGold)
                                         .frame(width: buttonWidth)
-                                            .frame(height: CGFloat(isIPad ? 100 : 80))
+                                            .frame(height: isIPad ? 120 : 100)
                                         .glowingBorder(color: Theme.Colors.primaryGold)
                                     }
                                     .buttonStyle(Theme.MetallicButtonStyle())
-                                }
-                                .padding(.bottom, isIPad ? 15 : 8)
-                                .transition(.opacity)
                                 
                                 Spacer()
-                                    .frame(maxHeight: geometry.size.height * 0.1)
+                                            .frame(height: geometry.size.height * (isIPad ? 0.15 : 0.1))
                                 
                                 Button(action: {
                                     SoundManager.shared.playSound(.tap)
@@ -136,9 +292,9 @@ struct SplashView: View {
                                 }) {
                                     HStack {
                                         Image(systemName: "questionmark.circle")
-                                            .font(.system(size: isIPad ? 24 : 20))
+                                                    .font(.system(size: isIPad ? 30 : 24))
                                         Text("How to Play")
-                                            .font(Theme.TextStyle.body(size: isIPad ? 24 : 20))
+                                                    .font(Theme.TextStyle.body(size: isIPad ? 30 : 24))
                                     }
                                     .foregroundColor(Theme.Colors.metalGray)
                                     .padding(.vertical, 12)
@@ -146,8 +302,8 @@ struct SplashView: View {
                                     .glowingBorder(color: Theme.Colors.metalGray.opacity(0.5))
                                 }
                                 .buttonStyle(Theme.MetallicButtonStyle())
-                                    .padding(.bottom, isIPad ? 40 : 30)
-                                    .transition(.opacity)
+                                    }
+                                }
                             }
                         }
                         .frame(width: containerWidth)

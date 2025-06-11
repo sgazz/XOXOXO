@@ -11,6 +11,8 @@ struct GameModeModalView: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @StateObject private var playerSettings = PlayerSettings.shared
     @StateObject private var timerSettings = GameTimerSettings.shared
+    @StateObject private var gameLogic = GameLogic()
+    @State private var showAIDifficulty = false
     
     private var deviceLayout: DeviceLayout {
         DeviceLayout.current(horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
@@ -187,7 +189,7 @@ struct GameModeModalView: View {
                             if gameMode == .playerVsPlayer {
                                 onPlayVsPlayer()
                             } else {
-                                onPlayVsAI()
+                                showAIDifficulty = true
                             }
                         }) {
                             HStack(spacing: geometry.size.width * 0.04) {
@@ -260,6 +262,20 @@ struct GameModeModalView: View {
                 .frame(maxWidth: min(geometry.size.width * 0.95, 600))
             }
             .transition(.opacity.combined(with: .scale))
+            
+            // AI Difficulty View
+            if showAIDifficulty {
+                AIDifficultyView(
+                    gameLogic: gameLogic,
+                    onStart: {
+                        showAIDifficulty = false
+                        onPlayVsAI()
+                    },
+                    onBack: {
+                        showAIDifficulty = false
+                    }
+                )
+            }
         }
     }
     

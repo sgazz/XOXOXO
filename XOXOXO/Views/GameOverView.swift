@@ -107,6 +107,7 @@ struct GameOverView: View {
                 playerXTime: playerXTime,
                 playerOTime: playerOTime,
                 score: score,
+                totalMoves: gameLogic.totalMoves,
                 playerStats: gameLogic.playerStats,
                 onResetStatistics: onResetStatistics
             )
