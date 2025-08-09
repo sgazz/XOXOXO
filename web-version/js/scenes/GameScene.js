@@ -75,7 +75,7 @@ class GameScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
         
-        // Main background
+        // Clean background
         this.background = this.add.graphics();
         this.background.fillStyle(0x000000, 1);
         this.background.fillRect(0, 0, width, height);
@@ -130,25 +130,16 @@ class GameScene extends Phaser.Scene {
         
         // Pause button
         const pauseButton = this.add.graphics();
-        pauseButton.fillStyle(COLORS.PRIMARY_GREEN, 0.8);
-        pauseButton.fillCircle(width - 50, 50, 25);
-        pauseButton.lineStyle(3, COLORS.PRIMARY_GREEN);
-        pauseButton.strokeCircle(width - 50, 50, 25);
+        pauseButton.fillStyle(0xffffff, 0.1);
+        pauseButton.fillCircle(width - 50, 50, 20);
+        pauseButton.lineStyle(1, COLORS.WHITE, 0.3);
+        pauseButton.strokeCircle(width - 50, 50, 20);
         
         // Pause icon
         const pauseIcon = this.add.text(width - 50, 50, '⏸', {
-            fontFamily: 'Orbitron',
-            fontSize: '1.2rem',
-            color: COLORS.PRIMARY_GREEN,
-            stroke: COLORS.PRIMARY_GREEN,
-            strokeThickness: 1,
-            shadow: {
-                offsetX: 0,
-                offsetY: 0,
-                color: COLORS.PRIMARY_GREEN,
-                blur: 15,
-                fill: true
-            }
+            fontFamily: 'Inter',
+            fontSize: '1rem',
+            color: COLORS.WHITE
         }).setOrigin(0.5);
         
         // Make interactive

@@ -1,5 +1,5 @@
-/* Hacker Theme - Global Styles */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+/* Why.Games Style - Clean Minimalist Theme */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 * {
     margin: 0;
@@ -8,9 +8,9 @@
 }
 
 body {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #000000;
-    color: #00ff00;
+    color: #ffffff;
     overflow: hidden;
     height: 100vh;
     position: relative;
@@ -18,61 +18,13 @@ body {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    line-height: 1.6;
 }
 
-/* Matrix Background Effect */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        linear-gradient(90deg, transparent 98%, #00ff00 100%),
-        linear-gradient(0deg, transparent 98%, #00ff00 100%);
-    background-size: 50px 50px;
-    opacity: 0.15;
-    z-index: -1;
-    animation: matrix 20s linear infinite;
-}
-
-@keyframes matrix {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(50px); }
-}
-
-/* CRT Scan Lines Effect */
+/* Clean background - no effects */
+body::before,
 body::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 2px,
-            rgba(0, 255, 0, 0.05) 2px,
-            rgba(0, 255, 0, 0.05) 4px
-        ),
-        repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 2px,
-            rgba(0, 255, 0, 0.02) 2px,
-            rgba(0, 255, 0, 0.02) 4px
-        );
-    pointer-events: none;
-    z-index: -1;
-    animation: scanlines 0.1s linear infinite;
-}
-
-@keyframes scanlines {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(4px); }
+    display: none;
 }
 
 #game-container {
@@ -98,61 +50,21 @@ body::after {
 
 .loading-screen h1 {
     font-size: 3rem;
-    font-weight: 900;
-    color: #00ff00;
+    font-weight: 700;
+    color: #ffffff;
     margin-bottom: 2rem;
-    text-shadow: 
-        0 0 10px #00ff00,
-        0 0 20px #00ff00,
-        0 0 30px #00ff00,
-        0 0 40px #00ff00,
-        0 0 50px #00ff00,
-        0 0 60px #00ff00;
-    animation: glitch 2s infinite, glow 3s ease-in-out infinite alternate;
+    letter-spacing: -0.02em;
 }
 
-@keyframes glitch {
-    0%, 100% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
-}
-
-@keyframes glow {
-    0% { 
-        text-shadow: 
-            0 0 10px #00ff00,
-            0 0 20px #00ff00,
-            0 0 30px #00ff00,
-            0 0 40px #00ff00,
-            0 0 50px #00ff00,
-            0 0 60px #00ff00;
-    }
-    100% { 
-        text-shadow: 
-            0 0 15px #00ff00,
-            0 0 25px #00ff00,
-            0 0 35px #00ff00,
-            0 0 45px #00ff00,
-            0 0 55px #00ff00,
-            0 0 65px #00ff00,
-            0 0 75px #00ff00;
-    }
-}
+/* Clean animations removed for minimalist design */
 
 .loading-screen .spinner {
-    width: 60px;
-    height: 60px;
-    border: 4px solid #003300;
-    border-top: 4px solid #00ff00;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #333333;
+    border-top: 2px solid #ffffff;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    box-shadow: 
-        0 0 20px rgba(0, 255, 0, 0.5),
-        0 0 40px rgba(0, 255, 0, 0.3),
-        0 0 60px rgba(0, 255, 0, 0.2),
-        inset 0 0 20px rgba(0, 255, 0, 0.1);
 }
 
 @keyframes spin {
@@ -160,47 +72,16 @@ body::after {
     100% { transform: rotate(360deg); }
 }
 
-/* Terminal Text Effect */
+/* Clean Text Style */
 .terminal-text {
-    font-family: 'Orbitron', monospace;
-    color: #00ff00;
-    text-shadow: 0 0 5px #00ff00;
+    font-family: 'Inter', sans-serif;
+    color: #ffffff;
+    font-weight: 400;
 }
 
-/* Enhanced Neon Glow Effect */
+/* Clean minimal design - no glow effects */
 .neon-glow {
-    box-shadow: 
-        0 0 5px #00ff00,
-        0 0 10px #00ff00,
-        0 0 15px #00ff00,
-        0 0 20px #00ff00,
-        0 0 30px #00ff00,
-        0 0 40px #00ff00,
-        inset 0 0 10px rgba(0, 255, 0, 0.2);
-    animation: neonPulse 2s ease-in-out infinite alternate;
-}
-
-@keyframes neonPulse {
-    0% {
-        box-shadow: 
-            0 0 5px #00ff00,
-            0 0 10px #00ff00,
-            0 0 15px #00ff00,
-            0 0 20px #00ff00,
-            0 0 30px #00ff00,
-            0 0 40px #00ff00,
-            inset 0 0 10px rgba(0, 255, 0, 0.2);
-    }
-    100% {
-        box-shadow: 
-            0 0 10px #00ff00,
-            0 0 20px #00ff00,
-            0 0 30px #00ff00,
-            0 0 40px #00ff00,
-            0 0 50px #00ff00,
-            0 0 60px #00ff00,
-            inset 0 0 15px rgba(0, 255, 0, 0.3);
-    }
+    /* Removed for clean design */
 }
 
 /* Hide loading screen when game is ready */

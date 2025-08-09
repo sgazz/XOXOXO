@@ -31,13 +31,13 @@ class MenuScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
         
-        // Main background gradient
+        // Clean background
         this.background = this.add.graphics();
         this.background.fillStyle(0x000000, 1);
         this.background.fillRect(0, 0, width, height);
         
         // Add floating lights
-        this.createFloatingLights();
+        // Clean design - no floating lights
     }
 
     // Create floating lights
@@ -79,46 +79,28 @@ class MenuScene extends Phaser.Scene {
         
         // Main title
         this.title = this.add.text(width / 2, height * 0.25, 'XO ARENA', {
-            fontFamily: 'Orbitron',
-            fontSize: '4rem',
-            fontWeight: '900',
-            color: COLORS.PRIMARY_GREEN,
-            stroke: COLORS.PRIMARY_GREEN,
-            strokeThickness: 3,
-            shadow: {
-                offsetX: 0,
-                offsetY: 0,
-                color: COLORS.PRIMARY_GREEN,
-                blur: 30,
-                fill: true
-            }
+            fontFamily: 'Inter',
+            fontSize: '3.5rem',
+            fontWeight: '700',
+            color: COLORS.WHITE,
+            letterSpacing: '-0.02em'
         }).setOrigin(0.5);
         
         // Subtitle
-        this.subtitle = this.add.text(width / 2, height * 0.35, 'HACKER TIC-TAC-TOE ARENA', {
-            fontFamily: 'Orbitron',
-            fontSize: '1.2rem',
+        this.subtitle = this.add.text(width / 2, height * 0.35, 'TIC-TAC-TOE ARENA', {
+            fontFamily: 'Inter',
+            fontSize: '1.1rem',
             fontWeight: '400',
-            color: COLORS.PRIMARY_GREEN,
-            alpha: 0.8
+            color: COLORS.WHITE,
+            alpha: 0.7
         }).setOrigin(0.5);
         
-        // Animate title
+        // Simple title animation
         this.tweens.add({
             targets: this.title,
-            scaleX: 1.05,
-            scaleY: 1.05,
-            duration: 2000,
-            ease: 'Sine.easeInOut',
-            yoyo: true,
-            repeat: -1
-        });
-        
-        // Add glow animation
-        this.tweens.add({
-            targets: this.title,
-            alpha: { from: 0.8, to: 1 },
-            duration: 1500,
+            scaleX: 1.02,
+            scaleY: 1.02,
+            duration: 3000,
             ease: 'Sine.easeInOut',
             yoyo: true,
             repeat: -1
@@ -161,26 +143,17 @@ class MenuScene extends Phaser.Scene {
     createButton(x, y, width, height, text, callback) {
         // Button background
         const buttonBg = this.add.graphics();
-        buttonBg.fillStyle(0x003300, 0.8);
-        buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 12);
-        buttonBg.lineStyle(3, COLORS.PRIMARY_GREEN, 1);
-        buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 12);
+        buttonBg.fillStyle(0xffffff, 0.1);
+        buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 8);
+        buttonBg.lineStyle(1, COLORS.WHITE, 0.3);
+        buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 8);
         
         // Button text
         const buttonText = this.add.text(x, y, text, {
-            fontFamily: 'Orbitron',
-            fontSize: '1.1rem',
-            fontWeight: '700',
-            color: COLORS.PRIMARY_GREEN,
-            stroke: COLORS.PRIMARY_GREEN,
-            strokeThickness: 1,
-            shadow: {
-                offsetX: 0,
-                offsetY: 0,
-                color: COLORS.PRIMARY_GREEN,
-                blur: 10,
-                fill: true
-            }
+            fontFamily: 'Inter',
+            fontSize: '1rem',
+            fontWeight: '500',
+            color: COLORS.WHITE
         }).setOrigin(0.5);
         
         // Interactive area
@@ -190,10 +163,10 @@ class MenuScene extends Phaser.Scene {
         // Hover effects
         buttonArea.on('pointerover', () => {
             buttonBg.clear();
-            buttonBg.fillStyle(COLORS.PRIMARY_GREEN, 0.4);
-            buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 12);
-            buttonBg.lineStyle(4, COLORS.PRIMARY_GREEN, 1);
-            buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 12);
+            buttonBg.fillStyle(0xffffff, 0.2);
+            buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 8);
+            buttonBg.lineStyle(1, COLORS.WHITE, 0.6);
+            buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 8);
             
             this.tweens.add({
                 targets: [buttonBg, buttonText],
@@ -206,10 +179,10 @@ class MenuScene extends Phaser.Scene {
         
         buttonArea.on('pointerout', () => {
             buttonBg.clear();
-            buttonBg.fillStyle(0x003300, 0.8);
-            buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 12);
-            buttonBg.lineStyle(2, COLORS.PRIMARY_GREEN, 0.8);
-            buttonBg.strokeRoundedRect(x - width / 2, y - width / 2, width, height, 12);
+            buttonBg.fillStyle(0xffffff, 0.1);
+            buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 8);
+            buttonBg.lineStyle(1, COLORS.WHITE, 0.3);
+            buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 8);
             
             this.tweens.add({
                 targets: [buttonBg, buttonText],
