@@ -77,9 +77,7 @@ class GameScene extends Phaser.Scene {
         
         // Main background
         this.background = this.add.graphics();
-        this.background.fillGradientStyle(
-            0x0a0a0f, 0x0a0a0f, 0x1a1a2e, 0x1a1a2e, 1
-        );
+        this.background.fillStyle(0x000000, 1);
         this.background.fillRect(0, 0, width, height);
         
         // Add floating lights
@@ -91,10 +89,10 @@ class GameScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
         
-        // Gold light (top center)
-        const goldLight = this.add.graphics();
-        goldLight.fillStyle(COLORS.PRIMARY_GOLD, 0.05);
-        goldLight.fillCircle(width / 2, height * 0.1, 200);
+        // Green light (top center)
+        const greenLight = this.add.graphics();
+        greenLight.fillStyle(COLORS.PRIMARY_GREEN, 0.05);
+        greenLight.fillCircle(width / 2, height * 0.1, 200);
         
         // Blue light (top left)
         const blueLight = this.add.graphics();
@@ -132,16 +130,16 @@ class GameScene extends Phaser.Scene {
         
         // Pause button
         const pauseButton = this.add.graphics();
-        pauseButton.fillStyle(COLORS.PRIMARY_GOLD, 0.8);
+        pauseButton.fillStyle(COLORS.PRIMARY_GREEN, 0.8);
         pauseButton.fillCircle(width - 50, 50, 25);
-        pauseButton.lineStyle(2, COLORS.WHITE);
+        pauseButton.lineStyle(2, COLORS.PRIMARY_GREEN);
         pauseButton.strokeCircle(width - 50, 50, 25);
         
         // Pause icon
         const pauseIcon = this.add.text(width - 50, 50, '⏸', {
-            fontFamily: 'Inter',
+            fontFamily: 'Orbitron',
             fontSize: '1.2rem',
-            color: COLORS.WHITE
+            color: COLORS.PRIMARY_GREEN
         }).setOrigin(0.5);
         
         // Make interactive

@@ -33,9 +33,7 @@ class MenuScene extends Phaser.Scene {
         
         // Main background gradient
         this.background = this.add.graphics();
-        this.background.fillGradientStyle(
-            0x0a0a0f, 0x0a0a0f, 0x1a1a2e, 0x1a1a2e, 1
-        );
+        this.background.fillStyle(0x000000, 1);
         this.background.fillRect(0, 0, width, height);
         
         // Add floating lights
@@ -47,24 +45,24 @@ class MenuScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
         
-        // Gold light (top center)
-        const goldLight = this.add.graphics();
-        goldLight.fillStyle(COLORS.PRIMARY_GOLD, 0.1);
-        goldLight.fillCircle(width / 2, height * 0.2, 150);
+        // Green light (top center)
+        const greenLight = this.add.graphics();
+        greenLight.fillStyle(COLORS.PRIMARY_GREEN, 0.1);
+        greenLight.fillCircle(width / 2, height * 0.2, 150);
         
         // Blue light (top left)
         const blueLight = this.add.graphics();
         blueLight.fillStyle(COLORS.PRIMARY_BLUE, 0.08);
         blueLight.fillCircle(width * 0.2, height * 0.3, 120);
         
-        // Orange light (top right)
-        const orangeLight = this.add.graphics();
-        orangeLight.fillStyle(COLORS.PRIMARY_ORANGE, 0.08);
-        orangeLight.fillCircle(width * 0.8, height * 0.3, 120);
+        // Red light (top right)
+        const redLight = this.add.graphics();
+        redLight.fillStyle(COLORS.PRIMARY_RED, 0.08);
+        redLight.fillCircle(width * 0.8, height * 0.3, 120);
         
         // Animate lights
         this.tweens.add({
-            targets: [goldLight, blueLight, orangeLight],
+            targets: [greenLight, blueLight, redLight],
             alpha: { from: 0.3, to: 0.8 },
             duration: 2000,
             ease: 'Sine.easeInOut',
@@ -81,27 +79,27 @@ class MenuScene extends Phaser.Scene {
         
         // Main title
         this.title = this.add.text(width / 2, height * 0.25, 'XO ARENA', {
-            fontFamily: 'Inter',
+            fontFamily: 'Orbitron',
             fontSize: '4rem',
-            fontWeight: '800',
-            color: COLORS.WHITE,
-            stroke: COLORS.PRIMARY_GOLD,
-            strokeThickness: 3,
+            fontWeight: '900',
+            color: COLORS.PRIMARY_GREEN,
+            stroke: COLORS.PRIMARY_GREEN,
+            strokeThickness: 2,
             shadow: {
-                offsetX: 2,
-                offsetY: 2,
-                color: COLORS.BLACK,
-                blur: 4,
+                offsetX: 0,
+                offsetY: 0,
+                color: COLORS.PRIMARY_GREEN,
+                blur: 20,
                 fill: true
             }
         }).setOrigin(0.5);
         
         // Subtitle
-        this.subtitle = this.add.text(width / 2, height * 0.35, 'Ultimate Tic-Tac-Toe Experience', {
-            fontFamily: 'Inter',
+        this.subtitle = this.add.text(width / 2, height * 0.35, 'HACKER TIC-TAC-TOE ARENA', {
+            fontFamily: 'Orbitron',
             fontSize: '1.2rem',
             fontWeight: '400',
-            color: COLORS.PRIMARY_GOLD,
+            color: COLORS.PRIMARY_GREEN,
             alpha: 0.8
         }).setOrigin(0.5);
         
@@ -126,11 +124,11 @@ class MenuScene extends Phaser.Scene {
         const spacing = 20;
         
         const buttons = [
-            { text: 'Igraj vs AI', action: () => this.startGame(GAME_MODE.AI_OPPONENT) },
-            { text: 'Igraj vs Igrač', action: () => this.startGame(GAME_MODE.PLAYER_VS_PLAYER) },
-            { text: 'Statistika', action: () => this.showStatistics() },
-            { text: 'Podešavanja', action: () => this.showSettings() },
-            { text: 'Kako igrati', action: () => this.showTutorial() }
+            { text: 'PLAY vs AI', action: () => this.startGame(GAME_MODE.AI_OPPONENT) },
+            { text: 'PLAY vs PLAYER', action: () => this.startGame(GAME_MODE.PLAYER_VS_PLAYER) },
+            { text: 'STATISTICS', action: () => this.showStatistics() },
+            { text: 'SETTINGS', action: () => this.showSettings() },
+            { text: 'HOW TO PLAY', action: () => this.showTutorial() }
         ];
         
         const startY = height * 0.5;
@@ -153,17 +151,17 @@ class MenuScene extends Phaser.Scene {
     createButton(x, y, width, height, text, callback) {
         // Button background
         const buttonBg = this.add.graphics();
-        buttonBg.fillStyle(0x333333, 0.8);
+        buttonBg.fillStyle(0x003300, 0.8);
         buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 12);
-        buttonBg.lineStyle(2, COLORS.PRIMARY_GOLD, 0.6);
+        buttonBg.lineStyle(2, COLORS.PRIMARY_GREEN, 0.8);
         buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 12);
         
         // Button text
         const buttonText = this.add.text(x, y, text, {
-            fontFamily: 'Inter',
+            fontFamily: 'Orbitron',
             fontSize: '1.1rem',
-            fontWeight: '600',
-            color: COLORS.WHITE
+            fontWeight: '700',
+            color: COLORS.PRIMARY_GREEN
         }).setOrigin(0.5);
         
         // Interactive area
@@ -173,9 +171,9 @@ class MenuScene extends Phaser.Scene {
         // Hover effects
         buttonArea.on('pointerover', () => {
             buttonBg.clear();
-            buttonBg.fillStyle(COLORS.PRIMARY_GOLD, 0.2);
+            buttonBg.fillStyle(COLORS.PRIMARY_GREEN, 0.3);
             buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 12);
-            buttonBg.lineStyle(2, COLORS.PRIMARY_GOLD, 1);
+            buttonBg.lineStyle(2, COLORS.PRIMARY_GREEN, 1);
             buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 12);
             
             this.tweens.add({
@@ -189,10 +187,10 @@ class MenuScene extends Phaser.Scene {
         
         buttonArea.on('pointerout', () => {
             buttonBg.clear();
-            buttonBg.fillStyle(0x333333, 0.8);
+            buttonBg.fillStyle(0x003300, 0.8);
             buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 12);
-            buttonBg.lineStyle(2, COLORS.PRIMARY_GOLD, 0.6);
-            buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 12);
+            buttonBg.lineStyle(2, COLORS.PRIMARY_GREEN, 0.8);
+            buttonBg.strokeRoundedRect(x - width / 2, y - width / 2, width, height, 12);
             
             this.tweens.add({
                 targets: [buttonBg, buttonText],

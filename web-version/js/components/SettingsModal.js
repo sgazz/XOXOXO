@@ -83,17 +83,17 @@ class SettingsModal {
         
         // Modal background
         const modalContent = this.scene.add.graphics();
-        modalContent.fillStyle(0x1a1a2e, 0.95);
+        modalContent.fillStyle(0x003300, 0.95);
         modalContent.fillRoundedRect(-modalWidth / 2, -modalHeight / 2, modalWidth, modalHeight, 16);
-        modalContent.lineStyle(3, COLORS.PRIMARY_GOLD);
+        modalContent.lineStyle(3, COLORS.PRIMARY_GREEN);
         modalContent.strokeRoundedRect(-modalWidth / 2, -modalHeight / 2, modalWidth, modalHeight, 16);
         
         // Title
-        const title = this.scene.add.text(0, -modalHeight / 2 + 40, 'PODEŠAVANJA', {
-            fontFamily: 'Inter',
+        const title = this.scene.add.text(0, -modalHeight / 2 + 40, 'SETTINGS', {
+            fontFamily: 'Orbitron',
             fontSize: '2rem',
-            fontWeight: '800',
-            color: COLORS.PRIMARY_GOLD
+            fontWeight: '900',
+            color: COLORS.PRIMARY_GREEN
         }).setOrigin(0.5);
         
         // Settings content
@@ -123,7 +123,7 @@ class SettingsModal {
         let currentY = startY;
         
         // Sound setting
-        this.createToggleSetting('Zvučni efekti', this.settings.soundEnabled, (value) => {
+        this.createToggleSetting('SOUND EFFECTS', this.settings.soundEnabled, (value) => {
             this.settings.soundEnabled = value;
             soundManager.saveSoundSetting(value);
             if (analytics) {
@@ -133,7 +133,7 @@ class SettingsModal {
         currentY += spacing;
         
         // Vibration setting
-        this.createToggleSetting('Vibracija', this.settings.vibrationEnabled, (value) => {
+        this.createToggleSetting('VIBRATION', this.settings.vibrationEnabled, (value) => {
             this.settings.vibrationEnabled = value;
             if (analytics) {
                 analytics.trackSettingsChange('vibration_enabled', value);
@@ -142,10 +142,10 @@ class SettingsModal {
         currentY += spacing;
         
         // AI Difficulty setting
-        this.createDropdownSetting('AI Težina', this.settings.aiDifficulty, [
-            { value: AI_DIFFICULTY.EASY, label: 'Lako' },
-            { value: AI_DIFFICULTY.MEDIUM, label: 'Srednje' },
-            { value: AI_DIFFICULTY.HARD, label: 'Teško' }
+        this.createDropdownSetting('AI DIFFICULTY', this.settings.aiDifficulty, [
+            { value: AI_DIFFICULTY.EASY, label: 'EASY' },
+            { value: AI_DIFFICULTY.MEDIUM, label: 'MEDIUM' },
+            { value: AI_DIFFICULTY.HARD, label: 'HARD' }
         ], (value) => {
             this.settings.aiDifficulty = value;
             if (analytics) {
@@ -155,10 +155,10 @@ class SettingsModal {
         currentY += spacing;
         
         // Game Duration setting
-        this.createDropdownSetting('Vreme igre', this.settings.gameDuration, [
-            { value: 120, label: '2 minuta' },
-            { value: 180, label: '3 minuta' },
-            { value: 300, label: '5 minuta' }
+        this.createDropdownSetting('GAME DURATION', this.settings.gameDuration, [
+            { value: 120, label: '2 MINUTES' },
+            { value: 180, label: '3 MINUTES' },
+            { value: 300, label: '5 MINUTES' }
         ], (value) => {
             this.settings.gameDuration = value;
             if (analytics) {
@@ -168,7 +168,7 @@ class SettingsModal {
         currentY += spacing;
         
         // Analytics setting
-        this.createToggleSetting('Analytics', this.settings.analyticsEnabled, (value) => {
+        this.createToggleSetting('ANALYTICS', this.settings.analyticsEnabled, (value) => {
             this.settings.analyticsEnabled = value;
             if (analytics) {
                 analytics.saveAnalyticsSetting(value);
@@ -178,7 +178,7 @@ class SettingsModal {
         currentY += spacing;
         
         // Save button
-        const saveButton = this.createButton(0, currentY, 150, 50, 'Sačuvaj', () => {
+        const saveButton = this.createButton(0, currentY, 150, 50, 'SAVE', () => {
             this.saveSettings(this.settings);
             this.hide();
         });
@@ -189,10 +189,10 @@ class SettingsModal {
     // Create toggle setting
     createToggleSetting(label, value, onChange, y) {
         const labelText = this.scene.add.text(-150, y, label, {
-            fontFamily: 'Inter',
+            fontFamily: 'Orbitron',
             fontSize: '1.1rem',
-            fontWeight: '600',
-            color: COLORS.WHITE
+            fontWeight: '700',
+            color: COLORS.PRIMARY_GREEN
         }).setOrigin(0, 0.5);
         
         // Toggle button
@@ -204,7 +204,7 @@ class SettingsModal {
         
         // Toggle text
         const toggleText = this.scene.add.text(80, y, value ? 'ON' : 'OFF', {
-            fontFamily: 'Inter',
+            fontFamily: 'Orbitron',
             fontSize: '0.9rem',
             fontWeight: '700',
             color: COLORS.WHITE
@@ -231,23 +231,23 @@ class SettingsModal {
     // Create dropdown setting
     createDropdownSetting(label, value, options, onChange, y) {
         const labelText = this.scene.add.text(-150, y, label, {
-            fontFamily: 'Inter',
+            fontFamily: 'Orbitron',
             fontSize: '1.1rem',
-            fontWeight: '600',
-            color: COLORS.WHITE
+            fontWeight: '700',
+            color: COLORS.PRIMARY_GREEN
         }).setOrigin(0, 0.5);
         
         // Dropdown background
         const dropdownBg = this.scene.add.graphics();
-        dropdownBg.fillStyle(0x333333, 0.8);
+        dropdownBg.fillStyle(0x003300, 0.8);
         dropdownBg.fillRoundedRect(50, y - 20, 120, 40, 8);
-        dropdownBg.lineStyle(2, COLORS.PRIMARY_GOLD, 0.6);
+        dropdownBg.lineStyle(2, COLORS.PRIMARY_GREEN, 0.8);
         dropdownBg.strokeRoundedRect(50, y - 20, 120, 40, 8);
         
         // Current value text
         const currentOption = options.find(opt => opt.value === value);
-        const valueText = this.scene.add.text(110, y, currentOption ? currentOption.label : 'Nepoznato', {
-            fontFamily: 'Inter',
+        const valueText = this.scene.add.text(110, y, currentOption ? currentOption.label : 'UNKNOWN', {
+            fontFamily: 'Orbitron',
             fontSize: '0.9rem',
             fontWeight: '500',
             color: COLORS.WHITE
@@ -316,17 +316,17 @@ class SettingsModal {
     createButton(x, y, width, height, text, callback) {
         // Button background
         const buttonBg = this.scene.add.graphics();
-        buttonBg.fillStyle(0x333333, 0.8);
+        buttonBg.fillStyle(0x003300, 0.8);
         buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 8);
-        buttonBg.lineStyle(2, COLORS.PRIMARY_GOLD, 0.6);
+        buttonBg.lineStyle(2, COLORS.PRIMARY_GREEN, 0.8);
         buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 8);
         
         // Button text
         const buttonText = this.scene.add.text(x, y, text, {
-            fontFamily: 'Inter',
+            fontFamily: 'Orbitron',
             fontSize: '1rem',
-            fontWeight: '600',
-            color: COLORS.WHITE
+            fontWeight: '700',
+            color: COLORS.PRIMARY_GREEN
         }).setOrigin(0.5);
         
         // Interactive area
