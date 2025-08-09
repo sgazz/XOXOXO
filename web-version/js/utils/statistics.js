@@ -195,3 +195,8 @@ class StatisticsManager {
 
 // Create global instance
 const statisticsManager = new StatisticsManager();
+
+// Make it globally available
+if (typeof window !== 'undefined') {
+    window.statisticsManager = statisticsManager;
+}
