@@ -353,13 +353,29 @@ class GameScene extends Phaser.Scene {
         this.isThinking = true;
         
         const board = this.boards[this.currentBoard];
-        
-        this.ai.makeMove(board.state, this.currentPlayer).then(move => {
-            if (move !== null && board.state[move] === '') {
-                this.makeMove(this.currentBoard, move);
-            }
+        if (!board) {
             this.isThinking = false;
-        });
+            return;
+        }
+        
+        // Get available moves
+        const availableMoves = board.getState().map((cell, index) => cell === '' ? index : null).filter(index => index !== null);
+        
+        // Get AI move
+        const move = this.ai.getMove(board.getState(), availableMoves);
+        
+        if (move !== null && board.getState()[move] === '') {
+            // Make AI move with delay
+            this.ai.getMoveWithDelay(board.getState(), availableMoves, (aiMove) => {
+                if (aiMove !== null && board.getState()[aiMove] === '') {
+                    board.makeMove(aiMove);
+                    this.handleMoveResult(this.currentBoard, aiMove);
+                }
+                this.isThinking = false;
+            });
+        } else {
+            this.isThinking = false;
+        }
     }
 
     // Handle timeout

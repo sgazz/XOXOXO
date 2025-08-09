@@ -263,6 +263,11 @@ class Board {
 
     // Get board state
     getState() {
+        return this.state;
+    }
+    
+    // Get board info
+    getBoardInfo() {
         return {
             state: this.state,
             isWon: this.isWon,
