@@ -24,7 +24,7 @@ class BootScene extends Phaser.Scene {
         this.createFallbackAssets();
         
         // Hide loading screen
-        if (gameInstance && gameInstance.hideLoadingScreen) {
+        if (typeof gameInstance !== 'undefined' && gameInstance && gameInstance.hideLoadingScreen) {
             gameInstance.hideLoadingScreen();
         }
         
