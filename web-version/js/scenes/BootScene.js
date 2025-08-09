@@ -99,86 +99,112 @@ class BootScene extends Phaser.Scene {
 
     // Create fallback assets if images fail to load
     createFallbackAssets() {
-        // Create simple colored rectangles as fallbacks
-        const graphics = this.add.graphics();
+        console.log('BootScene: Creating fallback assets using Canvas API');
         
-        // Background
-        graphics.fillStyle(0x1a1a2e);
-        graphics.fillRect(0, 0, 100, 100);
-        this.textures.addImage('background', graphics.generateTexture());
+        // Create background texture
+        this.createTexture('background', 100, 100, 0x1a1a2e);
         
-        // Button background
-        graphics.clear();
-        graphics.fillStyle(0x333333);
-        graphics.fillRoundedRect(0, 0, 200, 50, 10);
-        this.textures.addImage('button-bg', graphics.generateTexture());
+        // Create button background texture
+        this.createTexture('button-bg', 200, 50, 0x333333, true);
         
-        // Cell background
-        graphics.clear();
-        graphics.fillStyle(0x222222);
-        graphics.fillRoundedRect(0, 0, 80, 80, 8);
-        this.textures.addImage('cell-bg', graphics.generateTexture());
+        // Create cell background texture
+        this.createTexture('cell-bg', 80, 80, 0x222222, true);
         
-        // Board background
-        graphics.clear();
-        graphics.fillStyle(0x1a1a2e);
-        graphics.fillRoundedRect(0, 0, 300, 300, 12);
-        this.textures.addImage('board-bg', graphics.generateTexture());
+        // Create board background texture
+        this.createTexture('board-bg', 300, 300, 0x1a1a2e, true);
         
-        // Symbols
-        graphics.clear();
-        graphics.lineStyle(4, 0x4a90e2);
-        graphics.beginPath();
-        graphics.moveTo(20, 20);
-        graphics.lineTo(80, 80);
-        graphics.moveTo(80, 20);
-        graphics.lineTo(20, 80);
-        graphics.strokePath();
-        this.textures.addImage('symbol-x', graphics.generateTexture());
+        // Create symbol X texture
+        this.createSymbolTexture('symbol-x', 100, 100, 'X', 0x4a90e2);
         
-        graphics.clear();
-        graphics.lineStyle(4, 0xff6b35);
-        graphics.strokeCircle(50, 50, 30);
-        this.textures.addImage('symbol-o', graphics.generateTexture());
+        // Create symbol O texture
+        this.createSymbolTexture('symbol-o', 100, 100, 'O', 0xff6b35);
         
-        // Icons
-        graphics.clear();
-        graphics.fillStyle(0xffd700);
-        graphics.fillCircle(25, 25, 20);
-        this.textures.addImage('icon-pause', graphics.generateTexture());
+        // Create icon textures
+        this.createIconTexture('icon-pause', 50, 50, 0xffd700);
+        this.createIconTexture('icon-settings', 50, 50, 0x4a90e2);
+        this.createIconTexture('icon-sound', 50, 50, 0xff6b35);
+        this.createIconTexture('icon-vibration', 50, 50, 0x666666);
         
-        graphics.clear();
-        graphics.fillStyle(0x4a90e2);
-        graphics.fillCircle(25, 25, 20);
-        this.textures.addImage('icon-settings', graphics.generateTexture());
+        // Create particle textures
+        this.createParticleTexture('particle-gold', 20, 20, 0xffd700);
+        this.createParticleTexture('particle-blue', 20, 20, 0x4a90e2);
+        this.createParticleTexture('particle-orange', 20, 20, 0xff6b35);
+    }
+    
+    // Create simple texture
+    createTexture(key, width, height, color, rounded = false) {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
         
-        graphics.clear();
-        graphics.fillStyle(0xff6b35);
-        graphics.fillCircle(25, 25, 20);
-        this.textures.addImage('icon-sound', graphics.generateTexture());
+        ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+        if (rounded) {
+            ctx.beginPath();
+            ctx.roundRect(0, 0, width, height, 8);
+            ctx.fill();
+        } else {
+            ctx.fillRect(0, 0, width, height);
+        }
         
-        graphics.clear();
-        graphics.fillStyle(0x666666);
-        graphics.fillCircle(25, 25, 20);
-        this.textures.addImage('icon-vibration', graphics.generateTexture());
+        this.textures.addImage(key, canvas);
+    }
+    
+    // Create symbol texture
+    createSymbolTexture(key, width, height, symbol, color) {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
         
-        // Particles
-        graphics.clear();
-        graphics.fillStyle(0xffd700);
-        graphics.fillCircle(10, 10, 10);
-        this.textures.addImage('particle-gold', graphics.generateTexture());
+        ctx.strokeStyle = '#' + color.toString(16).padStart(6, '0');
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
         
-        graphics.clear();
-        graphics.fillStyle(0x4a90e2);
-        graphics.fillCircle(10, 10, 10);
-        this.textures.addImage('particle-blue', graphics.generateTexture());
+        if (symbol === 'X') {
+            ctx.beginPath();
+            ctx.moveTo(20, 20);
+            ctx.lineTo(80, 80);
+            ctx.moveTo(80, 20);
+            ctx.lineTo(20, 80);
+            ctx.stroke();
+        } else if (symbol === 'O') {
+            ctx.beginPath();
+            ctx.arc(50, 50, 30, 0, 2 * Math.PI);
+            ctx.stroke();
+        }
         
-        graphics.clear();
-        graphics.fillStyle(0xff6b35);
-        graphics.fillCircle(10, 10, 10);
-        this.textures.addImage('particle-orange', graphics.generateTexture());
+        this.textures.addImage(key, canvas);
+    }
+    
+    // Create icon texture
+    createIconTexture(key, width, height, color) {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
         
-        graphics.destroy();
+        ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+        ctx.beginPath();
+        ctx.arc(width/2, height/2, width/2 - 2, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        this.textures.addImage(key, canvas);
+    }
+    
+    // Create particle texture
+    createParticleTexture(key, width, height, color) {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        
+        ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+        ctx.beginPath();
+        ctx.arc(width/2, height/2, width/2 - 1, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        this.textures.addImage(key, canvas);
     }
 
     // Handle loading errors
