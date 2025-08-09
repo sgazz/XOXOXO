@@ -88,7 +88,12 @@ class Board {
                 
                 cellArea.on('pointerdown', () => {
                     if (this.isActive && this.state[cellIndex] === '') {
-                        this.makeMove(cellIndex);
+                        if (this.makeMove(cellIndex)) {
+                            // Notify scene about the move
+                            if (this.scene.handleMoveResult) {
+                                this.scene.handleMoveResult(this.boardIndex, cellIndex);
+                            }
+                        }
                     }
                 });
                 

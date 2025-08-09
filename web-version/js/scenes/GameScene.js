@@ -178,84 +178,38 @@ class GameScene extends Phaser.Scene {
 
     // Create individual board
     createBoard(boardIndex, x, y, size) {
-        // Board background
-        const boardBg = this.add.graphics();
-        boardBg.fillStyle(0x1a1a2e, 0.8);
-        boardBg.fillRoundedRect(x, y, size, size, 8);
-        boardBg.lineStyle(2, COLORS.PRIMARY_GOLD, 0.6);
-        boardBg.strokeRoundedRect(x, y, size, size, 8);
-        
-        // Create cells
-        const cellSize = size / 3;
-        const cells = [];
-        
-        for (let row = 0; row < 3; row++) {
-            for (let col = 0; col < 3; col++) {
-                const cellX = x + col * cellSize;
-                const cellY = y + row * cellSize;
-                const cellIndex = row * 3 + col;
-                
-                const cell = this.createCell(boardIndex, cellIndex, cellX, cellY, cellSize);
-                cells.push(cell);
-            }
-        }
-        
-        // Store board data
-        this.boards[boardIndex] = {
-            bg: boardBg,
-            cells: cells,
-            index: boardIndex,
-            state: Array(9).fill('')
-        };
-    }
-
-    // Create individual cell
-    createCell(boardIndex, cellIndex, x, y, size) {
-        // Cell background
-        const cellBg = this.add.graphics();
-        cellBg.fillStyle(0x222222, 0.6);
-        cellBg.fillRoundedRect(x + 2, y + 2, size - 4, size - 4, 4);
-        
-        // Cell text
-        const cellText = this.add.text(x + size / 2, y + size / 2, '', {
-            fontFamily: 'Inter',
-            fontSize: Math.floor(size * 0.4) + 'px',
-            fontWeight: '700',
-            color: COLORS.WHITE
-        }).setOrigin(0.5);
-        
-        // Make interactive
-        const cellArea = this.add.zone(x + size / 2, y + size / 2, size, size);
-        cellArea.setInteractive();
-        cellArea.on('pointerdown', () => {
-            this.handleCellClick(boardIndex, cellIndex);
+        // Use Board class from Board.js
+        const board = new Board(this, x, y, boardIndex, {
+            size: size,
+            cellSize: size / 3,
+            spacing: 2
         });
         
-        return {
-            bg: cellBg,
-            text: cellText,
-            area: cellArea,
-            boardIndex: boardIndex,
-            cellIndex: cellIndex
-        };
+        // Store board instance
+        this.boards[boardIndex] = board;
+    }
+
+    // Create individual cell (no longer needed - handled by Board class)
+    createCell(boardIndex, cellIndex, x, y, size) {
+        // This method is no longer used - Board class handles cell creation
+        console.warn('createCell method is deprecated - use Board class instead');
     }
 
     // Handle cell click
     handleCellClick(boardIndex, cellIndex) {
         if (this.gameOver || this.isThinking) return;
         if (boardIndex !== this.currentBoard) return;
-        if (this.boards[boardIndex].cells[cellIndex].text.text !== '') return;
         
-        // Make move
-        this.makeMove(boardIndex, cellIndex);
+        // Use Board class method
+        const board = this.boards[boardIndex];
+        if (board && board.makeMove(cellIndex)) {
+            // Move was successful
+            this.handleMoveResult(boardIndex, cellIndex);
+        }
     }
 
-    // Make move
-    makeMove(boardIndex, cellIndex) {
-        // Update board
-        this.boards[boardIndex].cells[cellIndex].text.setText(this.currentPlayer);
-        this.boards[boardIndex].state[cellIndex] = this.currentPlayer;
-        
+    // Handle move result
+    handleMoveResult(boardIndex, cellIndex) {
         // Update statistics
         const moveTime = Date.now() - this.lastMoveTime;
         this.lastMoveTime = Date.now();
@@ -296,22 +250,17 @@ class GameScene extends Phaser.Scene {
     // Check board win
     checkBoardWin(boardIndex) {
         const board = this.boards[boardIndex];
-        const cells = board.state;
+        if (!board) return null;
         
-        for (const combination of WINNING_COMBINATIONS) {
-            const [a, b, c] = combination;
-            if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
-                return cells[a];
-            }
-        }
-        return null;
+        return board.checkWin(this.currentPlayer);
     }
 
     // Check board draw
     checkBoardDraw(boardIndex) {
         const board = this.boards[boardIndex];
-        const cells = board.state;
-        return cells.every(cell => cell !== '');
+        if (!board) return false;
+        
+        return board.checkDraw();
     }
 
     // Handle board win
@@ -376,37 +325,27 @@ class GameScene extends Phaser.Scene {
     // Reset board
     resetBoard(boardIndex) {
         const board = this.boards[boardIndex];
-        board.cells.forEach(cell => {
-            cell.text.setText('');
-        });
-        board.state = Array(9).fill('');
+        if (board) {
+            board.reset();
+        }
     }
 
     // Highlight current board
     highlightCurrentBoard() {
         this.boards.forEach((board, index) => {
-            const isActive = index === this.currentBoard;
-            board.bg.clear();
-            board.bg.fillStyle(0x1a1a2e, 0.8);
-            board.bg.fillRoundedRect(board.bg.x, board.bg.y, board.bg.width, board.bg.height, 8);
-            board.bg.lineStyle(2, isActive ? COLORS.PRIMARY_GOLD : 0x666666, isActive ? 1 : 0.3);
-            board.bg.strokeRoundedRect(board.bg.x, board.bg.y, board.bg.width, board.bg.height, 8);
+            if (board) {
+                const isActive = index === this.currentBoard;
+                board.setActive(isActive);
+            }
         });
     }
 
     // Highlight winning cells
     highlightWinningCells(boardIndex) {
         const board = this.boards[boardIndex];
-        board.cells.forEach(cell => {
-            this.tweens.add({
-                targets: cell.text,
-                scaleX: 1.2,
-                scaleY: 1.2,
-                duration: 200,
-                yoyo: true,
-                repeat: 1
-            });
-        });
+        if (board) {
+            board.highlightWinningCells(this.currentPlayer);
+        }
     }
 
     // Make AI move
