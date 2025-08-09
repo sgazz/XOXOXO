@@ -20,11 +20,11 @@ class BootScene extends Phaser.Scene {
     create() {
         console.log('BootScene: Assets loaded successfully');
         
-        // Create fallback assets
-        this.createFallbackAssets();
+        // Skip fallback assets creation for now - focus on core functionality
+        console.log('BootScene: Skipping fallback assets creation');
         
         // Hide loading screen
-        if (gameInstance && gameInstance.hideLoadingScreen) {
+        if (typeof gameInstance !== 'undefined' && gameInstance && gameInstance.hideLoadingScreen) {
             gameInstance.hideLoadingScreen();
         }
         
@@ -97,97 +97,13 @@ class BootScene extends Phaser.Scene {
         document.head.appendChild(fontLink);
     }
 
-    // Create fallback assets if images fail to load
-    createFallbackAssets() {
-        // Create simple colored rectangles as fallbacks
-        const graphics = this.add.graphics();
-        
-        // Background
-        graphics.fillStyle(0x1a1a2e);
-        graphics.fillRect(0, 0, 100, 100);
-        this.textures.addImage('background', graphics.generateTexture());
-        
-        // Button background
-        graphics.clear();
-        graphics.fillStyle(0x333333);
-        graphics.fillRoundedRect(0, 0, 200, 50, 10);
-        this.textures.addImage('button-bg', graphics.generateTexture());
-        
-        // Cell background
-        graphics.clear();
-        graphics.fillStyle(0x222222);
-        graphics.fillRoundedRect(0, 0, 80, 80, 8);
-        this.textures.addImage('cell-bg', graphics.generateTexture());
-        
-        // Board background
-        graphics.clear();
-        graphics.fillStyle(0x1a1a2e);
-        graphics.fillRoundedRect(0, 0, 300, 300, 12);
-        this.textures.addImage('board-bg', graphics.generateTexture());
-        
-        // Symbols
-        graphics.clear();
-        graphics.lineStyle(4, 0x4a90e2);
-        graphics.beginPath();
-        graphics.moveTo(20, 20);
-        graphics.lineTo(80, 80);
-        graphics.moveTo(80, 20);
-        graphics.lineTo(20, 80);
-        graphics.strokePath();
-        this.textures.addImage('symbol-x', graphics.generateTexture());
-        
-        graphics.clear();
-        graphics.lineStyle(4, 0xff6b35);
-        graphics.strokeCircle(50, 50, 30);
-        this.textures.addImage('symbol-o', graphics.generateTexture());
-        
-        // Icons
-        graphics.clear();
-        graphics.fillStyle(0xffd700);
-        graphics.fillCircle(25, 25, 20);
-        this.textures.addImage('icon-pause', graphics.generateTexture());
-        
-        graphics.clear();
-        graphics.fillStyle(0x4a90e2);
-        graphics.fillCircle(25, 25, 20);
-        this.textures.addImage('icon-settings', graphics.generateTexture());
-        
-        graphics.clear();
-        graphics.fillStyle(0xff6b35);
-        graphics.fillCircle(25, 25, 20);
-        this.textures.addImage('icon-sound', graphics.generateTexture());
-        
-        graphics.clear();
-        graphics.fillStyle(0x666666);
-        graphics.fillCircle(25, 25, 20);
-        this.textures.addImage('icon-vibration', graphics.generateTexture());
-        
-        // Particles
-        graphics.clear();
-        graphics.fillStyle(0xffd700);
-        graphics.fillCircle(10, 10, 10);
-        this.textures.addImage('particle-gold', graphics.generateTexture());
-        
-        graphics.clear();
-        graphics.fillStyle(0x4a90e2);
-        graphics.fillCircle(10, 10, 10);
-        this.textures.addImage('particle-blue', graphics.generateTexture());
-        
-        graphics.clear();
-        graphics.fillStyle(0xff6b35);
-        graphics.fillCircle(10, 10, 10);
-        this.textures.addImage('particle-orange', graphics.generateTexture());
-        
-        graphics.destroy();
-    }
+    // Fallback assets creation removed - focusing on core functionality
+    
+    // Texture creation methods removed - focusing on core functionality
 
     // Handle loading errors
     handleLoadError(file) {
         console.warn('Failed to load asset:', file.src);
-        
-        // Create fallback assets if needed
-        if (!this.textures.exists('background')) {
-            this.createFallbackAssets();
-        }
+        // Fallback assets creation removed - focusing on core functionality
     }
 }

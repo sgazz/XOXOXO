@@ -192,3 +192,8 @@ class SoundManager {
 
 // Create global instance
 const soundManager = new SoundManager();
+
+// Make it globally available
+if (typeof window !== 'undefined') {
+    window.soundManager = soundManager;
+}
