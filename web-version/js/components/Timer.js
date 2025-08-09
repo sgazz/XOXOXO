@@ -160,6 +160,11 @@ class Timer {
             this.showBonusAnimation('O', true);
         }
         
+        // Track bonus time
+        if (analytics) {
+            analytics.trackBonusTime(player, this.config.bonusTime);
+        }
+        
         soundManager.playSound(SOUNDS.WIN);
     }
 
@@ -173,6 +178,11 @@ class Timer {
             this.playerOTime = Math.max(0, this.playerOTime - this.config.penaltyTime);
             this.oTimerText.setText(this.formatTime(this.playerOTime));
             this.showBonusAnimation('O', false);
+        }
+        
+        // Track penalty time
+        if (analytics) {
+            analytics.trackPenaltyTime(player, this.config.penaltyTime);
         }
         
         soundManager.playSound(SOUNDS.LOSE);

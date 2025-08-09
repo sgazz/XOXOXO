@@ -294,8 +294,9 @@ class MenuScene extends Phaser.Scene {
     // Show settings
     showSettings() {
         console.log('MenuScene: Show settings');
-        // TODO: Implement settings scene
-        this.showModal('Podešavanja', 'Funkcija u razvoju...');
+        // Create settings modal
+        const settingsModal = new SettingsModal(this);
+        settingsModal.show();
     }
 
     // Show tutorial

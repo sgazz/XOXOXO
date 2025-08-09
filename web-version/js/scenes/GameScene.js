@@ -22,6 +22,11 @@ class GameScene extends Phaser.Scene {
         this.gameMode = data.gameMode || GAME_MODE.AI_OPPONENT;
         this.aiDifficulty = data.aiDifficulty || AI_DIFFICULTY.MEDIUM;
         console.log('GameScene: Initializing with mode:', this.gameMode, 'difficulty:', this.aiDifficulty);
+        
+        // Track game start
+        if (analytics) {
+            analytics.trackGameStart(this.gameMode, this.aiDifficulty);
+        }
     }
 
     create() {
@@ -256,6 +261,11 @@ class GameScene extends Phaser.Scene {
         this.lastMoveTime = Date.now();
         statisticsManager.updateMoveStats(this.currentPlayer, moveTime / 1000, cellIndex);
         
+        // Track move
+        if (analytics) {
+            analytics.trackMove(boardIndex, cellIndex, this.currentPlayer, moveTime / 1000);
+        }
+        
         // Play sound
         soundManager.playSound(SOUNDS.MOVE);
         soundManager.playHaptic();
@@ -315,6 +325,11 @@ class GameScene extends Phaser.Scene {
         // Update statistics
         statisticsManager.updateGameResult(winner);
         
+        // Track board win
+        if (analytics) {
+            analytics.trackBoardWin(boardIndex, winner);
+        }
+        
         // Play win sound
         soundManager.playSound(SOUNDS.WIN);
         
@@ -341,6 +356,11 @@ class GameScene extends Phaser.Scene {
 
     // Handle board draw
     handleBoardDraw(boardIndex) {
+        // Track board draw
+        if (analytics) {
+            analytics.trackBoardDraw(boardIndex);
+        }
+        
         // Play draw sound
         soundManager.playSound(SOUNDS.DRAW);
         
@@ -407,6 +427,11 @@ class GameScene extends Phaser.Scene {
     handleTimeout(timeoutPlayer, winner) {
         this.gameOver = true;
         
+        // Track timeout
+        if (analytics) {
+            analytics.trackTimeout(timeoutPlayer);
+        }
+        
         // Show game over
         this.scene.start('GameOverScene', {
             winner: winner,
@@ -419,6 +444,12 @@ class GameScene extends Phaser.Scene {
     // End game
     endGame(winner) {
         this.gameOver = true;
+        
+        // Track game end
+        if (analytics) {
+            const duration = Date.now() - this.lastMoveTime;
+            analytics.trackGameEnd(winner, 'victory', this.totalScore, duration);
+        }
         
         soundManager.playSound(SOUNDS.WIN);
         

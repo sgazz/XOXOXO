@@ -20,6 +20,9 @@ class BootScene extends Phaser.Scene {
     create() {
         console.log('BootScene: Assets loaded successfully');
         
+        // Create fallback assets
+        this.createFallbackAssets();
+        
         // Hide loading screen
         if (gameInstance && gameInstance.hideLoadingScreen) {
             gameInstance.hideLoadingScreen();
@@ -73,42 +76,16 @@ class BootScene extends Phaser.Scene {
 
     // Load game assets
     loadGameAssets() {
-        // Load background textures
-        this.load.image('background', 'assets/images/background.png');
-        
-        // Load UI elements
-        this.load.image('button-bg', 'assets/images/button-bg.png');
-        this.load.image('cell-bg', 'assets/images/cell-bg.png');
-        this.load.image('board-bg', 'assets/images/board-bg.png');
-        
-        // Load symbols
-        this.load.image('symbol-x', 'assets/images/symbol-x.png');
-        this.load.image('symbol-o', 'assets/images/symbol-o.png');
-        
-        // Load icons
-        this.load.image('icon-pause', 'assets/images/icon-pause.png');
-        this.load.image('icon-settings', 'assets/images/icon-settings.png');
-        this.load.image('icon-sound', 'assets/images/icon-sound.png');
-        this.load.image('icon-vibration', 'assets/images/icon-vibration.png');
-        
-        // Load particles
-        this.load.image('particle-gold', 'assets/images/particle-gold.png');
-        this.load.image('particle-blue', 'assets/images/particle-blue.png');
-        this.load.image('particle-orange', 'assets/images/particle-orange.png');
+        // For now, we'll create fallback assets programmatically
+        // In a real project, you would load actual image files
+        console.log('BootScene: Creating fallback assets');
     }
 
     // Load sounds
     loadSounds() {
-        // Load sound effects
-        this.load.audio('move', 'assets/sounds/move.wav');
-        this.load.audio('win', 'assets/sounds/win.wav');
-        this.load.audio('lose', 'assets/sounds/lose.wav');
-        this.load.audio('draw', 'assets/sounds/draw.wav');
-        this.load.audio('tap', 'assets/sounds/tap.wav');
-        this.load.audio('error', 'assets/sounds/error.wav');
-        
-        // Load background music (optional)
-        this.load.audio('bg-music', 'assets/sounds/bg-music.mp3');
+        // For now, we'll use Web Audio API for sound effects
+        // In a real project, you would load actual sound files
+        console.log('BootScene: Using Web Audio API for sounds');
     }
 
     // Load fonts
@@ -163,6 +140,43 @@ class BootScene extends Phaser.Scene {
         graphics.lineStyle(4, 0xff6b35);
         graphics.strokeCircle(50, 50, 30);
         this.textures.addImage('symbol-o', graphics.generateTexture());
+        
+        // Icons
+        graphics.clear();
+        graphics.fillStyle(0xffd700);
+        graphics.fillCircle(25, 25, 20);
+        this.textures.addImage('icon-pause', graphics.generateTexture());
+        
+        graphics.clear();
+        graphics.fillStyle(0x4a90e2);
+        graphics.fillCircle(25, 25, 20);
+        this.textures.addImage('icon-settings', graphics.generateTexture());
+        
+        graphics.clear();
+        graphics.fillStyle(0xff6b35);
+        graphics.fillCircle(25, 25, 20);
+        this.textures.addImage('icon-sound', graphics.generateTexture());
+        
+        graphics.clear();
+        graphics.fillStyle(0x666666);
+        graphics.fillCircle(25, 25, 20);
+        this.textures.addImage('icon-vibration', graphics.generateTexture());
+        
+        // Particles
+        graphics.clear();
+        graphics.fillStyle(0xffd700);
+        graphics.fillCircle(10, 10, 10);
+        this.textures.addImage('particle-gold', graphics.generateTexture());
+        
+        graphics.clear();
+        graphics.fillStyle(0x4a90e2);
+        graphics.fillCircle(10, 10, 10);
+        this.textures.addImage('particle-blue', graphics.generateTexture());
+        
+        graphics.clear();
+        graphics.fillStyle(0xff6b35);
+        graphics.fillCircle(10, 10, 10);
+        this.textures.addImage('particle-orange', graphics.generateTexture());
         
         graphics.destroy();
     }

@@ -276,6 +276,17 @@ let gameInstance = null;
 
 // Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('Service Worker registered successfully:', registration);
+            })
+            .catch(error => {
+                console.log('Service Worker registration failed:', error);
+            });
+    }
+    
     gameInstance = new XOArenaGame();
 });
 
