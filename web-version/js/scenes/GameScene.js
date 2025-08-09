@@ -128,23 +128,23 @@ class GameScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
         
-        // Pause button with cyberpunk effect
+        // Pause button with CRT effect
         const pauseButton = this.add.graphics();
         pauseButton.fillStyle(COLORS.PRIMARY_GREEN, 0.8);
         pauseButton.fillCircle(width - 50, 50, 25);
         pauseButton.lineStyle(3, COLORS.PRIMARY_GREEN);
         pauseButton.strokeCircle(width - 50, 50, 25);
         
-        // Add cyberpunk glow
-        const cyberGlow = this.add.graphics();
-        cyberGlow.lineStyle(1, COLORS.PRIMARY_GREEN, 0.4);
-        cyberGlow.strokeCircle(width - 50, 50, 30);
+        // Add CRT monitor glow
+        const crtGlow = this.add.graphics();
+        crtGlow.lineStyle(1, COLORS.PRIMARY_GREEN, 0.5);
+        crtGlow.strokeCircle(width - 50, 50, 32);
         
-        // Animate cyber glow
+        // Animate CRT glow
         this.tweens.add({
-            targets: cyberGlow,
-            alpha: { from: 0.4, to: 0.8 },
-            duration: 2000,
+            targets: crtGlow,
+            alpha: { from: 0.5, to: 0.9 },
+            duration: 1500,
             ease: 'Sine.easeInOut',
             yoyo: true,
             repeat: -1

@@ -39,9 +39,6 @@ class MenuScene extends Phaser.Scene {
         // Add floating lights
         // Create floating lights
         this.createFloatingLights();
-        
-        // Create matrix rain effect
-        this.createMatrixRain();
     }
 
     // Create floating lights
@@ -76,45 +73,7 @@ class MenuScene extends Phaser.Scene {
         });
     }
 
-    // Create matrix rain effect
-    createMatrixRain() {
-        const width = this.cameras.main.width;
-        const height = this.cameras.main.height;
-        const columns = Math.floor(width / 20);
-        
-        for (let i = 0; i < columns; i++) {
-            const x = i * 20;
-            const speed = Math.random() * 100 + 50;
-            
-            // Create falling characters
-            const char = this.add.text(x, -20, this.getRandomChar(), {
-                fontFamily: 'Orbitron',
-                fontSize: '16px',
-                color: COLORS.PRIMARY_GREEN,
-                alpha: 0.7
-            });
-            
-            // Animate falling
-            this.tweens.add({
-                targets: char,
-                y: height + 20,
-                duration: speed * 10,
-                ease: 'Linear',
-                repeat: -1,
-                delay: Math.random() * 2000,
-                onRepeat: () => {
-                    char.setText(this.getRandomChar());
-                    char.setY(-20);
-                }
-            });
-        }
-    }
-
-    // Get random matrix character
-    getRandomChar() {
-        const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-        return chars[Math.floor(Math.random() * chars.length)];
-    }
+    // Matrix rain removed for authentic CRT effect
 
     // Create title
     createTitle() {
@@ -203,17 +162,27 @@ class MenuScene extends Phaser.Scene {
 
     // Create a button
     createButton(x, y, width, height, text, callback) {
-        // Button background with holographic effect
+        // Button background with CRT effect
         const buttonBg = this.add.graphics();
         buttonBg.fillStyle(0x003300, 0.8);
         buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 12);
         buttonBg.lineStyle(3, COLORS.PRIMARY_GREEN, 1);
         buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 12);
         
-        // Add holographic glow
-        const holographicGlow = this.add.graphics();
-        holographicGlow.lineStyle(1, COLORS.PRIMARY_GREEN, 0.3);
-        holographicGlow.strokeRoundedRect(x - width / 2 - 2, y - height / 2 - 2, width + 4, height + 4, 14);
+        // Add CRT monitor glow
+        const crtGlow = this.add.graphics();
+        crtGlow.lineStyle(1, COLORS.PRIMARY_GREEN, 0.4);
+        crtGlow.strokeRoundedRect(x - width / 2 - 3, y - height / 2 - 3, width + 6, height + 6, 15);
+        
+        // Animate CRT glow
+        this.tweens.add({
+            targets: crtGlow,
+            alpha: { from: 0.4, to: 0.8 },
+            duration: 2000,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+        });
         
         // Button text
         const buttonText = this.add.text(x, y, text, {

@@ -53,7 +53,7 @@ class GameOverScene extends Phaser.Scene {
         const containerX = width / 2;
         const containerY = height / 2;
         
-        // Container background with holographic effect
+        // Container background with CRT effect
         this.container = this.add.graphics();
         this.container.fillStyle(0x003300, 0.95);
         this.container.fillRoundedRect(
@@ -72,22 +72,22 @@ class GameOverScene extends Phaser.Scene {
             16
         );
         
-        // Add holographic border
-        const holographicBorder = this.add.graphics();
-        holographicBorder.lineStyle(1, COLORS.PRIMARY_GREEN, 0.3);
-        holographicBorder.strokeRoundedRect(
-            containerX - containerWidth / 2 - 4,
-            containerY - containerHeight / 2 - 4,
-            containerWidth + 8,
-            containerHeight + 8,
-            20
+        // Add CRT monitor border
+        const crtBorder = this.add.graphics();
+        crtBorder.lineStyle(1, COLORS.PRIMARY_GREEN, 0.4);
+        crtBorder.strokeRoundedRect(
+            containerX - containerWidth / 2 - 5,
+            containerY - containerHeight / 2 - 5,
+            containerWidth + 10,
+            containerHeight + 10,
+            21
         );
         
-        // Animate holographic border
+        // Animate CRT border
         this.tweens.add({
-            targets: holographicBorder,
-            alpha: { from: 0.3, to: 0.7 },
-            duration: 3000,
+            targets: crtBorder,
+            alpha: { from: 0.4, to: 0.8 },
+            duration: 2500,
             ease: 'Sine.easeInOut',
             yoyo: true,
             repeat: -1
