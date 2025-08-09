@@ -9,19 +9,23 @@ const GAME_CONFIG = {
     DRAW_PENALTY_TIME: 5
 };
 
-// Colors (matching Swift app theme)
+// Hacker Theme Colors
 const COLORS = {
-    PRIMARY_GOLD: '#ffd700',
-    PRIMARY_BLUE: '#4a90e2',
-    PRIMARY_ORANGE: '#ff6b35',
-    DARK_BACKGROUND: '#0a0a0f',
-    DARK_GRADIENT: '#1a1a2e',
+    PRIMARY_GREEN: '#00ff00',
+    PRIMARY_BLUE: '#0080ff',
+    PRIMARY_RED: '#ff0000',
+    PRIMARY_YELLOW: '#ffff00',
+    DARK_BACKGROUND: '#000000',
+    DARK_GREEN: '#003300',
     WHITE: '#ffffff',
     BLACK: '#000000',
     GRAY: '#666666',
-    GREEN: '#4CAF50',
-    RED: '#f44336',
-    ORANGE: '#ff9800'
+    GREEN: '#00ff00',
+    RED: '#ff0000',
+    ORANGE: '#ff0000',
+    // Legacy support
+    PRIMARY_GOLD: '#00ff00',
+    PRIMARY_ORANGE: '#ff0000'
 };
 
 // Game Modes
