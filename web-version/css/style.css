@@ -108,7 +108,7 @@ body::after {
         0 0 40px #00ff00,
         0 0 50px #00ff00,
         0 0 60px #00ff00;
-    animation: glow 3s ease-in-out infinite alternate;
+    animation: glow 3s ease-in-out infinite alternate, glitch 4s infinite;
 }
 
 @keyframes glow {
@@ -131,6 +131,56 @@ body::after {
             0 0 65px #00ff00,
             0 0 75px #00ff00;
     }
+}
+
+/* Glitch Effect */
+@keyframes glitch {
+    0%, 100% { 
+        transform: translate(0);
+        text-shadow: 
+            0 0 10px #00ff00,
+            0 0 20px #00ff00,
+            0 0 30px #00ff00;
+    }
+    20% { 
+        transform: translate(-2px, 2px);
+        text-shadow: 
+            -2px 0 #ff0000,
+            2px 0 #00ffff,
+            0 0 10px #00ff00;
+    }
+    40% { 
+        transform: translate(-2px, -2px);
+        text-shadow: 
+            2px 0 #ff0000,
+            -2px 0 #00ffff,
+            0 0 10px #00ff00;
+    }
+    60% { 
+        transform: translate(2px, 2px);
+        text-shadow: 
+            -2px 0 #ff0000,
+            2px 0 #00ffff,
+            0 0 10px #00ff00;
+    }
+    80% { 
+        transform: translate(2px, -2px);
+        text-shadow: 
+            2px 0 #ff0000,
+            -2px 0 #00ffff,
+            0 0 10px #00ff00;
+    }
+}
+
+/* Terminal Typing Effect */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink {
+    0%, 50% { border-color: transparent; }
+    51%, 100% { border-color: #00ff00; }
 }
 
 .loading-screen .spinner {
@@ -157,6 +207,49 @@ body::after {
     font-family: 'Orbitron', monospace;
     color: #00ff00;
     text-shadow: 0 0 5px #00ff00;
+}
+
+/* Holographic Effects */
+.holographic {
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(0, 255, 0, 0.1) 50%,
+        transparent 70%
+    );
+    background-size: 200% 200%;
+    animation: holographic 3s ease-in-out infinite;
+}
+
+@keyframes holographic {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Cyberpunk Border */
+.cyber-border {
+    position: relative;
+    border: 2px solid #00ff00;
+    box-shadow: 
+        0 0 10px #00ff00,
+        inset 0 0 10px rgba(0, 255, 0, 0.2);
+}
+
+.cyber-border::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #00ff00, transparent, #00ff00);
+    z-index: -1;
+    animation: borderGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes borderGlow {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
 }
 
 /* Enhanced Neon Glow Effect */

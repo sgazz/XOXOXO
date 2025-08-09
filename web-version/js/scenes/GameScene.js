@@ -128,12 +128,27 @@ class GameScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
         
-        // Pause button
+        // Pause button with cyberpunk effect
         const pauseButton = this.add.graphics();
         pauseButton.fillStyle(COLORS.PRIMARY_GREEN, 0.8);
         pauseButton.fillCircle(width - 50, 50, 25);
         pauseButton.lineStyle(3, COLORS.PRIMARY_GREEN);
         pauseButton.strokeCircle(width - 50, 50, 25);
+        
+        // Add cyberpunk glow
+        const cyberGlow = this.add.graphics();
+        cyberGlow.lineStyle(1, COLORS.PRIMARY_GREEN, 0.4);
+        cyberGlow.strokeCircle(width - 50, 50, 30);
+        
+        // Animate cyber glow
+        this.tweens.add({
+            targets: cyberGlow,
+            alpha: { from: 0.4, to: 0.8 },
+            duration: 2000,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+        });
         
         // Pause icon
         const pauseIcon = this.add.text(width - 50, 50, '⏸', {

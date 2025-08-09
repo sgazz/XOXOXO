@@ -39,6 +39,9 @@ class MenuScene extends Phaser.Scene {
         // Add floating lights
         // Create floating lights
         this.createFloatingLights();
+        
+        // Create matrix rain effect
+        this.createMatrixRain();
     }
 
     // Create floating lights
@@ -71,6 +74,46 @@ class MenuScene extends Phaser.Scene {
             repeat: -1,
             stagger: 500
         });
+    }
+
+    // Create matrix rain effect
+    createMatrixRain() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+        const columns = Math.floor(width / 20);
+        
+        for (let i = 0; i < columns; i++) {
+            const x = i * 20;
+            const speed = Math.random() * 100 + 50;
+            
+            // Create falling characters
+            const char = this.add.text(x, -20, this.getRandomChar(), {
+                fontFamily: 'Orbitron',
+                fontSize: '16px',
+                color: COLORS.PRIMARY_GREEN,
+                alpha: 0.7
+            });
+            
+            // Animate falling
+            this.tweens.add({
+                targets: char,
+                y: height + 20,
+                duration: speed * 10,
+                ease: 'Linear',
+                repeat: -1,
+                delay: Math.random() * 2000,
+                onRepeat: () => {
+                    char.setText(this.getRandomChar());
+                    char.setY(-20);
+                }
+            });
+        }
+    }
+
+    // Get random matrix character
+    getRandomChar() {
+        const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+        return chars[Math.floor(Math.random() * chars.length)];
     }
 
     // Create title
@@ -160,12 +203,17 @@ class MenuScene extends Phaser.Scene {
 
     // Create a button
     createButton(x, y, width, height, text, callback) {
-        // Button background
+        // Button background with holographic effect
         const buttonBg = this.add.graphics();
         buttonBg.fillStyle(0x003300, 0.8);
         buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 12);
-        buttonBg.lineStyle(2, COLORS.PRIMARY_GREEN, 0.8);
+        buttonBg.lineStyle(3, COLORS.PRIMARY_GREEN, 1);
         buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 12);
+        
+        // Add holographic glow
+        const holographicGlow = this.add.graphics();
+        holographicGlow.lineStyle(1, COLORS.PRIMARY_GREEN, 0.3);
+        holographicGlow.strokeRoundedRect(x - width / 2 - 2, y - height / 2 - 2, width + 4, height + 4, 14);
         
         // Button text
         const buttonText = this.add.text(x, y, text, {

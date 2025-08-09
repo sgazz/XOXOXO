@@ -53,7 +53,7 @@ class GameOverScene extends Phaser.Scene {
         const containerX = width / 2;
         const containerY = height / 2;
         
-        // Container background
+        // Container background with holographic effect
         this.container = this.add.graphics();
         this.container.fillStyle(0x003300, 0.95);
         this.container.fillRoundedRect(
@@ -71,6 +71,27 @@ class GameOverScene extends Phaser.Scene {
             containerHeight,
             16
         );
+        
+        // Add holographic border
+        const holographicBorder = this.add.graphics();
+        holographicBorder.lineStyle(1, COLORS.PRIMARY_GREEN, 0.3);
+        holographicBorder.strokeRoundedRect(
+            containerX - containerWidth / 2 - 4,
+            containerY - containerHeight / 2 - 4,
+            containerWidth + 8,
+            containerHeight + 8,
+            20
+        );
+        
+        // Animate holographic border
+        this.tweens.add({
+            targets: holographicBorder,
+            alpha: { from: 0.3, to: 0.7 },
+            duration: 3000,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+        });
         
         // Game over title
         this.title = this.add.text(containerX, containerY - 120, 'GAME OVER', {
@@ -108,14 +129,32 @@ class GameOverScene extends Phaser.Scene {
             color: resultColor
         }).setOrigin(0.5);
         
-        // Final score
+        // Final score with terminal effect
         this.scoreText = this.add.text(containerX, containerY, 
             `FINAL SCORE: ${this.results.score.x} : ${this.results.score.o}`, {
             fontFamily: 'Orbitron',
             fontSize: '1.2rem',
             fontWeight: '700',
-            color: COLORS.PRIMARY_GREEN
+            color: COLORS.PRIMARY_GREEN,
+            stroke: COLORS.PRIMARY_GREEN,
+            strokeThickness: 1,
+            shadow: {
+                offsetX: 0,
+                offsetY: 0,
+                color: COLORS.PRIMARY_GREEN,
+                blur: 10,
+                fill: true
+            }
         }).setOrigin(0.5);
+        
+        // Add terminal typing effect
+        this.tweens.add({
+            targets: this.scoreText,
+            alpha: { from: 0, to: 1 },
+            duration: 1000,
+            ease: 'Power2',
+            delay: 500
+        });
         
         // Animate content
         this.tweens.add({
