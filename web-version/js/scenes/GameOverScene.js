@@ -55,29 +55,38 @@ class GameOverScene extends Phaser.Scene {
         
         // Container background
         this.container = this.add.graphics();
-        this.container.fillStyle(0x111111, 0.95);
+        this.container.fillStyle(0x003300, 0.95);
         this.container.fillRoundedRect(
             containerX - containerWidth / 2,
             containerY - containerHeight / 2,
             containerWidth,
             containerHeight,
-            12
+            16
         );
-        this.container.lineStyle(1, COLORS.WHITE, 0.3);
+        this.container.lineStyle(3, COLORS.PRIMARY_GREEN);
         this.container.strokeRoundedRect(
             containerX - containerWidth / 2,
             containerY - containerHeight / 2,
             containerWidth,
             containerHeight,
-            12
+            16
         );
         
         // Game over title
         this.title = this.add.text(containerX, containerY - 120, 'GAME OVER', {
-            fontFamily: 'Inter',
-            fontSize: '2rem',
-            fontWeight: '600',
-            color: COLORS.WHITE
+            fontFamily: 'Orbitron',
+            fontSize: '2.5rem',
+            fontWeight: '900',
+            color: COLORS.PRIMARY_GREEN,
+            stroke: COLORS.PRIMARY_GREEN,
+            strokeThickness: 2,
+            shadow: {
+                offsetX: 0,
+                offsetY: 0,
+                color: COLORS.PRIMARY_GREEN,
+                blur: 25,
+                fill: true
+            }
         }).setOrigin(0.5);
         
         // Result message
@@ -119,7 +128,15 @@ class GameOverScene extends Phaser.Scene {
             stagger: 100
         });
         
-        // Clean design - no glow animation
+        // Add glow animation for title
+        this.tweens.add({
+            targets: this.title,
+            alpha: { from: 0.7, to: 1 },
+            duration: 2000,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+        });
     }
 
     // Create action buttons
@@ -159,17 +176,17 @@ class GameOverScene extends Phaser.Scene {
     createButton(x, y, width, height, text, callback) {
         // Button background
         const buttonBg = this.add.graphics();
-        buttonBg.fillStyle(0xffffff, 0.1);
-        buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 6);
-        buttonBg.lineStyle(1, COLORS.WHITE, 0.3);
-        buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 6);
+        buttonBg.fillStyle(0x003300, 0.8);
+        buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 8);
+        buttonBg.lineStyle(2, COLORS.PRIMARY_GREEN, 0.8);
+        buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 8);
         
         // Button text
         const buttonText = this.add.text(x, y, text, {
-            fontFamily: 'Inter',
-            fontSize: '0.9rem',
-            fontWeight: '500',
-            color: COLORS.WHITE
+            fontFamily: 'Orbitron',
+            fontSize: '1rem',
+            fontWeight: '700',
+            color: COLORS.PRIMARY_GREEN
         }).setOrigin(0.5);
         
         // Interactive area
@@ -179,10 +196,10 @@ class GameOverScene extends Phaser.Scene {
         // Hover effects
         buttonArea.on('pointerover', () => {
             buttonBg.clear();
-            buttonBg.fillStyle(0xffffff, 0.2);
-            buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 6);
-            buttonBg.lineStyle(1, COLORS.WHITE, 0.6);
-            buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 6);
+            buttonBg.fillStyle(COLORS.PRIMARY_GREEN, 0.3);
+            buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 8);
+            buttonBg.lineStyle(2, COLORS.PRIMARY_GREEN, 1);
+            buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 8);
             
             this.tweens.add({
                 targets: [buttonBg, buttonText],
@@ -195,10 +212,10 @@ class GameOverScene extends Phaser.Scene {
         
         buttonArea.on('pointerout', () => {
             buttonBg.clear();
-            buttonBg.fillStyle(0xffffff, 0.1);
-            buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 6);
-            buttonBg.lineStyle(1, COLORS.WHITE, 0.3);
-            buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 6);
+            buttonBg.fillStyle(0x003300, 0.8);
+            buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 8);
+            buttonBg.lineStyle(2, COLORS.PRIMARY_GREEN, 0.8);
+            buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 8);
             
             this.tweens.add({
                 targets: [buttonBg, buttonText],
