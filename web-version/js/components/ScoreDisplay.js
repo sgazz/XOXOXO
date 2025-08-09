@@ -203,23 +203,32 @@ class ScoreDisplay {
 
     // Create winner particles
     createWinnerParticles(winner) {
-        const color = winner === 'X' ? COLORS.PRIMARY_BLUE : COLORS.PRIMARY_ORANGE;
-        const x = this.x + (winner === 'X' ? this.config.spacing : this.config.width - this.config.spacing) + (winner === 'X' ? -40 : 40);
-        const y = this.y + this.config.height / 2;
-        
-        // Create particle emitter
-        const particles = this.scene.add.particles(x, y, 'particle-gold', {
-            speed: { min: 50, max: 100 },
-            scale: { start: 0.5, end: 0 },
-            lifespan: 1000,
-            quantity: 10,
-            tint: color
-        });
-        
-        // Auto-destroy particles
-        this.scene.time.delayedCall(1000, () => {
-            particles.destroy();
-        });
+        try {
+            const color = winner === 'X' ? COLORS.PRIMARY_BLUE : COLORS.PRIMARY_ORANGE;
+            const x = this.x + (winner === 'X' ? this.config.spacing : this.config.width - this.config.spacing) + (winner === 'X' ? -40 : 40);
+            const y = this.y + this.config.height / 2;
+            
+            // Check if particle texture exists
+            if (this.scene.textures.exists('particle-gold')) {
+                // Create particle emitter
+                const particles = this.scene.add.particles(x, y, 'particle-gold', {
+                    speed: { min: 50, max: 100 },
+                    scale: { start: 0.5, end: 0 },
+                    lifespan: 1000,
+                    quantity: 10,
+                    tint: color
+                });
+                
+                // Auto-destroy particles
+                this.scene.time.delayedCall(1000, () => {
+                    particles.destroy();
+                });
+            } else {
+                console.log('ScoreDisplay: Particle texture not available, skipping particles');
+            }
+        } catch (error) {
+            console.warn('ScoreDisplay: Error creating winner particles:', error);
+        }
     }
 
     // Update display position

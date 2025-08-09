@@ -225,23 +225,32 @@ class MenuScene extends Phaser.Scene {
 
     // Create floating particles
     createParticles() {
-        const width = this.cameras.main.width;
-        const height = this.cameras.main.height;
-        
-        // Create particle emitter
-        const particles = this.add.particles('particle-gold');
-        
-        const emitter = particles.createEmitter({
-            x: { min: 0, max: width },
-            y: height + 50,
-            speedY: { min: -50, max: -100 },
-            speedX: { min: -20, max: 20 },
-            scale: { start: 0.1, end: 0 },
-            alpha: { start: 0.6, end: 0 },
-            lifespan: 4000,
-            frequency: 500,
-            quantity: 1
-        });
+        try {
+            const width = this.cameras.main.width;
+            const height = this.cameras.main.height;
+            
+            // Check if particle texture exists
+            if (this.textures.exists('particle-gold')) {
+                // Create particle emitter
+                const particles = this.add.particles('particle-gold');
+                
+                const emitter = particles.createEmitter({
+                    x: { min: 0, max: width },
+                    y: height + 50,
+                    speedY: { min: -50, max: -100 },
+                    speedX: { min: -20, max: 20 },
+                    scale: { start: 0.1, end: 0 },
+                    alpha: { start: 0.6, end: 0 },
+                    lifespan: 4000,
+                    frequency: 500,
+                    quantity: 1
+                });
+            } else {
+                console.log('MenuScene: Particle texture not available, skipping particles');
+            }
+        } catch (error) {
+            console.warn('MenuScene: Error creating particles:', error);
+        }
     }
 
     // Setup input handlers

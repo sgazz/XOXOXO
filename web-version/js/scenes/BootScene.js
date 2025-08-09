@@ -20,8 +20,8 @@ class BootScene extends Phaser.Scene {
     create() {
         console.log('BootScene: Assets loaded successfully');
         
-        // Create fallback assets
-        this.createFallbackAssets();
+        // Skip fallback assets creation for now - focus on core functionality
+        console.log('BootScene: Skipping fallback assets creation');
         
         // Hide loading screen
         if (typeof gameInstance !== 'undefined' && gameInstance && gameInstance.hideLoadingScreen) {
