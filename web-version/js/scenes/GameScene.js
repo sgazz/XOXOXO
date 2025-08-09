@@ -70,7 +70,7 @@ class GameScene extends Phaser.Scene {
         this.lastMoveTime = Date.now();
     }
 
-    // Create background
+    // Create background with CRT effect
     createBackground() {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
@@ -80,8 +80,74 @@ class GameScene extends Phaser.Scene {
         this.background.fillStyle(0x000000, 1);
         this.background.fillRect(0, 0, width, height);
         
+        // Add CRT radial glow effect
+        const crtGlow = this.add.graphics();
+        crtGlow.fillStyle(0x00ff00, 0.08);
+        crtGlow.fillEllipse(width / 2, height / 2, width * 0.8, height * 0.8);
+        
+        // Add second CRT glow layer
+        const crtGlow2 = this.add.graphics();
+        crtGlow2.fillStyle(0x00ff00, 0.04);
+        crtGlow2.fillEllipse(width / 2, height / 2, width * 0.6, height * 0.6);
+        
+        // Animate CRT glow
+        this.tweens.add({
+            targets: [crtGlow, crtGlow2],
+            alpha: { from: 0.3, to: 0.5 },
+            duration: 4000,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1,
+            stagger: 1000
+        });
+        
+        // Add scan lines effect
+        this.createScanLines();
+        
         // Add floating lights
         this.createFloatingLights();
+    }
+
+    // Create scan lines effect
+    createScanLines() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+        
+        // Create scan lines texture
+        const scanLinesCanvas = document.createElement('canvas');
+        scanLinesCanvas.width = width;
+        scanLinesCanvas.height = height;
+        const ctx = scanLinesCanvas.getContext('2d');
+        
+        // Draw scan lines
+        ctx.fillStyle = 'rgba(0, 255, 0, 0.02)';
+        for (let y = 0; y < height; y += 2) {
+            ctx.fillRect(0, y, width, 1);
+        }
+        
+        // Draw secondary scan lines
+        ctx.fillStyle = 'rgba(0, 255, 0, 0.01)';
+        for (let y = 0; y < height; y += 4) {
+            ctx.fillRect(0, y, width, 1);
+        }
+        
+        // Create texture from canvas
+        const scanLinesTexture = this.textures.addCanvas('scanLinesGame', scanLinesCanvas);
+        
+        // Add scan lines sprite
+        const scanLines = this.add.image(0, 0, 'scanLinesGame');
+        scanLines.setOrigin(0, 0);
+        scanLines.setDisplaySize(width, height);
+        scanLines.setDepth(1);
+        
+        // Animate scan lines
+        this.tweens.add({
+            targets: scanLines,
+            y: { from: 0, to: 2 },
+            duration: 50,
+            ease: 'Linear',
+            repeat: -1
+        });
     }
 
     // Create floating lights
