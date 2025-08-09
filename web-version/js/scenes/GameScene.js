@@ -132,14 +132,23 @@ class GameScene extends Phaser.Scene {
         const pauseButton = this.add.graphics();
         pauseButton.fillStyle(COLORS.PRIMARY_GREEN, 0.8);
         pauseButton.fillCircle(width - 50, 50, 25);
-        pauseButton.lineStyle(2, COLORS.PRIMARY_GREEN);
+        pauseButton.lineStyle(3, COLORS.PRIMARY_GREEN);
         pauseButton.strokeCircle(width - 50, 50, 25);
         
         // Pause icon
         const pauseIcon = this.add.text(width - 50, 50, '⏸', {
             fontFamily: 'Orbitron',
             fontSize: '1.2rem',
-            color: COLORS.PRIMARY_GREEN
+            color: COLORS.PRIMARY_GREEN,
+            stroke: COLORS.PRIMARY_GREEN,
+            strokeThickness: 1,
+            shadow: {
+                offsetX: 0,
+                offsetY: 0,
+                color: COLORS.PRIMARY_GREEN,
+                blur: 15,
+                fill: true
+            }
         }).setOrigin(0.5);
         
         // Make interactive

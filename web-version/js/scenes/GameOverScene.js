@@ -77,7 +77,16 @@ class GameOverScene extends Phaser.Scene {
             fontFamily: 'Orbitron',
             fontSize: '2.5rem',
             fontWeight: '900',
-            color: COLORS.PRIMARY_GREEN
+            color: COLORS.PRIMARY_GREEN,
+            stroke: COLORS.PRIMARY_GREEN,
+            strokeThickness: 2,
+            shadow: {
+                offsetX: 0,
+                offsetY: 0,
+                color: COLORS.PRIMARY_GREEN,
+                blur: 25,
+                fill: true
+            }
         }).setOrigin(0.5);
         
         // Result message
@@ -101,11 +110,11 @@ class GameOverScene extends Phaser.Scene {
         
         // Final score
         this.scoreText = this.add.text(containerX, containerY, 
-            `Konačan rezultat: ${this.results.score.x} : ${this.results.score.o}`, {
-            fontFamily: 'Inter',
+            `FINAL SCORE: ${this.results.score.x} : ${this.results.score.o}`, {
+            fontFamily: 'Orbitron',
             fontSize: '1.2rem',
-            fontWeight: '500',
-            color: COLORS.WHITE
+            fontWeight: '700',
+            color: COLORS.PRIMARY_GREEN
         }).setOrigin(0.5);
         
         // Animate content
@@ -117,6 +126,16 @@ class GameOverScene extends Phaser.Scene {
             duration: 600,
             ease: 'Back.easeOut',
             stagger: 100
+        });
+        
+        // Add glow animation for title
+        this.tweens.add({
+            targets: this.title,
+            alpha: { from: 0.7, to: 1 },
+            duration: 2000,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
         });
     }
 

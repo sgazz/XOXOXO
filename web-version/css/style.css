@@ -32,7 +32,7 @@ body::before {
         linear-gradient(90deg, transparent 98%, #00ff00 100%),
         linear-gradient(0deg, transparent 98%, #00ff00 100%);
     background-size: 50px 50px;
-    opacity: 0.1;
+    opacity: 0.15;
     z-index: -1;
     animation: matrix 20s linear infinite;
 }
@@ -42,7 +42,7 @@ body::before {
     100% { transform: translateY(50px); }
 }
 
-/* Scan Lines Effect */
+/* CRT Scan Lines Effect */
 body::after {
     content: '';
     position: fixed;
@@ -50,15 +50,29 @@ body::after {
     left: 0;
     width: 100%;
     height: 100%;
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 255, 0, 0.03) 2px,
-        rgba(0, 255, 0, 0.03) 4px
-    );
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 255, 0, 0.05) 2px,
+            rgba(0, 255, 0, 0.05) 4px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 255, 0, 0.02) 2px,
+            rgba(0, 255, 0, 0.02) 4px
+        );
     pointer-events: none;
     z-index: -1;
+    animation: scanlines 0.1s linear infinite;
+}
+
+@keyframes scanlines {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(4px); }
 }
 
 #game-container {
@@ -90,8 +104,11 @@ body::after {
     text-shadow: 
         0 0 10px #00ff00,
         0 0 20px #00ff00,
-        0 0 30px #00ff00;
-    animation: glitch 2s infinite;
+        0 0 30px #00ff00,
+        0 0 40px #00ff00,
+        0 0 50px #00ff00,
+        0 0 60px #00ff00;
+    animation: glitch 2s infinite, glow 3s ease-in-out infinite alternate;
 }
 
 @keyframes glitch {
@@ -102,6 +119,28 @@ body::after {
     80% { transform: translate(2px, -2px); }
 }
 
+@keyframes glow {
+    0% { 
+        text-shadow: 
+            0 0 10px #00ff00,
+            0 0 20px #00ff00,
+            0 0 30px #00ff00,
+            0 0 40px #00ff00,
+            0 0 50px #00ff00,
+            0 0 60px #00ff00;
+    }
+    100% { 
+        text-shadow: 
+            0 0 15px #00ff00,
+            0 0 25px #00ff00,
+            0 0 35px #00ff00,
+            0 0 45px #00ff00,
+            0 0 55px #00ff00,
+            0 0 65px #00ff00,
+            0 0 75px #00ff00;
+    }
+}
+
 .loading-screen .spinner {
     width: 60px;
     height: 60px;
@@ -109,7 +148,11 @@ body::after {
     border-top: 4px solid #00ff00;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    box-shadow: 
+        0 0 20px rgba(0, 255, 0, 0.5),
+        0 0 40px rgba(0, 255, 0, 0.3),
+        0 0 60px rgba(0, 255, 0, 0.2),
+        inset 0 0 20px rgba(0, 255, 0, 0.1);
 }
 
 @keyframes spin {
@@ -124,13 +167,40 @@ body::after {
     text-shadow: 0 0 5px #00ff00;
 }
 
-/* Neon Glow Effect */
+/* Enhanced Neon Glow Effect */
 .neon-glow {
     box-shadow: 
         0 0 5px #00ff00,
         0 0 10px #00ff00,
         0 0 15px #00ff00,
-        0 0 20px #00ff00;
+        0 0 20px #00ff00,
+        0 0 30px #00ff00,
+        0 0 40px #00ff00,
+        inset 0 0 10px rgba(0, 255, 0, 0.2);
+    animation: neonPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes neonPulse {
+    0% {
+        box-shadow: 
+            0 0 5px #00ff00,
+            0 0 10px #00ff00,
+            0 0 15px #00ff00,
+            0 0 20px #00ff00,
+            0 0 30px #00ff00,
+            0 0 40px #00ff00,
+            inset 0 0 10px rgba(0, 255, 0, 0.2);
+    }
+    100% {
+        box-shadow: 
+            0 0 10px #00ff00,
+            0 0 20px #00ff00,
+            0 0 30px #00ff00,
+            0 0 40px #00ff00,
+            0 0 50px #00ff00,
+            0 0 60px #00ff00,
+            inset 0 0 15px rgba(0, 255, 0, 0.3);
+    }
 }
 
 /* Hide loading screen when game is ready */

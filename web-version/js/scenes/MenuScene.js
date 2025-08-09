@@ -84,12 +84,12 @@ class MenuScene extends Phaser.Scene {
             fontWeight: '900',
             color: COLORS.PRIMARY_GREEN,
             stroke: COLORS.PRIMARY_GREEN,
-            strokeThickness: 2,
+            strokeThickness: 3,
             shadow: {
                 offsetX: 0,
                 offsetY: 0,
                 color: COLORS.PRIMARY_GREEN,
-                blur: 20,
+                blur: 30,
                 fill: true
             }
         }).setOrigin(0.5);
@@ -109,6 +109,16 @@ class MenuScene extends Phaser.Scene {
             scaleX: 1.05,
             scaleY: 1.05,
             duration: 2000,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+        });
+        
+        // Add glow animation
+        this.tweens.add({
+            targets: this.title,
+            alpha: { from: 0.8, to: 1 },
+            duration: 1500,
             ease: 'Sine.easeInOut',
             yoyo: true,
             repeat: -1
@@ -153,7 +163,7 @@ class MenuScene extends Phaser.Scene {
         const buttonBg = this.add.graphics();
         buttonBg.fillStyle(0x003300, 0.8);
         buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 12);
-        buttonBg.lineStyle(2, COLORS.PRIMARY_GREEN, 0.8);
+        buttonBg.lineStyle(3, COLORS.PRIMARY_GREEN, 1);
         buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 12);
         
         // Button text
@@ -161,7 +171,16 @@ class MenuScene extends Phaser.Scene {
             fontFamily: 'Orbitron',
             fontSize: '1.1rem',
             fontWeight: '700',
-            color: COLORS.PRIMARY_GREEN
+            color: COLORS.PRIMARY_GREEN,
+            stroke: COLORS.PRIMARY_GREEN,
+            strokeThickness: 1,
+            shadow: {
+                offsetX: 0,
+                offsetY: 0,
+                color: COLORS.PRIMARY_GREEN,
+                blur: 10,
+                fill: true
+            }
         }).setOrigin(0.5);
         
         // Interactive area
@@ -171,9 +190,9 @@ class MenuScene extends Phaser.Scene {
         // Hover effects
         buttonArea.on('pointerover', () => {
             buttonBg.clear();
-            buttonBg.fillStyle(COLORS.PRIMARY_GREEN, 0.3);
+            buttonBg.fillStyle(COLORS.PRIMARY_GREEN, 0.4);
             buttonBg.fillRoundedRect(x - width / 2, y - height / 2, width, height, 12);
-            buttonBg.lineStyle(2, COLORS.PRIMARY_GREEN, 1);
+            buttonBg.lineStyle(4, COLORS.PRIMARY_GREEN, 1);
             buttonBg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, 12);
             
             this.tweens.add({
