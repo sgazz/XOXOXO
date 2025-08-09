@@ -1,0 +1,133 @@
+name: Deploy XO Arena Web Version
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'web-version/**'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'web-version/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies (if any)
+      run: |
+        cd web-version
+        npm install || echo "No package.json found"
+    
+    - name: Run tests
+      run: |
+        cd web-version
+        echo "Running deployment script..."
+        chmod +x deploy.sh
+        ./deploy.sh
+    
+    - name: Test deployment package
+      run: |
+        cd web-version
+        if [ -f "xo-arena-web-v1.0.0.tar.gz" ]; then
+          echo "✅ Deployment package created successfully"
+          ls -la xo-arena-web-v1.0.0.tar.gz
+        else
+          echo "❌ Deployment package not found"
+          exit 1
+        fi
+
+  deploy-github-pages:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Prepare deployment
+      run: |
+        cd web-version
+        chmod +x deploy.sh
+        ./deploy.sh
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./web-version/deploy
+        destination_dir: .
+        force_orphan: true
+    
+    - name: Create deployment package
+      run: |
+        cd web-version
+        tar -czf "../xo-arena-web-v${{ github.run_number }}.tar.gz" deploy/
+        echo "Deployment package: xo-arena-web-v${{ github.run_number }}.tar.gz"
+    
+    - name: Upload deployment package
+      uses: actions/upload-artifact@v3
+      with:
+        name: xo-arena-web-package
+        path: xo-arena-web-v${{ github.run_number }}.tar.gz
+
+  deploy-netlify:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Prepare deployment
+      run: |
+        cd web-version
+        chmod +x deploy.sh
+        ./deploy.sh
+    
+    - name: Deploy to Netlify
+      uses: nwtgck/actions-netlify@v2.0
+      with:
+        publish-dir: './web-version/deploy'
+        production-branch: main
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        deploy-message: "Deploy from GitHub Actions"
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      timeout-minutes: 1
+
+  notify:
+    needs: [deploy-github-pages, deploy-netlify]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify deployment status
+      run: |
+        if [ "${{ needs.deploy-github-pages.result }}" == "success" ] && [ "${{ needs.deploy-netlify.result }}" == "success" ]; then
+          echo "✅ Deployment successful!"
+          echo "GitHub Pages: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          echo "Netlify: Check your Netlify dashboard"
+        else
+          echo "❌ Deployment failed!"
+          echo "GitHub Pages: ${{ needs.deploy-github-pages.result }}"
+          echo "Netlify: ${{ needs.deploy-netlify.result }}"
+        fi

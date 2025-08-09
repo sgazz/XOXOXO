@@ -1,0 +1,45 @@
+{
+  "name": "xo-arena-web",
+  "version": "1.0.0",
+  "description": "Ultimate Tic-Tac-Toe Experience - Web Version",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "dev": "python3 -m http.server 8000",
+    "build": "./deploy.sh",
+    "test": "echo \"No tests specified\" && exit 0",
+    "deploy": "./deploy.sh"
+  },
+  "keywords": [
+    "tictactoe",
+    "xo",
+    "game",
+    "puzzle",
+    "strategy",
+    "phaser",
+    "javascript",
+    "web-game",
+    "multiplayer",
+    "ai"
+  ],
+  "author": "XO Arena Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/xoxoxo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/xoxoxo/issues"
+  },
+  "homepage": "https://your-username.github.io/xoxoxo",
+  "devDependencies": {},
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
