@@ -185,3 +185,8 @@ class Analytics {
 
 // Create global instance
 const analytics = new Analytics();
+
+// Make it globally available
+if (typeof window !== 'undefined') {
+    window.analytics = analytics;
+}
